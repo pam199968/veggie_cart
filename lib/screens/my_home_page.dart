@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../repositories/account_repository.dart';
 import '../models/delivery_method.dart';
 import '../viewmodels/home_view_model.dart'; // Correction du chemin d'importation
+import '../i18n/strings.dart';
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});
@@ -48,244 +49,290 @@ class _MyHomePageState extends State<MyHomePage> {
 
         return Scaffold(
           appBar: AppBar(
-            title: Text(widget.title),
+            title: Text(Strings.appTitle),
             backgroundColor: Colors.greenAccent,
             actions: [
               if (user != null && !user.isAnonymous)
                 IconButton(
                   icon: const Icon(Icons.logout),
                   onPressed: () => homeViewModel.signOut(context), // Fournit le contexte à la méthode signOut
-                  tooltip: 'Déconnexion',
+                  tooltip: Strings.logoutTooltip,
                 ),
             ],
           ),
           body: Center(
-            child: user == null
-                ? homeViewModel.showSignUpForm
-                    ? Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          SizedBox(
-                            width: 300, // Ajuste la largeur pour correspondre à la longueur maximale
-                            child: TextField(
-                              controller: _nameController,
-                              decoration: const InputDecoration(labelText: 'Nom'),
-                              maxLength: 40,
-                              maxLines: 1,
-                            ),
-                          ),
-                          SizedBox(
-                            width: 300,
-                            child: TextField(
-                              controller: _givenNameController,
-                              decoration: const InputDecoration(labelText: 'Prénom'),
-                              maxLength: 40,
-                              maxLines: 1,
-                            ),
-                          ),
-                          SizedBox(
-                            width: 300,
-                            child: TextField(
-                              controller: _emailController,
-                              decoration: const InputDecoration(labelText: 'Email'),
-                              maxLength: 40,
-                              maxLines: 1,
-                            ),
-                          ),
-                          SizedBox(
-                            width: 300,
-                            child: TextField(
-                              controller: _passwordController,
-                              obscureText: true,
-                              decoration: const InputDecoration(labelText: 'Mot de passe'),
-                              maxLength: 20,
-                              maxLines: 1,
-                            ),
-                          ),
-                          const SizedBox(height: 5),
-                          const SizedBox(
-                            width: 300,
-                            child: Text(
-                              'Le mot de passe doit contenir au moins 8 caractères, une majuscule et un chiffre.',
-                              style: TextStyle(fontSize: 12, color: Colors.grey),
-                              textAlign: TextAlign.start,
-                            ),
-                          ),
-                          const SizedBox(height: 10),
-                          SizedBox(
-                            width: 300,
-                            child: TextField(
-                              controller: _confirmPasswordController,
-                              obscureText: true,
-                              decoration: const InputDecoration(labelText: 'Confirmer le mot de passe'),
-                              maxLength: 40,
-                              maxLines: 1,
-                            ),
-                          ),
-                          SizedBox(
-                            width: 300,
-                            child: TextField(
-                              controller: _phoneController,
-                              decoration: const InputDecoration(labelText: 'Téléphone'),
-                              maxLength: 14,
-                              maxLines: 1,
-                            ),
-                          ),
-                          SizedBox(
-                            width: 300,
-                            child: TextField(
-                              controller: _profileController,
-                              decoration: const InputDecoration(labelText: 'Profil'),
-                              maxLength: 40,
-                              maxLines: 1,
-                            ),
-                          ),
-                          SizedBox(
-                            width: 300,
-                            child: TextField(
-                              controller: _addressController,
-                              decoration: const InputDecoration(labelText: 'Adresse'),
-                              maxLength: 120,
-                              maxLines: 4,
-                            ),
-                          ),
-                          const SizedBox(height: 10),
-                          SizedBox(
-                            width: 300, // Ajuste la largeur pour aligner avec les autres champs
-                            child: DropdownButtonFormField<DeliveryMethod>(
-                              value: _selectedDeliveryMethod,
-                              items: DeliveryMethod.values
-                                  .map((m) => DropdownMenuItem(
-                                        value: m,
-                                        child: Text(m.label),
-                                      ))
-                                  .toList(),
-                              onChanged: (v) => setState(() => _selectedDeliveryMethod = v!),
-                              decoration: const InputDecoration(labelText: 'Méthode de livraison'),
-                            ),
-                          ),
-                          SizedBox(
-                            width: 300, // Ajuste la largeur pour aligner avec les autres champs
-                            child: SwitchListTile(
-                              title: const Text("Activer les notifications push"),
-                              value: _pushNotifications,
-                              onChanged: (v) {
-                                setState(() {
-                                  _pushNotifications = v; // Met à jour uniquement l'état des notifications push
-                                });
-                              },
-                            ),
-                          ),
-                          const SizedBox(height: 10),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              ElevatedButton(
-                                onPressed: () async {
-                                  if (!homeViewModel.isEmailValid(_emailController.text.trim())) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                        content: Text('Veuillez entrer une adresse email valide.'),
-                                      ),
-                                    );
-                                    return;
-                                  }
-
-                                  if (!homeViewModel.isPasswordValid(_passwordController.text.trim())) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                        content: Text('Le mot de passe doit contenir au moins 8 caractères, une majuscule et un chiffre.'),
-                                      ),
-                                    );
-                                    return;
-                                  }
-
-                                  if (_passwordController.text.trim() != _confirmPasswordController.text.trim()) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(content: Text('Les mots de passe ne correspondent pas.')),
-                                    );
-                                    return;
-                                  }
-
-                                  await homeViewModel.signUp(context);
-                                  if (mounted) {
-                                    homeViewModel.toggleSignUpForm(); // Masque le formulaire après création
-                                  }
-                                },
-                                child: const Text('Créer le compte'),
+            child: SingleChildScrollView(
+              child: user == null
+                  ? homeViewModel.showSignUpForm
+                      ? Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            SizedBox(
+                              width: 300, // Ajuste la largeur pour correspondre à la longueur maximale
+                              child: TextField(
+                                controller: _nameController,
+                                decoration: const InputDecoration(labelText: Strings.nameLabel),
+                                maxLength: 40,
+                                maxLines: 1,
                               ),
-                              const SizedBox(width: 10),
-                              TextButton(
-                                onPressed: () {
-                                  final homeViewModel = context.read<HomeViewModel>();
-                                  homeViewModel.toggleSignUpForm(); // Appelle la méthode du ViewModel pour basculer les formulaires
-                                },
-                                child: const Text('Annuler'),
+                            ),
+                            SizedBox(
+                              width: 300,
+                              child: TextField(
+                                controller: _givenNameController,
+                                decoration: const InputDecoration(labelText: Strings.givenNameLabel),
+                                maxLength: 40,
+                                maxLines: 1,
                               ),
-                            ],
-                          ),
-                        ],
-                      )
-                    : homeViewModel.showSignInForm
-                        ? Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              SizedBox(
-                                width: 300,
-                                child: TextField(
-                                  controller: _emailController,
-                                  decoration: const InputDecoration(labelText: 'Email'),
-                                  maxLength: 40,
-                                  maxLines: 1,
-                                ),
+                            ),
+                            SizedBox(
+                              width: 300,
+                              child: TextField(
+                                controller: _emailController,
+                                decoration: const InputDecoration(labelText: Strings.emailLabel),
+                                maxLength: 40,
+                                maxLines: 1,
                               ),
-                              SizedBox(
-                                width: 300,
-                                child: TextField(
-                                  controller: _passwordController,
-                                  obscureText: true,
-                                  decoration: const InputDecoration(labelText: 'Mot de passe'),
-                                  maxLength: 40,
-                                  maxLines: 1,
-                                ),
+                            ),
+                            SizedBox(
+                              width: 300,
+                              child: TextField(
+                                controller: _passwordController,
+                                obscureText: true,
+                                decoration: const InputDecoration(labelText: Strings.passwordLabel),
+                                maxLength: 20,
+                                maxLines: 1,
                               ),
-                              const SizedBox(height: 10),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  ElevatedButton(
-                                    onPressed: () async {
-                                      final accountService = context.read<AccountRepository>();
-                                      await accountService.signInExistingAccount(
-                                        context: context,
-                                        email: _emailController.text.trim(),
-                                        password: _passwordController.text.trim(),
+                            ),
+                            const SizedBox(height: 5),
+                            const SizedBox(
+                              width: 300,
+                              child: Text(
+                                'Le mot de passe doit contenir au moins 8 caractères, une majuscule et un chiffre.',
+                                style: TextStyle(fontSize: 12, color: Colors.grey),
+                                textAlign: TextAlign.start,
+                              ),
+                            ),
+                            const SizedBox(height: 10),
+                            SizedBox(
+                              width: 300,
+                              child: TextField(
+                                controller: _confirmPasswordController,
+                                obscureText: true,
+                                decoration: const InputDecoration(labelText: Strings.confirmPasswordLabel),
+                                maxLength: 40,
+                                maxLines: 1,
+                              ),
+                            ),
+                            SizedBox(
+                              width: 300,
+                              child: TextField(
+                                controller: _phoneController,
+                                decoration: const InputDecoration(labelText: Strings.phoneLabel),
+                                maxLength: 14,
+                                maxLines: 1,
+                              ),
+                            ),
+                            SizedBox(
+                              width: 300,
+                              child: TextField(
+                                controller: _profileController,
+                                decoration: const InputDecoration(labelText: Strings.profileLabel),
+                                maxLength: 40,
+                                maxLines: 1,
+                              ),
+                            ),
+                            SizedBox(
+                              width: 300,
+                              child: TextField(
+                                controller: _addressController,
+                                decoration: const InputDecoration(labelText: Strings.addressLabel),
+                                maxLength: 120,
+                                maxLines: 4,
+                              ),
+                            ),
+                            const SizedBox(height: 10),
+                            DeliveryMethodDropdown(
+                              notifier: ValueNotifier<DeliveryMethod>(_selectedDeliveryMethod),
+                            ),
+                            PushNotificationSwitch(
+                              notifier: ValueNotifier<bool>(_pushNotifications),
+                            ),
+                            const SizedBox(height: 10),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                ElevatedButton(
+                                  onPressed: () async {
+                                    if (!homeViewModel.isEmailValid(_emailController.text.trim())) {
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        const SnackBar(
+                                          content: Text('Veuillez entrer une adresse email valide.'),
+                                        ),
                                       );
-                                      final homeViewModel = context.read<HomeViewModel>();
-                                      homeViewModel.toggleSignInForm(); // Masque le formulaire après connexion
-                                    },
-                                    child: const Text('Se connecter'),
+                                      return;
+                                    }
+
+                                    if (!homeViewModel.isPasswordValid(_passwordController.text.trim())) {
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        const SnackBar(
+                                          content: Text('Le mot de passe doit contenir au moins 8 caractères, une majuscule et un chiffre.'),
+                                        ),
+                                      );
+                                      return;
+                                    }
+
+                                    if (_passwordController.text.trim() != _confirmPasswordController.text.trim()) {
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        const SnackBar(content: Text('Les mots de passe ne correspondent pas.')),
+                                      );
+                                      return;
+                                    }
+
+                                    await homeViewModel.signUp(context);
+                                    if (mounted) {
+                                      homeViewModel.toggleSignUpForm(); // Masque le formulaire après création
+                                    }
+                                  },
+                                  child: const Text(Strings.createAccountButton),
+                                ),
+                                const SizedBox(width: 10),
+                                TextButton(
+                                  onPressed: () {
+                                    final homeViewModel = context.read<HomeViewModel>();
+                                    homeViewModel.toggleSignUpForm(); // Appelle la méthode du ViewModel pour basculer les formulaires
+                                  },
+                                  child: const Text(Strings.cancelButton),
+                                ),
+                              ],
+                            ),
+                          ],
+                        )
+                      : homeViewModel.showSignInForm
+                          ? Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                SizedBox(
+                                  width: 300,
+                                  child: TextField(
+                                    controller: _emailController,
+                                    decoration: const InputDecoration(labelText: Strings.emailLabel),
+                                    maxLength: 40,
+                                    maxLines: 1,
                                   ),
-                                  const SizedBox(width: 10),
-                                  TextButton(
-                                    onPressed: () {
-                                      final homeViewModel = context.read<HomeViewModel>();
-                                      homeViewModel.toggleSignUpForm(); // Appelle la méthode du ViewModel pour basculer les formulaires
-                                    },
-                                    child: const Text('Créer un compte'),
+                                ),
+                                SizedBox(
+                                  width: 300,
+                                  child: TextField(
+                                    controller: _passwordController,
+                                    obscureText: true,
+                                    decoration: const InputDecoration(labelText: Strings.passwordLabel),
+                                    maxLength: 40,
+                                    maxLines: 1,
                                   ),
-                                ],
-                              ),
-                            ],
-                          )
-                        : const Text("Utilisateur non connecté")
-                : Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text("Connecté en tant que ${user.email}"),
-                      const SizedBox(height: 20),
-                    ],
-                  ),
+                                ),
+                                const SizedBox(height: 10),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    ElevatedButton(
+                                      onPressed: () async {
+                                        final accountService = context.read<AccountRepository>();
+                                        await accountService.signInExistingAccount(
+                                          context: context,
+                                          email: _emailController.text.trim(),
+                                          password: _passwordController.text.trim(),
+                                        );
+                                        final homeViewModel = context.read<HomeViewModel>();
+                                        homeViewModel.toggleSignInForm(); // Masque le formulaire après connexion
+                                      },
+                                      child: const Text(Strings.signInButton),
+                                    ),
+                                    const SizedBox(width: 10),
+                                    TextButton(
+                                      onPressed: () {
+                                        final homeViewModel = context.read<HomeViewModel>();
+                                        homeViewModel.toggleSignUpForm(); // Appelle la méthode du ViewModel pour basculer les formulaires
+                                      },
+                                      child: const Text(Strings.createAccountLink),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            )
+                          : const Text(Strings.notConnected)
+                  : Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text("${Strings.connectedAs} ${user.email}"),
+                        const SizedBox(height: 20),
+                      ],
+                    ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+class DeliveryMethodDropdown extends StatelessWidget {
+  final ValueNotifier<DeliveryMethod> notifier;
+
+  const DeliveryMethodDropdown({
+    Key? key,
+    required this.notifier,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return ValueListenableBuilder<DeliveryMethod>(
+      valueListenable: notifier,
+      builder: (context, value, child) {
+        return SizedBox(
+          width: 300, // Ajuste la largeur pour aligner avec les autres champs
+          child: DropdownButtonFormField<DeliveryMethod>(
+            value: value,
+            items: DeliveryMethod.values
+                .map((m) => DropdownMenuItem(
+                      value: m,
+                      child: Text(m.label),
+                    ))
+                .toList(),
+            onChanged: (v) {
+              if (v != null) {
+                notifier.value = v;
+              }
+            },
+            decoration: const InputDecoration(labelText: Strings.deliveryMethodLabel),
+          ),
+        );
+      },
+    );
+  }
+}
+
+class PushNotificationSwitch extends StatelessWidget {
+  final ValueNotifier<bool> notifier;
+
+  const PushNotificationSwitch({
+    Key? key,
+    required this.notifier,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return ValueListenableBuilder<bool>(
+      valueListenable: notifier,
+      builder: (context, value, child) {
+        return SizedBox(
+          width: 300, // Ajuste la largeur pour aligner avec les autres champs
+          child: SwitchListTile(
+            title: const Text(Strings.pushNotificationLabel),
+            value: value,
+            onChanged: (v) {
+              notifier.value = v;
+            },
           ),
         );
       },

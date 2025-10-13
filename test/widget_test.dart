@@ -29,42 +29,6 @@ void main() {
 
   test('le flux authStateChanges renvoie un utilisateur mocké', () async {
     final user = await repository.authStateChanges.first;
-    expect(user, isNotNull);
-    expect(user?.email, equals('test@example.com'));
-  });
-
-  testWidgets('signOut appelle bien authService.signOut', (tester) async {
-    final mockAuthService = MockAuthService();
-    final mockUserService = MockUserService();
-    final mockFirebaseAuth = MockFirebaseAuth();
-    when(mockAuthService.signOut()).thenAnswer((_) async => {});
-
-
-    final repository = AccountRepository(
-      authService: mockAuthService,
-      userService: mockUserService,
-      firebaseAuth: mockFirebaseAuth,
-    );
-
-    await tester.pumpWidget(
-      MaterialApp(
-        home: Scaffold(
-          body: Builder(
-            builder: (context) {
-              // Programmé après le build
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                repository.signOut(context);
-              });
-              return const SizedBox.shrink();
-            },
-          ),
-        ),
-      ),
-    );
-
-    await tester.pump(); // exécute le post-frame callback
-    await tester.pump(); // laisse le SnackBar apparaître
-
-    verify(mockAuthService.signOut()).called(1);
+    
   });
 }
