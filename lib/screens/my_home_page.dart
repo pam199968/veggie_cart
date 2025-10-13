@@ -67,6 +67,12 @@ class _MyHomePageState extends State<MyHomePage> {
                       ? Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
+                            Image.asset(
+                              'img/logo.jpeg',
+                              height: 100,
+                              width: 100,
+                            ),
+                            const SizedBox(height: 20),
                             SizedBox(
                               width: 300, // Ajuste la largeur pour correspondre à la longueur maximale
                               child: TextField(
@@ -212,6 +218,12 @@ class _MyHomePageState extends State<MyHomePage> {
                           ? Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
+                                Image.asset(
+                                  'img/logo.jpeg',
+                                  height: 100,
+                                  width: 100,
+                                ),
+                                const SizedBox(height: 20),
                                 SizedBox(
                                   width: 300,
                                   child: TextField(
@@ -227,7 +239,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                     controller: _passwordController,
                                     obscureText: true,
                                     decoration: const InputDecoration(labelText: Strings.passwordLabel),
-                                    maxLength: 40,
+                                    maxLength: 20,
                                     maxLines: 1,
                                   ),
                                 ),
