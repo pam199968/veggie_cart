@@ -3,61 +3,70 @@ import 'package:firebase_auth/firebase_auth.dart';
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
+  /// 🔍 Renvoie l'utilisateur actuellement connecté (ou null si aucun)
   User? get currentUser => _auth.currentUser;
 
-  Future<User?> signInAnonymously() async {
-    final userCredential = await _auth.signInAnonymously();
-    return userCredential.user;
-  }
-
-  Future<User?> linkAnonymousAccount(String email, String password) async {
-    final user = _auth.currentUser;
-    if (user == null || !user.isAnonymous) {
+  /// 🆕 Crée un utilisateur avec email et mot de passe
+  Future<UserCredential> createUserWithEmail(String email, String password) async {
+    try {
+      final credential = await _auth.createUserWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+      return credential;
+    } on FirebaseAuthException catch (e) {
       throw FirebaseAuthException(
-        code: 'no-anonymous-user',
-        message: 'Aucun utilisateur anonyme connecté.',
+        code: e.code,
+        message: e.message ?? 'Erreur lors de la création du compte.',
       );
     }
-
-    final credential = EmailAuthProvider.credential(email: email, password: password);
-    final linkedUser = await user.linkWithCredential(credential);
-    return linkedUser.user;
   }
 
-  /// 🔹 Déconnexion
-  Future<void> signOut() async {
-    await _auth.signOut();
-  }
-
-  /// 🔹 Connexion à un compte existant
-  /// Si l’utilisateur est anonyme et que l’email existe déjà,
-  /// il se connecte au compte existant.
-  Future<User?> signInWithExistingAccount(String email, String password) async {
-    final user = _auth.currentUser;
-
-    if (user != null && user.isAnonymous) {
-      try {
-        // Essayer de créer un utilisateur avec l'email et le mot de passe
-        await _auth.createUserWithEmailAndPassword(email: email, password: password);
-        // Si la création réussit, lier le compte anonyme
-        final credential = EmailAuthProvider.credential(email: email, password: password);
-        final linkedUser = await user.linkWithCredential(credential);
-        return linkedUser.user;
-      } on FirebaseAuthException catch (e) {
-        if (e.code == 'email-already-in-use') {
-          // Si l'email est déjà utilisé, se connecter au compte existant
-          final userCredential = await _auth.signInWithEmailAndPassword(email: email, password: password);
-          return userCredential.user;
-        } else {
-          // Gérer d'autres erreurs
-          rethrow;
-        }
-      }
-    } else {
-      // Connexion standard si l'utilisateur n'est pas anonyme
-      final userCredential = await _auth.signInWithEmailAndPassword(email: email, password: password);
-      return userCredential.user;
+  /// 🔐 Connexion avec un compte existant
+  Future<UserCredential> signInWithExistingAccount(String email, String password) async {
+    try {
+      final credential = await _auth.signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+      return credential;
+    } on FirebaseAuthException catch (e) {
+      throw FirebaseAuthException(
+        code: e.code,
+        message: e.message ?? 'Erreur lors de la connexion.',
+      );
     }
   }
 
+  /// 🚪 Déconnexion
+  Future<void> signOut() async {
+    try {
+      await _auth.signOut();
+    } catch (e) {
+      throw Exception('Erreur lors de la déconnexion : $e');
+    }
+  }
+
+  /// 📨 Réinitialisation du mot de passe
+  Future<void> sendPasswordResetEmail(String email) async {
+    try {
+      await _auth.sendPasswordResetEmail(email: email);
+    } on FirebaseAuthException catch (e) {
+      throw FirebaseAuthException(
+        code: e.code,
+        message: e.message ?? 'Erreur lors de la réinitialisation du mot de passe.',
+      );
+    }
+  }
+
+  /// 🔄 Rafraîchit l'utilisateur actuel (utile après modification de profil)
+  Future<void> reloadCurrentUser() async {
+    final user = _auth.currentUser;
+    if (user != null) {
+      await user.reload();
+    }
+  }
+
+  /// ✅ Vérifie si un utilisateur est connecté
+  bool get isLoggedIn => _auth.currentUser != null;
 }
