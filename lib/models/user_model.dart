@@ -1,3 +1,5 @@
+import 'package:veggie_cart/models/profile.dart';
+
 import 'delivery_method.dart';
 // Modèle de données pour un utilisateur
 class UserModel {
@@ -6,7 +8,7 @@ class UserModel {
   final String givenName;
   final String email;
   final String phoneNumber;
-  final String profile;
+  final Profile profile;
   final String address;
   final DeliveryMethod deliveryMethod; // 🔹 Enum
   final bool pushNotifications;
@@ -17,7 +19,7 @@ class UserModel {
     required this.givenName,
     required this.email,
     required this.phoneNumber,
-    required this.profile,
+    this.profile = Profile.customer,
     required this.address,
     this.deliveryMethod = DeliveryMethod.farmPickup,// valeur par défaut
     this.pushNotifications = true, // activé par défaut
@@ -30,7 +32,7 @@ class UserModel {
       'givenName': givenName,
       'email': email,
       'phoneNumber': phoneNumber,
-      'profile': profile,
+      'profile': profile.label,
       'address': address,
       'deliveryMethod': deliveryMethod.label, // Stocker le label dans Firestore
       'pushNotifications': pushNotifications,
@@ -45,7 +47,7 @@ class UserModel {
       givenName: map['givenName'] ?? '',
       email: map['email'] ?? '',
       phoneNumber: map['phoneNumber'] ?? '',
-      profile: map['profile'] ?? '',
+      profile: ProfileExtension.fromString(map['profile'] ?? 'Client'),
       address: map['address'] ?? '',
       deliveryMethod: DeliveryMethodExtension.fromString(map['deliveryMethod'] ?? 'Retrait à la ferme'),
       pushNotifications: map['pushNotifications'] ?? true,

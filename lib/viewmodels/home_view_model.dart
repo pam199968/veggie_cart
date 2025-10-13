@@ -8,14 +8,15 @@ class HomeViewModel extends ChangeNotifier {
 
   HomeViewModel({required this.accountRepository});
 
-  final TextEditingController nameController = TextEditingController();
-  final TextEditingController givenNameController = TextEditingController();
-  final TextEditingController emailController = TextEditingController();
-  final TextEditingController passwordController = TextEditingController();
-  final TextEditingController confirmPasswordController = TextEditingController();
-  final TextEditingController phoneController = TextEditingController();
-  final TextEditingController profileController = TextEditingController();
-  final TextEditingController addressController = TextEditingController();
+  // Replaced TextEditingController attributes with String attributes
+  String name = "";
+  String givenName = "";
+  String email = "";
+  String password = "";
+  String confirmPassword = "";
+  String phone = "";
+  String profile = "";
+  String address = "";
 
   DeliveryMethod selectedDeliveryMethod = DeliveryMethod.farmPickup;
   bool pushNotifications = true;
@@ -37,29 +38,29 @@ class HomeViewModel extends ChangeNotifier {
 
   Future<void> signOut(BuildContext context) async {
     await accountRepository.signOut(context);
-    clearControllers();
-    passwordController.clear(); // Assure que le champ mot de passe est vidé lors de la déconnexion
+    clearAttributes();
+    password = ""; // Assure que le champ mot de passe est vidé lors de la déconnexion
     showSignInForm = true;
     showSignUpForm = false;
     notifyListeners();
   }
 
-  void clearControllers() {
-    nameController.clear();
-    givenNameController.clear();
-    emailController.clear();
-    passwordController.clear();
-    confirmPasswordController.clear();
-    phoneController.clear();
-    profileController.clear();
-    addressController.clear();
+  void clearAttributes() {
+    name = "";
+    givenName = "";
+    email = "";
+    password = "";
+    confirmPassword = "";
+    phone = "";
+    profile = "";
+    address = "";
   }
 
   Future<void> signIn(BuildContext context) async {
     await accountRepository.signInExistingAccount(
       context: context,
-      email: emailController.text.trim(),
-      password: passwordController.text.trim(),
+      email: email.trim(),
+      password: password.trim(),
     );
     notifyListeners();
   }
@@ -67,13 +68,12 @@ class HomeViewModel extends ChangeNotifier {
   Future<void> signUp(BuildContext context) async {
     await accountRepository.signUp(
       context: context,
-      name: nameController.text.trim(),
-      givenName: givenNameController.text.trim(),
-      email: emailController.text.trim(),
-      password: passwordController.text.trim(),
-      phoneNumber: phoneController.text.trim(),
-      profile: profileController.text.trim(),
-      address: addressController.text.trim(),
+      name: name.trim(),
+      givenName: givenName.trim(),
+      email: email.trim(),
+      password: password.trim(),
+      phoneNumber: phone.trim(),
+      address: address.trim(),
       deliveryMethod: selectedDeliveryMethod,
       pushNotifications: pushNotifications,
     );

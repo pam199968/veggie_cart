@@ -21,7 +21,6 @@ class _MyHomePageState extends State<MyHomePage> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
-  final TextEditingController _profileController = TextEditingController();
   final TextEditingController _addressController = TextEditingController();
   final TextEditingController _confirmPasswordController = TextEditingController(); // Ajout d'un contrôleur pour la confirmation du mot de passe
 
@@ -32,6 +31,17 @@ class _MyHomePageState extends State<MyHomePage> {
   void dispose() {
     _confirmPasswordController.dispose(); // Libération du contrôleur lors de la destruction du widget
     super.dispose();
+  }
+
+  // Added clearControllers method to clear TextEditingControllers
+  void clearControllers() {
+    _nameController.clear();
+    _givenNameController.clear();
+    _emailController.clear();
+    _passwordController.clear();
+    _confirmPasswordController.clear();
+    _phoneController.clear();
+    _addressController.clear();
   }
 
   @override
@@ -55,7 +65,10 @@ class _MyHomePageState extends State<MyHomePage> {
               if (user != null && !user.isAnonymous)
                 IconButton(
                   icon: const Icon(Icons.logout),
-                  onPressed: () => homeViewModel.signOut(context), // Fournit le contexte à la méthode signOut
+                  onPressed: () {
+                    homeViewModel.signOut(context); // Fournit le contexte à la méthode signOut
+                    clearControllers(); // Clear text controllers on sign out
+                  },
                   tooltip: Strings.logoutTooltip,
                 ),
             ],
@@ -114,7 +127,7 @@ class _MyHomePageState extends State<MyHomePage> {
                             const SizedBox(
                               width: 300,
                               child: Text(
-                                'Le mot de passe doit contenir au moins 8 caractères, une majuscule et un chiffre.',
+                                Strings.passwordHint,
                                 style: TextStyle(fontSize: 12, color: Colors.grey),
                                 textAlign: TextAlign.start,
                               ),
@@ -142,15 +155,6 @@ class _MyHomePageState extends State<MyHomePage> {
                             SizedBox(
                               width: 300,
                               child: TextField(
-                                controller: _profileController,
-                                decoration: const InputDecoration(labelText: Strings.profileLabel),
-                                maxLength: 40,
-                                maxLines: 1,
-                              ),
-                            ),
-                            SizedBox(
-                              width: 300,
-                              child: TextField(
                                 controller: _addressController,
                                 decoration: const InputDecoration(labelText: Strings.addressLabel),
                                 maxLength: 120,
@@ -170,10 +174,12 @@ class _MyHomePageState extends State<MyHomePage> {
                               children: [
                                 ElevatedButton(
                                   onPressed: () async {
+                                    final homeViewModel = context.read<HomeViewModel>();
+
                                     if (!homeViewModel.isEmailValid(_emailController.text.trim())) {
                                       ScaffoldMessenger.of(context).showSnackBar(
                                         const SnackBar(
-                                          content: Text('Veuillez entrer une adresse email valide.'),
+                                          content: Text(Strings.emailError),
                                         ),
                                       );
                                       return;
@@ -182,7 +188,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                     if (!homeViewModel.isPasswordValid(_passwordController.text.trim())) {
                                       ScaffoldMessenger.of(context).showSnackBar(
                                         const SnackBar(
-                                          content: Text('Le mot de passe doit contenir au moins 8 caractères, une majuscule et un chiffre.'),
+                                          content: Text(Strings.passwordError),
                                         ),
                                       );
                                       return;
@@ -190,12 +196,23 @@ class _MyHomePageState extends State<MyHomePage> {
 
                                     if (_passwordController.text.trim() != _confirmPasswordController.text.trim()) {
                                       ScaffoldMessenger.of(context).showSnackBar(
-                                        const SnackBar(content: Text('Les mots de passe ne correspondent pas.')),
+                                        const SnackBar(content: Text(Strings.passwordMismatchError)),
                                       );
                                       return;
                                     }
 
+                                    // Assign values to HomeViewModel attributes
+                                    homeViewModel.name = _nameController.text.trim();
+                                    homeViewModel.givenName = _givenNameController.text.trim();
+                                    homeViewModel.email = _emailController.text.trim();
+                                    homeViewModel.password = _passwordController.text.trim();
+                                    homeViewModel.phone = _phoneController.text.trim();
+                                    homeViewModel.address = _addressController.text.trim();
+                                    homeViewModel.selectedDeliveryMethod = _selectedDeliveryMethod;
+                                    homeViewModel.pushNotifications = _pushNotifications;
+
                                     await homeViewModel.signUp(context);
+                                    clearControllers();
                                     if (mounted) {
                                       homeViewModel.toggleSignUpForm(); // Masque le formulaire après création
                                     }
@@ -249,13 +266,11 @@ class _MyHomePageState extends State<MyHomePage> {
                                   children: [
                                     ElevatedButton(
                                       onPressed: () async {
-                                        final accountService = context.read<AccountRepository>();
-                                        await accountService.signInExistingAccount(
-                                          context: context,
-                                          email: _emailController.text.trim(),
-                                          password: _passwordController.text.trim(),
-                                        );
                                         final homeViewModel = context.read<HomeViewModel>();
+                                        homeViewModel.email = _emailController.text.trim();
+                                        homeViewModel.password = _passwordController.text.trim();
+                                        await homeViewModel.signIn(context);
+                                        clearControllers();
                                         homeViewModel.toggleSignInForm(); // Masque le formulaire après connexion
                                       },
                                       child: const Text(Strings.signInButton),

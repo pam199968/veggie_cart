@@ -4,6 +4,7 @@ import '../services/auth_service.dart';
 import '../services/user_service.dart';
 import '../models/user_model.dart';
 import '../models/delivery_method.dart';
+import '../models/profile.dart';
 
 class AccountRepository {
   final AuthService _authService;
@@ -27,7 +28,6 @@ class AccountRepository {
     required String email,
     required String password,
     required String phoneNumber,
-    required String profile,
     required String address,
     required DeliveryMethod deliveryMethod,
     required bool pushNotifications,
@@ -48,7 +48,7 @@ class AccountRepository {
         givenName: givenName,
         email: email,
         phoneNumber: phoneNumber,
-        profile: profile,
+        profile: Profile.customer, // Valeur par défaut
         address: address,
         deliveryMethod: deliveryMethod,
         pushNotifications: pushNotifications,
