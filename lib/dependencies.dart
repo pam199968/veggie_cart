@@ -4,7 +4,8 @@ import 'package:provider/provider.dart';
 import 'services/auth_service.dart';
 import 'repositories/account_repository.dart';
 import 'services/user_service.dart';
-import 'pages/my_home_page.dart';
+import 'screens/my_home_page.dart';
+import 'viewmodels/home_view_model.dart';
 
 /// Construit l'application avec toutes les dépendances injectées.
 /// On peut l'utiliser à la fois dans `main.dart` et dans les tests.
@@ -17,6 +18,11 @@ Widget buildApp() {
         create: (context) => AccountRepository(
           authService: context.read(),
           userService: context.read(),
+        ),
+      ),
+      ChangeNotifierProvider(
+        create: (context) => HomeViewModel(
+          accountRepository: context.read(),
         ),
       ),
     ],

@@ -6,13 +6,18 @@ import '../models/user_model.dart';
 import '../models/delivery_method.dart';
 
 class AccountRepository {
+  final AuthService _authService;
+  final UserService _userService;
+  final FirebaseAuth _firebaseAuth;
 
-  AccountRepository({required AuthService authService, required UserService userService,})
-     : _authService = authService,
-       _userService = userService;
-
-  late final AuthService _authService;
-  late final UserService _userService;
+  /// 💡 On autorise l’injection d’un FirebaseAuth mocké (utile en tests)
+  AccountRepository({
+    required AuthService authService,
+    required UserService userService,
+    FirebaseAuth? firebaseAuth,
+  })  : _authService = authService,
+        _userService = userService,
+        _firebaseAuth = firebaseAuth ?? FirebaseAuth.instance;
 
   /// 🔗 Crée un compte email/password
   Future<void> signUp({
@@ -28,7 +33,6 @@ class AccountRepository {
     required bool pushNotifications,
   }) async {
     try {
-      // Crée le compte directement via AuthService
       final userCredential = await _authService.createUserWithEmail(email, password);
       final user = userCredential.user;
 
@@ -39,7 +43,6 @@ class AccountRepository {
         );
       }
 
-      // Crée le modèle utilisateur dans Firestore
       final newUser = UserModel(
         name: name,
         givenName: givenName,
@@ -118,4 +121,10 @@ class AccountRepository {
       }
     }
   }
+
+  /// 📡 Expose le flux d’état d’authentification (utile dans MyHomePage)
+  Stream<User?> get authStateChanges => _firebaseAuth.authStateChanges();
+
+  /// 🔍 Accès direct à l’utilisateur courant
+  User? get currentUser => _firebaseAuth.currentUser;
 }
