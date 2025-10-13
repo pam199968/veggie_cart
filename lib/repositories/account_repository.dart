@@ -6,8 +6,13 @@ import '../models/user_model.dart';
 import '../models/delivery_method.dart';
 
 class AccountRepository {
-  final AuthService _authService = AuthService();
-  final UserService _userService = UserService();
+
+  AccountRepository({required AuthService authService, required UserService userService,})
+     : _authService = authService,
+       _userService = userService;
+
+  late final AuthService _authService;
+  late final UserService _userService;
 
   /// 🔗 Crée un compte email/password
   Future<void> signUp({
