@@ -1,15 +1,18 @@
 import 'package:firebase_auth/firebase_auth.dart';
 
 class AuthService {
-  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseAuth _firebaseAuth;
+
+   AuthService({FirebaseAuth? firebaseAuth})
+      : _firebaseAuth = firebaseAuth ?? FirebaseAuth.instance;
 
   /// 🔍 Renvoie l'utilisateur actuellement connecté (ou null si aucun)
-  User? get currentUser => _auth.currentUser;
+  User? get currentUser => _firebaseAuth.currentUser;
 
   /// 🆕 Crée un utilisateur avec email et mot de passe
   Future<UserCredential> createUserWithEmail(String email, String password) async {
     try {
-      final credential = await _auth.createUserWithEmailAndPassword(
+      final credential = await _firebaseAuth.createUserWithEmailAndPassword(
         email: email,
         password: password,
       );
@@ -25,7 +28,7 @@ class AuthService {
   /// 🔐 Connexion avec un compte existant
   Future<UserCredential> signInWithExistingAccount(String email, String password) async {
     try {
-      final credential = await _auth.signInWithEmailAndPassword(
+      final credential = await _firebaseAuth.signInWithEmailAndPassword(
         email: email,
         password: password,
       );
@@ -41,7 +44,7 @@ class AuthService {
   /// 🚪 Déconnexion
   Future<void> signOut() async {
     try {
-      await _auth.signOut();
+      await _firebaseAuth.signOut();
     } catch (e) {
       throw Exception('Erreur lors de la déconnexion : $e');
     }
@@ -50,7 +53,7 @@ class AuthService {
   /// 📨 Réinitialisation du mot de passe
   Future<void> sendPasswordResetEmail(String email) async {
     try {
-      await _auth.sendPasswordResetEmail(email: email);
+      await _firebaseAuth.sendPasswordResetEmail(email: email);
     } on FirebaseAuthException catch (e) {
       throw FirebaseAuthException(
         code: e.code,
@@ -61,12 +64,12 @@ class AuthService {
 
   /// 🔄 Rafraîchit l'utilisateur actuel (utile après modification de profil)
   Future<void> reloadCurrentUser() async {
-    final user = _auth.currentUser;
+    final user = _firebaseAuth.currentUser;
     if (user != null) {
       await user.reload();
     }
   }
 
   /// ✅ Vérifie si un utilisateur est connecté
-  bool get isLoggedIn => _auth.currentUser != null;
+  bool get isLoggedIn => _firebaseAuth.currentUser != null;
 }

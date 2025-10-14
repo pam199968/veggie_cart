@@ -2,8 +2,13 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/user_model.dart';
 
 class UserService {
-  final CollectionReference _usersCollection =
-      FirebaseFirestore.instance.collection('users');
+
+  final FirebaseFirestore _firestore;
+  final CollectionReference _usersCollection;
+
+  UserService({FirebaseFirestore? firestore})
+      : _firestore = firestore ?? FirebaseFirestore.instance,
+        _usersCollection = (firestore ?? FirebaseFirestore.instance).collection('users');
 
   // CREATE
   Future<void> createUser(UserModel user) async {
@@ -11,7 +16,7 @@ class UserService {
   }
 
   Future<void> createUserWithId(String id, UserModel user) async {
-    await FirebaseFirestore.instance
+    await _firestore
         .collection('users')
         .doc(id)
         .set(user.toMap());

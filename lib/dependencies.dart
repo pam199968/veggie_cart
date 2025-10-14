@@ -8,19 +8,26 @@ import 'views/my_home_page.dart';
 import 'viewmodels/account_view_model.dart';
 
 /// Construit l'application avec toutes les dépendances injectées.
-/// On peut l'utiliser à la fois dans `main.dart` et dans les tests.
-Widget buildApp() {
+/// On peut fournir des instances mock pour les tests.
+Widget buildApp({
+  AuthService? authService,
+  UserService? userService,
+}) {
   return MultiProvider(
     providers: [
-      Provider(create: (context) => AuthService()),
-      Provider(create: (context) => UserService()),
-      Provider(
+      Provider<AuthService>(
+        create: (context) => authService ?? AuthService(),
+      ),
+      Provider<UserService>(
+        create: (context) => userService ?? UserService(),
+      ),
+      Provider<AccountRepository>(
         create: (context) => AccountRepository(
           authService: context.read(),
           userService: context.read(),
         ),
       ),
-      ChangeNotifierProvider(
+      ChangeNotifierProvider<AccountViewModel>(
         create: (context) => AccountViewModel(
           accountRepository: context.read(),
         ),

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../models/delivery_method.dart';
 import '../models/user_model.dart';
 import '../models/profile.dart';
 import '../viewmodels/account_view_model.dart';
@@ -44,7 +43,7 @@ class _MyHomePageState extends State<MyHomePage> {
          bodyContent = const CatalogPageContent(); 
          break;
         default:
-          bodyContent = const OffersPageContent();
+          bodyContent = const LoginContent();
       }
     }
 
