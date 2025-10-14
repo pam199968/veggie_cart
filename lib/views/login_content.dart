@@ -184,6 +184,32 @@ class _LoginContentState extends State<LoginContent> {
               onPressed: () => homeViewModel.toggleSignUpForm(),
               child: const Text(Strings.createAccountLink),
             ),
+            Align(
+              alignment: Alignment.centerRight,
+              child: TextButton(
+                onPressed: () async {
+                  final email = context.read<AccountViewModel>().currentUser.email;
+                  if (email.isEmpty) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text("Veuillez entrer votre email pour réinitialiser le mot de passe.")),
+                    );
+                    return;
+                  }
+
+                  try {
+                    await context.read<AccountViewModel>().sendPasswordResetEmail(email);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text("Email de réinitialisation envoyé !")),
+                    );
+                  } catch (e) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text("Erreur : $e")),
+                    );
+                  }
+                },
+                child: const Text("Mot de passe oublié ?"),
+              ),
+            )
           ],
         ),
       ],

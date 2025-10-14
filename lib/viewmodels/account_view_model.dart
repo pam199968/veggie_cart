@@ -120,6 +120,14 @@ bool get isAuthenticated => currentUser.id != null;
     return success;
   }
 
+  Future<void> sendPasswordResetEmail(String email) async {
+    try {
+      await accountRepository.authService.sendPasswordResetEmail(email);
+    } catch (e) {
+      rethrow; // Laisse le widget gérer l'affichage du message
+    }
+  }
+
   /// ✅ Validation des champs
   bool isPasswordValid(String password) {
     final passwordRegex = RegExp(r'^(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}');

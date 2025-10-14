@@ -5,15 +5,15 @@ import '../services/user_service.dart';
 import '../models/user_model.dart';
 
 class AccountRepository {
-  final AuthService _authService;
-  final UserService _userService;
+  final AuthService authService;
+  final UserService userService;
 
   /// 💡 On autorise l’injection d’un FirebaseAuth mocké (utile pour les tests)
   AccountRepository({
     required AuthService authService,
     required UserService userService,
-  })  : _authService = authService,
-        _userService = userService;
+  })  : this.authService = authService,
+        this.userService = userService;
 
   /// 🔗 Crée un compte à partir d’un [UserModel]
   Future<UserModel?> signUp({
@@ -23,7 +23,7 @@ class AccountRepository {
   }) async {
     try {
       // 1️⃣ Création du compte Firebase (email/password)
-      final userCredential = await _authService.createUserWithEmail(
+      final userCredential = await authService.createUserWithEmail(
         user.email,
         password,
       );
@@ -41,7 +41,7 @@ class AccountRepository {
       final newUser = user.copyWith(id: firebaseUser.uid);
 
       // 3️⃣ Enregistrement du profil utilisateur dans Firestore
-      await _userService.createUserWithId(firebaseUser.uid, newUser);
+      await userService.createUserWithId(firebaseUser.uid, newUser);
 
       // 4️⃣ Notification visuelle
       if (context.mounted) {
@@ -80,7 +80,7 @@ class AccountRepository {
         throw Exception("Impossible de mettre à jour : l'utilisateur n'a pas d'ID.");
       }
 
-      await _userService.updateUser(user);
+      await userService.updateUser(user);
 
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -108,7 +108,7 @@ class AccountRepository {
   }) async {
     try {
       // 1️⃣ Connexion via Firebase Auth
-      final userCredential = await _authService.signInWithExistingAccount(email, password);
+      final userCredential = await authService.signInWithExistingAccount(email, password);
       final firebaseUser = userCredential.user;
 
       if (firebaseUser == null) {
@@ -119,7 +119,7 @@ class AccountRepository {
       }
 
       // 2️⃣ Récupération du profil complet depuis Firestore
-      final userModel = await _userService.getUserById(firebaseUser.uid);
+      final userModel = await userService.getUserById(firebaseUser.uid);
 
       if (userModel == null) {
         throw FirebaseAuthException(
@@ -158,7 +158,7 @@ class AccountRepository {
   /// 🚪 Déconnexion
   Future<void> signOut(BuildContext context) async {
     try {
-      await _authService.signOut();
+      await authService.signOut();
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Déconnecté avec succès !')),
