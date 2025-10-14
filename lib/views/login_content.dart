@@ -4,6 +4,7 @@ import '../models/delivery_method.dart';
 import '../viewmodels/account_view_model.dart';
 import '../i18n/strings.dart';
 
+
 // Widget externe pour le formulaire connexion / création de compte
 class LoginContent extends StatefulWidget {
   const LoginContent({super.key});
@@ -241,12 +242,15 @@ class DeliveryMethodDropdown extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    double fieldWidth = MediaQuery.of(context).size.width * 0.9;
+    if (fieldWidth > 300) fieldWidth = 300;
     return ValueListenableBuilder<DeliveryMethod>(
       valueListenable: notifier,
       builder: (context, value, child) {
         return SizedBox(
-          width: 300,
+          width: fieldWidth,
           child: DropdownButtonFormField<DeliveryMethod>(
+            isExpanded: true,
             value: value,
             items: DeliveryMethod.values
                 .map((m) => DropdownMenuItem(
@@ -281,11 +285,13 @@ class PushNotificationSwitch extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    double fieldWidth = MediaQuery.of(context).size.width * 0.9;
+    if (fieldWidth > 300) fieldWidth = 300;
     return ValueListenableBuilder<bool>(
       valueListenable: notifier,
       builder: (context, value, child) {
         return SizedBox(
-          width: 300,
+          width: fieldWidth,
           child: SwitchListTile(
             title: const Text(Strings.pushNotificationLabel),
             value: value,

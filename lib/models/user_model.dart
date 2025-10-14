@@ -81,6 +81,21 @@ class UserModel {
     );
   }
 
+  /// 🧱 Retourne un utilisateur vide
+  static UserModel empty() {
+    return UserModel(
+      id: null,
+      name: '',
+      givenName: '',
+      email: '',
+      phoneNumber: '',
+      profile: Profile.customer,
+      address: '',
+      deliveryMethod: DeliveryMethod.farmPickup,
+      pushNotifications: true,
+    );
+  }
+
   /// 🧠 Debugging facile
   @override
   String toString() {
