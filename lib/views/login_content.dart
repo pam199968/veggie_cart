@@ -251,7 +251,7 @@ class DeliveryMethodDropdown extends StatelessWidget {
           width: fieldWidth,
           child: DropdownButtonFormField<DeliveryMethod>(
             isExpanded: true,
-            value: value,
+            initialValue: value,
             items: DeliveryMethod.values
                 .map((m) => DropdownMenuItem(
                       value: m,
