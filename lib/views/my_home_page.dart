@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../models/delivery_method.dart';
 import '../models/user_model.dart';
 import '../viewmodels/account_view_model.dart';
+import 'profile_page.dart';
 import '../i18n/strings.dart';
 
 class MyHomePage extends StatefulWidget {
@@ -59,15 +60,41 @@ Widget build(BuildContext context) {
       title: Text(Strings.appTitle),
       backgroundColor: Colors.greenAccent,
       actions: [
-        if (isAuthenticated)
+        if (isAuthenticated) ...[
+          IconButton(
+            icon: const Icon(Icons.account_circle),
+            tooltip: "Voir le profil",
+            onPressed: () {
+              Navigator.of(context).push(
+                PageRouteBuilder(
+                  pageBuilder: (context, animation, secondaryAnimation) =>
+                      ProfilePage(user: currentUser),
+                  transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                    const begin = Offset(1.0, 0.0);
+                    const end = Offset.zero;
+                    const curve = Curves.ease;
+
+                    final tween = Tween(begin: begin, end: end)
+                        .chain(CurveTween(curve: curve));
+
+                    return SlideTransition(
+                      position: animation.drive(tween),
+                      child: child,
+                    );
+                  },
+                ),
+              );
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.logout),
+            tooltip: Strings.logoutTooltip,
             onPressed: () async {
               await homeViewModel.signOut(context);
               clearControllers();
             },
-            tooltip: Strings.logoutTooltip,
           ),
+        ],
       ],
     ),
     body: Center(

@@ -21,4 +21,8 @@ class Strings {
   static const String passwordMismatchError = 'Les mots de passe ne correspondent pas.';
   static const String notConnected = 'Utilisateur non connecté';
   static const String connectedAs = 'Connecté en tant que';
+  static const String profileTitle = 'Mon profil';
+  static const String profileUpdateLabel = 'Modifier mon profil';
+  static const String userInfos = 'Informations utilisateur';
+
 }

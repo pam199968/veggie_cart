@@ -3,15 +3,13 @@ import 'package:firebase_auth/firebase_auth.dart';
 import '../services/auth_service.dart';
 import '../services/user_service.dart';
 import '../models/user_model.dart';
-import '../models/delivery_method.dart';
-import '../models/profile.dart';
 
 class AccountRepository {
   final AuthService _authService;
   final UserService _userService;
   final FirebaseAuth _firebaseAuth;
 
-  /// 💡 On autorise l’injection d’un FirebaseAuth mocké (utile en tests)
+  /// 💡 On autorise l’injection d’un FirebaseAuth mocké (utile pour les tests)
   AccountRepository({
     required AuthService authService,
     required UserService userService,
@@ -20,87 +18,143 @@ class AccountRepository {
         _userService = userService,
         _firebaseAuth = firebaseAuth ?? FirebaseAuth.instance;
 
-  /// 🔗 Crée un compte email/password
-  Future<void> signUp({
+  /// 🔗 Crée un compte à partir d’un [UserModel]
+  Future<UserModel?> signUp({
     required BuildContext context,
-    required String name,
-    required String givenName,
-    required String email,
-    required String password,
-    required String phoneNumber,
-    required String address,
-    required DeliveryMethod deliveryMethod,
-    required bool pushNotifications,
+    required UserModel user,
+    required String password, // 🔐 le mot de passe reste externe
   }) async {
     try {
-      final userCredential = await _authService.createUserWithEmail(email, password);
-      final user = userCredential.user;
+      // 1️⃣ Création du compte Firebase (email/password)
+      final userCredential = await _authService.createUserWithEmail(
+        user.email,
+        password,
+      );
 
-      if (user == null) {
+      final firebaseUser = userCredential.user;
+
+      if (firebaseUser == null) {
         throw FirebaseAuthException(
           code: 'user-null',
           message: 'Impossible de créer le compte utilisateur.',
         );
       }
 
-      final newUser = UserModel(
-        name: name,
-        givenName: givenName,
-        email: email,
-        phoneNumber: phoneNumber,
-        profile: Profile.customer, // Valeur par défaut
-        address: address,
-        deliveryMethod: deliveryMethod,
-        pushNotifications: pushNotifications,
-      );
+      // 2️⃣ Ajout de l’UID Firebase dans le modèle utilisateur via copyWith
+      final newUser = user.copyWith(id: firebaseUser.uid);
 
-      await _userService.createUserWithId(user.uid, newUser);
+      // 3️⃣ Enregistrement du profil utilisateur dans Firestore
+      await _userService.createUserWithId(firebaseUser.uid, newUser);
 
+      // 4️⃣ Notification visuelle
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Compte créé avec succès 🎉')),
         );
       }
+
+      // 5️⃣ Retourne le nouvel utilisateur si tout s’est bien passé
+      return newUser;
+
     } on FirebaseAuthException catch (e) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Erreur Auth : ${e.message}')),
         );
       }
+      return null;
     } catch (e) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Erreur inconnue : $e')),
         );
       }
+      return null;
     }
   }
 
+    /// 🔄 Met à jour un profil utilisateur existant
+  Future<bool> updateUserProfile({
+    required BuildContext context,
+    required UserModel user,
+  }) async {
+    try {
+      if (user.id == null) {
+        throw Exception("Impossible de mettre à jour : l'utilisateur n'a pas d'ID.");
+      }
+
+      await _userService.updateUser(user);
+
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Profil mis à jour avec succès ✅')),
+        );
+      }
+
+      return true;
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Erreur mise à jour profil : $e')),
+        );
+      }
+      return false;
+    }
+  }
+
+
   /// 🔐 Connexion à un compte existant
-  Future<void> signInExistingAccount({
+  Future<UserModel?> signInExistingAccount({
     required BuildContext context,
     required String email,
     required String password,
   }) async {
     try {
-      await _authService.signInWithExistingAccount(email, password);
+      // 1️⃣ Connexion via Firebase Auth
+      final userCredential = await _authService.signInWithExistingAccount(email, password);
+      final firebaseUser = userCredential.user;
+
+      if (firebaseUser == null) {
+        throw FirebaseAuthException(
+          code: 'user-null',
+          message: 'Utilisateur introuvable après la connexion.',
+        );
+      }
+
+      // 2️⃣ Récupération du profil complet depuis Firestore
+      final userModel = await _userService.getUserById(firebaseUser.uid);
+
+      if (userModel == null) {
+        throw FirebaseAuthException(
+          code: 'user-not-found-in-firestore',
+          message: 'Aucun profil utilisateur trouvé dans Firestore pour cet UID.',
+        );
+      }
+
+      // 3️⃣ Notification visuelle
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Connexion réussie ✅')),
         );
       }
+
+      // 4️⃣ Retourne l’objet UserModel
+      return userModel;
+
     } on FirebaseAuthException catch (e) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Erreur connexion : ${e.message}')),
         );
       }
+      return null;
     } catch (e) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Erreur inconnue : $e')),
         );
       }
+      return null;
     }
   }
 
@@ -122,7 +176,7 @@ class AccountRepository {
     }
   }
 
-  /// 📡 Expose le flux d’état d’authentification (utile dans MyHomePage)
+  /// 📡 Expose le flux d’état d’authentification
   Stream<User?> get authStateChanges => _firebaseAuth.authStateChanges();
 
   /// 🔍 Accès direct à l’utilisateur courant

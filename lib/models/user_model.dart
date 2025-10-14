@@ -1,16 +1,16 @@
 import 'package:veggie_cart/models/profile.dart';
-
 import 'delivery_method.dart';
-// Modèle de données pour un utilisateur
+
+/// Modèle de données pour un utilisateur
 class UserModel {
-  String? id; // optionnel : ID Firestore
+  final String? id; // optionnel : ID Firestore
   final String name;
   final String givenName;
   final String email;
   final String phoneNumber;
   final Profile profile;
   final String address;
-  final DeliveryMethod deliveryMethod; // 🔹 Enum
+  final DeliveryMethod deliveryMethod;
   final bool pushNotifications;
 
   UserModel({
@@ -21,11 +21,36 @@ class UserModel {
     required this.phoneNumber,
     this.profile = Profile.customer,
     required this.address,
-    this.deliveryMethod = DeliveryMethod.farmPickup,// valeur par défaut
-    this.pushNotifications = true, // activé par défaut
+    this.deliveryMethod = DeliveryMethod.farmPickup,
+    this.pushNotifications = true,
   });
 
-  // Convertit en Map pour Firestore
+  /// 🧩 Crée une copie du modèle avec certaines valeurs modifiées
+  UserModel copyWith({
+    String? id,
+    String? name,
+    String? givenName,
+    String? email,
+    String? phoneNumber,
+    Profile? profile,
+    String? address,
+    DeliveryMethod? deliveryMethod,
+    bool? pushNotifications,
+  }) {
+    return UserModel(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      givenName: givenName ?? this.givenName,
+      email: email ?? this.email,
+      phoneNumber: phoneNumber ?? this.phoneNumber,
+      profile: profile ?? this.profile,
+      address: address ?? this.address,
+      deliveryMethod: deliveryMethod ?? this.deliveryMethod,
+      pushNotifications: pushNotifications ?? this.pushNotifications,
+    );
+  }
+
+  /// 🔁 Convertit en Map pour Firestore
   Map<String, dynamic> toMap() {
     return {
       'name': name,
@@ -34,12 +59,12 @@ class UserModel {
       'phoneNumber': phoneNumber,
       'profile': profile.label,
       'address': address,
-      'deliveryMethod': deliveryMethod.label, // Stocker le label dans Firestore
+      'deliveryMethod': deliveryMethod.label,
       'pushNotifications': pushNotifications,
     };
   }
 
-  // Construit un UserModel depuis Firestore
+  /// 🏗️ Construit un UserModel depuis Firestore
   factory UserModel.fromMap(Map<String, dynamic> map, String documentId) {
     return UserModel(
       id: documentId,
@@ -49,8 +74,26 @@ class UserModel {
       phoneNumber: map['phoneNumber'] ?? '',
       profile: ProfileExtension.fromString(map['profile'] ?? 'Client'),
       address: map['address'] ?? '',
-      deliveryMethod: DeliveryMethodExtension.fromString(map['deliveryMethod'] ?? 'Retrait à la ferme'),
+      deliveryMethod: DeliveryMethodExtension.fromString(
+        map['deliveryMethod'] ?? 'Retrait à la ferme',
+      ),
       pushNotifications: map['pushNotifications'] ?? true,
     );
+  }
+
+  /// 🧠 Debugging facile
+  @override
+  String toString() {
+    return 'UserModel('
+        'id: $id, '
+        'name: $name, '
+        'givenName: $givenName, '
+        'email: $email, '
+        'phoneNumber: $phoneNumber, '
+        'profile: ${profile.label}, '
+        'address: $address, '
+        'deliveryMethod: ${deliveryMethod.label}, '
+        'pushNotifications: $pushNotifications'
+        ')';
   }
 }
