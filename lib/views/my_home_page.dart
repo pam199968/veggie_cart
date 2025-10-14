@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/delivery_method.dart';
 import '../models/user_model.dart';
+import '../models/profile.dart';
 import '../viewmodels/account_view_model.dart';
 import 'profile_page.dart';
 import '../i18n/strings.dart';
@@ -15,6 +16,8 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  String _currentPage = 'offres'; // 'offres', 'commandes', ou 'accueil'
+
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _givenNameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
@@ -49,65 +52,93 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
 
-@override
-Widget build(BuildContext context) {
-  final homeViewModel = context.watch<AccountViewModel>();
-  final currentUser = homeViewModel.currentUser;
-  final isAuthenticated = homeViewModel.isAuthenticated;
+  @override
+  Widget build(BuildContext context) {
+    final homeViewModel = context.watch<AccountViewModel>();
+    final isAuthenticated = homeViewModel.isAuthenticated;
 
-  return Scaffold(
-    appBar: AppBar(
-      title: Text(Strings.appTitle),
-      backgroundColor: Colors.greenAccent,
-      actions: [
-        if (isAuthenticated) ...[
-          IconButton(
-            icon: const Icon(Icons.account_circle),
-            tooltip: "Voir le profil",
-            onPressed: () {
-              Navigator.of(context).push(
-                PageRouteBuilder(
-                  pageBuilder: (context, animation, secondaryAnimation) =>
-                      ProfilePage(user: currentUser),
-                  transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                    const begin = Offset(1.0, 0.0);
-                    const end = Offset.zero;
-                    const curve = Curves.ease;
+    Widget bodyContent;
 
-                    final tween = Tween(begin: begin, end: end)
-                        .chain(CurveTween(curve: curve));
+    if (!isAuthenticated) {
+      bodyContent = homeViewModel.showSignUpForm
+          ? _buildSignUpForm(context, homeViewModel)
+          : _buildSignInForm(context, homeViewModel);
+    } else {
+      // Affichage en fonction de _currentPage
+      switch (_currentPage) {
+        case 'offres':
+          bodyContent = const OffersPageContent();
+          break;
+        case 'commandes':
+          bodyContent = const OrdersPageContent();
+          break;
+         case 'commandes_client':
+         bodyContent = const ClientOrdersPageContent();
+         break;
+         case 'catalogue':
+         bodyContent = const CatalogPageContent(); 
+         break;
+        default:
+          bodyContent = const OffersPageContent();
+      }
+    }
 
-                    return SlideTransition(
-                      position: animation.drive(tween),
-                      child: child,
-                    );
-                  },
-                ),
-              );
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.logout),
-            tooltip: Strings.logoutTooltip,
-            onPressed: () async {
-              await homeViewModel.signOut(context);
-              clearControllers();
-            },
-          ),
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(Strings.appTitle),
+        backgroundColor: Colors.greenAccent,
+        actions: [
+          if (isAuthenticated) ...[
+            PopupMenuButton<String>(
+              onSelected: (value) {
+                setState(() {
+                  _currentPage = value; // Changer la page affichée
+                });
+              },
+              itemBuilder: (context) => _buildMenuItems(homeViewModel.currentUser),
+              icon: const Icon(Icons.menu),
+            ),
+            IconButton(
+              icon: const Icon(Icons.account_circle),
+              tooltip: "Voir le profil",
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => ProfilePage(user: homeViewModel.currentUser)),
+                );
+              },
+            ),
+            IconButton(
+              icon: const Icon(Icons.logout),
+              tooltip: Strings.logoutTooltip,
+              onPressed: () async {
+                await homeViewModel.signOut(context);
+                clearControllers();
+              },
+            ),
+          ],
         ],
-      ],
-    ),
-    body: Center(
-      child: SingleChildScrollView(
-        child: !isAuthenticated
-            ? homeViewModel.showSignUpForm
-                ? _buildSignUpForm(context, homeViewModel)
-                : _buildSignInForm(context, homeViewModel)
-            : _buildUserInfo(currentUser),
       ),
-    ),
-  );
+      body: Center(child: bodyContent),
+    );
+  }
+
+List<PopupMenuEntry<String>> _buildMenuItems(UserModel user) {
+  List<PopupMenuEntry<String>> items = [
+    const PopupMenuItem(value: 'offres', child: Text('Offres de la semaine')),
+    const PopupMenuItem(value: 'commandes', child: Text('Mes commandes')),
+  ];
+
+  // 🔹 Options visibles uniquement pour le profile gardener
+  if (user.profile == Profile.gardener) {
+    items.addAll([
+      const PopupMenuItem(value: 'commandes_client', child: Text('Commandes client')),
+      const PopupMenuItem(value: 'catalogue', child: Text('Catalogue')),
+    ]);
+  }
+
+  return items;
 }
+
 
 Widget _buildUserInfo(UserModel user) {
   return Column(
@@ -127,8 +158,6 @@ Widget _buildUserInfo(UserModel user) {
     ],
   );
 }
-
-
 
   // 🔹 FORMULAIRE INSCRIPTION
   Widget _buildSignUpForm(BuildContext context, AccountViewModel homeViewModel) {
@@ -363,5 +392,42 @@ class PushNotificationSwitch extends StatelessWidget {
         );
       },
     );
+  }
+}
+
+// 🔹 Pages fictives pour navigation
+class OffersPageContent extends StatelessWidget {
+  const OffersPageContent({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const Center(child: Text('Liste des offres'));
+  }
+}
+
+class OrdersPageContent extends StatelessWidget {
+  const OrdersPageContent({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const Center(child: Text('Mes commandes'));
+  }
+}
+
+class ClientOrdersPageContent extends StatelessWidget {
+  const ClientOrdersPageContent({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const Center(child: Text('Liste des commandes'));
+  }
+}
+
+class CatalogPageContent extends StatelessWidget {
+  const CatalogPageContent({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const Center(child: Text('Catalogue'));
   }
 }
