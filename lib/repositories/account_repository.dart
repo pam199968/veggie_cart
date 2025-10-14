@@ -172,4 +172,32 @@ class AccountRepository {
       }
     }
   }
+
+  // ============================================================
+  // 🔹 RÉCUPÉRATION DU PROFIL (pour auto-login)
+  // ============================================================
+
+  Future<UserModel?> fetchUserProfile(String email) async {
+    try {
+      // 1️⃣ Vérifie si l’utilisateur Firebase est toujours connecté
+      final currentUser = authService.getCurrentFirebaseUser();
+      
+      if (currentUser == null) {
+        // Aucun utilisateur Firebase actif
+        return null;
+      }
+
+      // 2️⃣ Si le mail correspond à celui sauvegardé → on recharge depuis Firestore
+      if (currentUser.email == email) {
+        final userModel = await userService.getUserById(currentUser.uid);
+        return userModel;
+      } else {
+        // Si pour une raison quelconque le mail ne correspond pas (compte différent)
+        return null;
+      }
+    } catch (e) {
+      debugPrint('Erreur fetchUserProfile: $e');
+      return null;
+    }
+  }
 }

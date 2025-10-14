@@ -72,4 +72,10 @@ class AuthService {
 
   /// ✅ Vérifie si un utilisateur est connecté
   bool get isLoggedIn => _firebaseAuth.currentUser != null;
+
+    /// 👤 Récupère l'utilisateur Firebase actuel
+  User? getCurrentFirebaseUser() {
+    return _firebaseAuth.currentUser;
+  }
+
 }

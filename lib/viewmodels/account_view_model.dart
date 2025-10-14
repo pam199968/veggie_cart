@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../repositories/account_repository.dart';
 import '../models/delivery_method.dart';
 import '../models/user_model.dart';
@@ -29,7 +30,6 @@ class AccountViewModel extends ChangeNotifier {
 
   AccountViewModel({required this.accountRepository});
 
-  Stream<User?> get authStateChanges => FirebaseAuth.instance.authStateChanges();
 
   void toggleSignInForm() {
     showSignInForm = !showSignInForm;
@@ -42,12 +42,53 @@ class AccountViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
+// ============================================================
+  // 🧠 PERSISTENCE DE SESSION
+  // ============================================================
+
+  bool _isLoggedIn = false;
+  bool get isLoggedIn => _isLoggedIn;
+
+  /// 🔹 Sauvegarde la session localement
+  Future<void> _saveSession(String email) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('isLoggedIn', true);
+    await prefs.setString('userEmail', email);
+  }
+
+  /// 🔹 Efface la session
+  Future<void> _clearSession() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.clear();
+  }
+
+  /// 🔹 Tente de restaurer une session au lancement
+  Future<void> tryAutoLogin() async {
+    final prefs = await SharedPreferences.getInstance();
+    final savedLogin = prefs.getBool('isLoggedIn') ?? false;
+    final savedEmail = prefs.getString('userEmail');
+
+    if (savedLogin && savedEmail != null) {
+
+      // Recharge depuis le repo si besoin (profil complet)
+      final userFromDb = await accountRepository.fetchUserProfile(savedEmail);
+      if (userFromDb != null) {
+        currentUser = userFromDb;
+        _isLoggedIn = true;
+        notifyListeners();
+      }
+    }
+  }
+
+
   Future<void> signOut(BuildContext context) async {
     await accountRepository.signOut(context);
+    await _clearSession(); // 🔹 efface la persistance locale
     clearUserData();
     password = "";
     showSignInForm = true;
     showSignUpForm = false;
+    _isLoggedIn = false;
     notifyListeners();
   }
 
@@ -79,6 +120,7 @@ bool get isAuthenticated => currentUser.id != null;
 
     if (connectedUser != null) {
       currentUser = connectedUser; // 💾 met à jour le user du ViewModel
+      _saveSession(currentUser.email);
     }
 
     notifyListeners();
@@ -100,6 +142,7 @@ bool get isAuthenticated => currentUser.id != null;
 
     if (createdUser != null) {
       currentUser = createdUser; // 💾 met à jour le user du ViewModel
+      _saveSession(currentUser.email);
     }
 
     notifyListeners();

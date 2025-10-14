@@ -195,7 +195,7 @@ class _LoginContentState extends State<LoginContent> {
                 try {
                   await homeViewModel.sendPasswordResetEmail(email);
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text("Email de réinitialisation envoyé ✅")),
+                    const SnackBar(content: Text("Email de réinitialisation envoyé ✅, pensez à vérifiez dans vos spams")),
                   );
                 } catch (e) {
                   ScaffoldMessenger.of(context).showSnackBar(

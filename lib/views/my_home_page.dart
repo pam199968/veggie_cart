@@ -17,12 +17,33 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   String _currentPage = 'offres'; // 'offres', 'commandes', ou 'accueil'
+  bool _isLoading = true; // 🔹 Indique si la session est en cours de restauration
 
+  @override
+  void initState() {
+    super.initState();
+    _attemptAutoLogin();
+  }
+
+    Future<void> _attemptAutoLogin() async {
+    final accountVM = context.read<AccountViewModel>();
+    await accountVM.tryAutoLogin(); // 🔹 restaure la session si elle existe
+    if (mounted) {
+      setState(() {
+        _isLoading = false; // 🔹 Fin du chargement
+      });
+    }
+  }
   @override
   Widget build(BuildContext context) {
     final homeViewModel = context.watch<AccountViewModel>();
     final isAuthenticated = homeViewModel.isAuthenticated;
-
+    // 🔹 Affiche un loader pendant la restauration de session
+    if (_isLoading) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
     Widget bodyContent;
 
     if (!isAuthenticated) {
