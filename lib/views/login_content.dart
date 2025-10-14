@@ -168,48 +168,62 @@ class _LoginContentState extends State<LoginContent> {
           homeViewModel.password = v.trim();
         }),
         const SizedBox(height: 10),
+
+        ElevatedButton(
+          onPressed: () async {
+            await homeViewModel.signIn(context);
+          },
+          child: Text(Strings.signInButton),
+        ),
+
+        const SizedBox(height: 12),
+
+        // 🔗 Ligne avec "Mot de passe oublié ?" et "Créer un compte"
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            ElevatedButton(
+            TextButton(
               onPressed: () async {
-                await homeViewModel.signIn(context);
-                clearControllers();
-                homeViewModel.toggleSignInForm();
+                final email = homeViewModel.currentUser.email;
+                if (email == null || email.isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text("Veuillez entrer votre email pour réinitialiser le mot de passe.")),
+                  );
+                  return;
+                }
+
+                try {
+                  await homeViewModel.sendPasswordResetEmail(email);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text("Email de réinitialisation envoyé ✅")),
+                  );
+                } catch (e) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text("Erreur : $e")),
+                  );
+                }
               },
-              child: const Text(Strings.signInButton),
+              child: const Text(
+                "Mot de passe oublié ?",
+                style: TextStyle(
+                  color: Colors.blueAccent,
+                  decoration: TextDecoration.underline,
+                ),
+              ),
             ),
-            const SizedBox(width: 10),
+
+            const Text(" | "), // petit séparateur esthétique
+
             TextButton(
               onPressed: () => homeViewModel.toggleSignUpForm(),
-              child: const Text(Strings.createAccountLink),
-            ),
-            Align(
-              alignment: Alignment.centerRight,
-              child: TextButton(
-                onPressed: () async {
-                  final email = context.read<AccountViewModel>().currentUser.email;
-                  if (email.isEmpty) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text("Veuillez entrer votre email pour réinitialiser le mot de passe.")),
-                    );
-                    return;
-                  }
-
-                  try {
-                    await context.read<AccountViewModel>().sendPasswordResetEmail(email);
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text("Email de réinitialisation envoyé !")),
-                    );
-                  } catch (e) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text("Erreur : $e")),
-                    );
-                  }
-                },
-                child: const Text("Mot de passe oublié ?"),
+              child: Text(
+                Strings.createAccountLink,
+                style: const TextStyle(
+                  color: Colors.blueAccent,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
-            )
+            ),
           ],
         ),
       ],
