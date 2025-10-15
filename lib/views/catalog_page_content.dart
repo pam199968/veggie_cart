@@ -59,11 +59,11 @@ class CatalogPageContent extends StatelessWidget {
           const SizedBox(width: 16),
           DropdownButton<VegetableCategory?>(
             value: vm.selectedCategory,
-            hint: const Text('All Categories'),
+            hint: const Text('Toutes Categories'),
             items: [
               const DropdownMenuItem(
                 value: null,
-                child: Text('All Categories'),
+                child: Text('Toutes Categories'),
               ),
               ...VegetableCategory.values.map(
                 (cat) => DropdownMenuItem(
