@@ -8,39 +8,39 @@ class CatalogPageContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) => context.watch<CatalogViewModel>(),
-      child: Consumer<CatalogViewModel>(
-        builder: (context, vm, child) {
-          return Column(
-            children: [
-              _buildSearchAndFilter(context, vm),
-              Expanded(
-                child: GridView.builder(
-                  padding: const EdgeInsets.all(16),
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    crossAxisSpacing: 16,
-                    mainAxisSpacing: 16,
-                    childAspectRatio: 3/4,
-                  ),
-                  itemCount: vm.vegetables.length,
-                  itemBuilder: (context, index) {
-                    final veg = vm.vegetables[index];
-                    return VegetableCard(
-                      vegetable: veg,
-                      onToggleActive: () => vm.toggleActive(veg),
-                      onDelete: () => vm.deleteVegetable(veg.id),
-                    );
-                  },
+    final vm = context.watch<CatalogViewModel>();
+    return Scaffold(
+      body: ListView(
+        padding: const EdgeInsets.all(16),
+        children: [
+          _buildSearchAndFilter(context, vm),
+          const SizedBox(height: 8),
+          Wrap(
+            spacing: 16,
+            runSpacing: 16,
+            children: vm.vegetables.map((veg) {
+              return SizedBox(
+                width: 250,
+                child: VegetableCard(
+                  vegetable: veg,
+                  onToggleActive: () => vm.toggleActive(veg),
+                  onDelete: () => vm.deleteVegetable(veg.id),
+                  onEdit: () => _showEditVegetableDialog(context, vm, veg),
                 ),
-              ),
-            ],
-          );
-        },
+              );
+            }).toList(),
+          ),
+          const SizedBox(height: 80), // pour respirer en bas
+        ],
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () => _showAddVegetableDialog(context, vm),
+        icon: const Icon(Icons.add),
+        label: const Text('Ajouter un légume'),
       ),
     );
   }
+
 
   Widget _buildSearchAndFilter(BuildContext context, CatalogViewModel vm) {
     return Padding(
@@ -78,18 +78,179 @@ class CatalogPageContent extends StatelessWidget {
       ),
     );
   }
+
+  // ============================
+  //   DIALOGUE D’AJOUT
+  // ============================
+  void _showAddVegetableDialog(BuildContext context, CatalogViewModel vm) {
+    _showVegetableDialog(context, vm, isEdit: false);
+  }
+
+  // ============================
+  //   DIALOGUE DE MODIFICATION
+  // ============================
+  void _showEditVegetableDialog(
+      BuildContext context, CatalogViewModel vm, VegetableModel vegetable) {
+    _showVegetableDialog(context, vm, isEdit: true, vegetable: vegetable);
+  }
+
+  // ============================
+  //   DIALOGUE GÉNÉRIQUE
+  // ============================
+  void _showVegetableDialog(BuildContext context, CatalogViewModel vm,
+      {required bool isEdit, VegetableModel? vegetable}) {
+    final nameController = TextEditingController(text: vegetable?.name ?? '');
+    final descController =
+        TextEditingController(text: vegetable?.description ?? '');
+    final packagingController =
+        TextEditingController(text: vegetable?.packaging ?? '');
+    final quantityController = TextEditingController(
+        text: vegetable?.standardQuantity?.toString() ?? '');
+    final priceController =
+        TextEditingController(text: vegetable?.price?.toString() ?? '');
+    final imageController = TextEditingController(text: vegetable?.image ?? '');
+    VegetableCategory? selectedCategory =
+        vegetable?.category ?? VegetableCategory.other;
+    bool active = vegetable?.active ?? true;
+
+    bool isFormValid() {
+      final price = double.tryParse(priceController.text);
+      final qty = double.tryParse(quantityController.text);
+      return nameController.text.isNotEmpty &&
+          selectedCategory != null &&
+          (price == null || price >= 0) &&
+          (qty == null || qty >= 0);
+    }
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            void onFieldChanged() => setState(() {});
+
+            return AlertDialog(
+              title: Text(isEdit ? 'Modifier le légume' : 'Ajouter un légume'),
+              content: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    TextField(
+                      controller: nameController,
+                      decoration: const InputDecoration(labelText: 'Nom'),
+                      onChanged: (_) => onFieldChanged(),
+                    ),
+                    TextField(
+                      controller: descController,
+                      decoration:
+                          const InputDecoration(labelText: 'Description'),
+                      maxLines: 2,
+                    ),
+                    DropdownButton<VegetableCategory>(
+                      value: selectedCategory,
+                      hint: const Text('Catégorie'),
+                      items: VegetableCategory.values.map((cat) {
+                        return DropdownMenuItem(
+                          value: cat,
+                          child: Text(cat.label),
+                        );
+                      }).toList(),
+                      onChanged: (cat) {
+                        selectedCategory = cat;
+                        onFieldChanged();
+                      },
+                    ),
+                    TextField(
+                      controller: packagingController,
+                      decoration: const InputDecoration(labelText: 'Packaging'),
+                    ),
+                    TextField(
+                      controller: quantityController,
+                      decoration: const InputDecoration(
+                          labelText: 'Quantité standard (optionnelle)'),
+                      keyboardType:
+                          const TextInputType.numberWithOptions(decimal: true),
+                      onChanged: (_) => onFieldChanged(),
+                    ),
+                    TextField(
+                      controller: priceController,
+                      decoration:
+                          const InputDecoration(labelText: 'Prix (optionnel)'),
+                      keyboardType:
+                          const TextInputType.numberWithOptions(decimal: true),
+                      onChanged: (_) => onFieldChanged(),
+                    ),
+                    SwitchListTile(
+                      value: active,
+                      title: const Text('Actif'),
+                      onChanged: (val) {
+                        setState(() {
+                          active = val;
+                        });
+                      },
+                    ),
+                  ],
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('Annuler'),
+                ),
+                ElevatedButton(
+                  onPressed: isFormValid()
+                      ? () {
+                          final model = VegetableModel(
+                            id: vegetable?.id ?? DateTime.now().toString(),
+                            name: nameController.text,
+                            category: selectedCategory!,
+                            description: descController.text.isNotEmpty
+                                ? descController.text
+                                : null,
+                            packaging: packagingController.text,
+                            standardQuantity:
+                                double.tryParse(quantityController.text),
+                            price: double.tryParse(priceController.text),
+                            active: active,
+                            image: imageController.text.isNotEmpty
+                                ? imageController.text
+                                : null,
+                          );
+
+                          if (isEdit) {
+                            vm.updateVegetable(model);
+                          } else {
+                            vm.addVegetable(model);
+                          }
+
+                          Navigator.pop(context);
+                        }
+                      : null,
+                  child: Text(isEdit ? 'Enregistrer' : 'Ajouter'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
 }
 
+// ============================
+//   WIDGET : VEGETABLE CARD
+// ============================
 class VegetableCard extends StatelessWidget {
   final VegetableModel vegetable;
   final VoidCallback onToggleActive;
   final VoidCallback onDelete;
+  final VoidCallback onEdit;
 
   const VegetableCard({
     super.key,
     required this.vegetable,
     required this.onToggleActive,
     required this.onDelete,
+    required this.onEdit,
   });
 
   @override
@@ -118,6 +279,14 @@ class VegetableCard extends StatelessWidget {
                 ),
               ],
             ),
+            if (vegetable.description != null)
+              Padding(
+                padding: const EdgeInsets.only(top: 4),
+                child: Text(
+                  vegetable.description!,
+                  style: const TextStyle(color: Colors.grey),
+                ),
+              ),
             const SizedBox(height: 4),
             Text(
               vegetable.packaging,
@@ -137,14 +306,14 @@ class VegetableCard extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              '€${vegetable.price?.toStringAsFixed(2) ?? '-'} /${vegetable.packaging}',
+              '${vegetable.price?.toStringAsFixed(2) ?? '-'} € /${vegetable.packaging}',
               style: const TextStyle(fontWeight: FontWeight.bold),
             ),
-            const Spacer(),
+            const SizedBox(height: 8),
             Row(
               children: [
                 TextButton.icon(
-                  onPressed: () {}, // TODO: edit
+                  onPressed: onEdit,
                   icon: const Icon(Icons.edit),
                   label: const Text('Edit'),
                 ),

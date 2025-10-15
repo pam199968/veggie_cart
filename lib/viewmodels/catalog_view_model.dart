@@ -19,11 +19,12 @@ class CatalogViewModel extends ChangeNotifier {
   VegetableCategory? get selectedCategory => _selectedCategory;
 
   void _loadVegetables() {
-    catalogRepository.getVegetables().listen((data) {
+    catalogRepository.getVegetables(onlyActive: false).listen((data) {
       _vegetables = data;
       notifyListeners();
     });
   }
+
 
   void setSearchQuery(String query) {
     _searchQuery = query;
@@ -39,6 +40,7 @@ class CatalogViewModel extends ChangeNotifier {
     catalogRepository.getVegetables(
       category: _selectedCategory,
       searchQuery: _searchQuery,
+      onlyActive: false,
     ).listen((data) {
       _vegetables = data;
       notifyListeners();
@@ -58,6 +60,14 @@ class CatalogViewModel extends ChangeNotifier {
       image: vegetable.image,
     );
     await catalogRepository.updateVegetable(updated);
+  }
+
+  Future<void> addVegetable(VegetableModel vegetable) async {
+    await catalogRepository.addVegetable(vegetable);
+  }
+
+  Future<void> updateVegetable(VegetableModel vegetable) async {
+    await catalogRepository.updateVegetable(vegetable);
   }
 
   Future<void> deleteVegetable(String id) async {

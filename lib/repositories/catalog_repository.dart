@@ -14,7 +14,7 @@ class CatalogRepository {
   Stream<List<VegetableModel>> getVegetables({
     VegetableCategory? category,
     String? searchQuery,
-    bool onlyActive = true,
+    bool onlyActive = false,
   }) {
     return _service.getVegetablesStream().map((vegetables) {
       var filtered = vegetables;
