@@ -58,9 +58,9 @@ class UserModel {
       'email': email,
       'phoneNumber': phoneNumber,
       'address': address,
-      'deliveryMethod': deliveryMethod.name,
+      'deliveryMethod': deliveryMethod.label,
       'pushNotifications': pushNotifications,
-      'profile': profile.name,
+      'profile': profile.label,
       // 🔽 Ajout pour recherche insensible à la casse
       'nameLower': name.toLowerCase(),
       'givenNameLower': givenName.toLowerCase(),
