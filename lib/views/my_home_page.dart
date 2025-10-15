@@ -4,6 +4,11 @@ import '../models/profile.dart';
 import '../viewmodels/account_view_model.dart';
 import 'profile_page.dart';
 import 'login_content.dart';
+import 'catalog_page_content.dart';
+import 'orders_page_content.dart';
+import 'offers_page_content.dart';
+import 'client_orders_page_content.dart';
+import 'gardeners_page_content.dart';
 import '../i18n/strings.dart';
 
 class MyHomePage extends StatefulWidget {
@@ -62,6 +67,9 @@ class _MyHomePageState extends State<MyHomePage> {
           break;
         case 'catalogue':
           bodyContent = const CatalogPageContent();
+          break;
+        case 'maraichers':
+          bodyContent = const GardenersPageContent();
           break;
         default:
           bodyContent = const LoginContent();
@@ -122,6 +130,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       _navigateTo('offres');
                     },
                   ),
+                  if (homeViewModel.currentUser.profile == Profile.customer)
                   ListTile(
                     leading: const Icon(Icons.shopping_bag),
                     title: const Text('Mes commandes'),
@@ -147,6 +156,14 @@ class _MyHomePageState extends State<MyHomePage> {
                         _navigateTo('catalogue');
                       },
                     ),
+                    ListTile(
+                      leading: const Icon(Icons.manage_accounts),
+                      title: const Text('Liste des maraichers'),
+                      selected: _currentPage == 'maraichers',
+                      onTap: () {
+                        _navigateTo('maraichers');
+                      },
+                    ),
                   ],
                 ],
               ),
@@ -165,35 +182,6 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 }
 
-// 🔹 Pages fictives pour navigation
-class OffersPageContent extends StatelessWidget {
-  const OffersPageContent({super.key});
-  @override
-  Widget build(BuildContext context) {
-    return const Center(child: Text('Liste des offres'));
-  }
-}
 
-class OrdersPageContent extends StatelessWidget {
-  const OrdersPageContent({super.key});
-  @override
-  Widget build(BuildContext context) {
-    return const Center(child: Text('Mes commandes'));
-  }
-}
 
-class ClientOrdersPageContent extends StatelessWidget {
-  const ClientOrdersPageContent({super.key});
-  @override
-  Widget build(BuildContext context) {
-    return const Center(child: Text('Liste des commandes'));
-  }
-}
 
-class CatalogPageContent extends StatelessWidget {
-  const CatalogPageContent({super.key});
-  @override
-  Widget build(BuildContext context) {
-    return const Center(child: Text('Catalogue'));
-  }
-}
