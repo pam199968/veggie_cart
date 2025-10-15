@@ -35,6 +35,7 @@ class GardenersPageContent extends StatelessWidget {
           }
 
           final gardeners = snapshot.data!;
+          final currentUser = accountViewModel.currentUser; // récupère l'utilisateur connecté
 
           return ListView.builder(
             padding: const EdgeInsets.all(8.0),
@@ -42,6 +43,8 @@ class GardenersPageContent extends StatelessWidget {
             itemBuilder: (context, index) {
               final user = gardeners[index];
               final isGardener = user.profile == Profile.gardener;
+              // Vérifie si c'est l'utilisateur connecté
+              final isCurrentUser = user.id == currentUser.id;  
 
               return Card(
                 margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 4),
@@ -50,7 +53,9 @@ class GardenersPageContent extends StatelessWidget {
                   subtitle: Text(user.email),
                   trailing: Checkbox(
                     value: isGardener,
-                    onChanged: (value) {
+                    onChanged: isCurrentUser
+                  ? null // checkbox read-only si c'est l'utilisateur connecté
+                  : (value) {
                       if (value != null) {
                         accountViewModel.toggleGardenerStatus(context, user, value);
                       }
