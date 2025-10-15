@@ -1,8 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import '../models/delivery_method.dart';
-import '../viewmodels/account_view_model.dart';
-import '../i18n/strings.dart';
 
 class OffersPageContent extends StatelessWidget {
   const OffersPageContent({super.key});

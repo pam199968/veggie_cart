@@ -185,7 +185,7 @@ class _LoginContentState extends State<LoginContent> {
             TextButton(
               onPressed: () async {
                 final email = homeViewModel.currentUser.email;
-                if (email == null || email.isEmpty) {
+                if (email.isEmpty) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text("Veuillez entrer votre email pour réinitialiser le mot de passe.")),
                   );
@@ -275,10 +275,10 @@ class DeliveryMethodDropdown extends StatelessWidget {
   final Function(DeliveryMethod) onChanged;
 
   const DeliveryMethodDropdown({
-    Key? key,
+    super.key,
     required this.notifier,
     required this.onChanged,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -318,10 +318,10 @@ class PushNotificationSwitch extends StatelessWidget {
   final Function(bool) onChanged;
 
   const PushNotificationSwitch({
-    Key? key,
+    super.key,
     required this.notifier,
     required this.onChanged,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

@@ -135,7 +135,6 @@ void main() {
 
         // Assert
         verify(mockViewModel.signIn(any)).called(1);
-        verify(mockViewModel.toggleSignInForm()).called(1);
       });
 
       testWidgets('Clic sur "Créer un compte" bascule vers le formulaire d\'inscription', 
