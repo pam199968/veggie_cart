@@ -9,6 +9,96 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
+  String get weeklyOffersTitle => 'Weekly Offers';
+
+  @override
+  String get addWeeklyOfferTooltip => 'Add a weekly offer';
+
+  @override
+  String get noWeeklyOffersFound => 'No weekly offers found';
+
+  @override
+  String get addWeeklyOfferDialogTitle => 'Add a weekly offer';
+
+  @override
+  String get searchWeeklyOfferLabel => 'Search for a weekly offer';
+
+  @override
+  String get noResults => 'Aucun résultat';
+
+  @override
+  String get cancelButton => 'Cancel';
+
+  @override
+  String get saveButton => 'Save';
+
+  @override
+  String get deleteButton => 'Delete';
+
+  @override
+  String get editButton => 'Edit';
+
+  @override
+  String get confirmDelete => 'Are you sure you want to delete this offer?';
+
+  @override
+  String get delete => 'Delete';
+
+  @override
+  String get update => 'Update';
+
+  @override
+  String get weeklyOfferDetails => 'Offer details';
+
+  @override
+  String get description => 'Description';
+
+  @override
+  String get startDate => 'Start date';
+
+  @override
+  String get endDate => 'End date';
+
+  @override
+  String get vegetables => 'Vegetables';
+
+  @override
+  String get addVegetable => 'Add Vegetable';
+
+  @override
+  String get removeVegetable => 'Remove the vegetable';
+
+  @override
+  String get selectVegetables => 'Select vegetables';
+
+  @override
+  String get noVegetablesSelected => 'No vegetables selected';
+
+  @override
+  String get select => 'Select';
+
+  @override
+  String get weeklyOffer => 'Weekly offer';
+
+  @override
+  String get weeklyOffers => 'Weekly offers';
+
+  @override
+  String get profileUpdateLabel => 'Edit My Profile';
+
+  @override
+  String get profileTitle => 'My Profile';
+
+  @override
+  String get userInfos => 'User Information';
+
+  @override
+  String get cancel => 'Cancel';
+
+  @override
+  String get save => 'Save';
+
+  @override
   String get gardenersListTitle => 'Liste des maraîchers';
 
   @override
@@ -22,12 +112,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get searchUserLabel => 'Rechercher un utilisateur';
-
-  @override
-  String get noResults => 'Aucun résultat';
-
-  @override
-  String get cancelButton => 'Cancel';
 
   @override
   String get appTitle => 'My Vegetable Basket';
@@ -95,34 +179,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get connectedAs => 'Connected as';
 
   @override
-  String get profileTitle => 'My Profile';
-
-  @override
-  String get profileUpdateLabel => 'Edit My Profile';
-
-  @override
-  String get userInfos => 'User Information';
-
-  @override
-  String get cancel => 'Cancel';
-
-  @override
-  String get addVegetable => 'Add Vegetable';
-
-  @override
   String get editVegetable => 'Edit Vegetable';
-
-  @override
-  String get save => 'Save';
 
   @override
   String get add => 'Add';
 
   @override
   String get name => 'Name';
-
-  @override
-  String get description => 'Description';
 
   @override
   String get category => 'Category';

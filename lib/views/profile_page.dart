@@ -4,7 +4,7 @@ import '../models/user_model.dart';
 import '../models/delivery_method.dart';
 import '../viewmodels/account_view_model.dart';
 import '../repositories/account_repository.dart';
-import '../i18n/strings.dart';
+import 'package:veggie_cart/l10n/app_localizations.dart';
 
 class ProfilePage extends StatefulWidget {
   final UserModel user;
@@ -55,13 +55,13 @@ class _ProfilePageState extends State<ProfilePage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(_isEditing ? Strings.profileUpdateLabel : Strings.profileTitle),
+        title: Text(_isEditing ? AppLocalizations.of(context)!.profileUpdateLabel : AppLocalizations.of(context)!.profileTitle),
         backgroundColor: Colors.greenAccent,
         actions: [
           if (!_isEditing)
             IconButton(
               icon: const Icon(Icons.edit),
-              tooltip: Strings.profileUpdateLabel,
+              tooltip: AppLocalizations.of(context)!.profileUpdateLabel,
               onPressed: () => setState(() => _isEditing = true),
             ),
         ],
@@ -80,13 +80,13 @@ class _ProfilePageState extends State<ProfilePage> {
       children: [
         const Icon(Icons.account_circle, size: 100, color: Colors.green),
         const SizedBox(height: 16),
-        _buildInfoTile("Nom", _editableUser.name),
-        _buildInfoTile("Prénom", _editableUser.givenName),
-        _buildInfoTile("Email", _editableUser.email),
-        _buildInfoTile("Téléphone", _editableUser.phoneNumber),
-        _buildInfoTile("Adresse", _editableUser.address),
-        _buildInfoTile("Livraison", _editableUser.deliveryMethod.label),
-        _buildInfoTile("Notifications", _editableUser.pushNotifications ? "Oui" : "Non"),
+        _buildInfoTile(AppLocalizations.of(context)!.name, _editableUser.name),
+        _buildInfoTile(AppLocalizations.of(context)!.givenNameLabel, _editableUser.givenName),
+        _buildInfoTile(AppLocalizations.of(context)!.emailLabel, _editableUser.email),
+        _buildInfoTile(AppLocalizations.of(context)!.phoneLabel, _editableUser.phoneNumber),
+        _buildInfoTile(AppLocalizations.of(context)!.addressLabel, _editableUser.address),
+        _buildInfoTile(AppLocalizations.of(context)!.deliveryMethodLabel, _editableUser.deliveryMethod.label),
+        _buildInfoTile(AppLocalizations.of(context)!.pushNotificationLabel, _editableUser.pushNotifications ? "Oui" : "Non"),
       ],
     );
   }
@@ -102,11 +102,11 @@ class _ProfilePageState extends State<ProfilePage> {
     return ListView(
       children: [
         const SizedBox(height: 10),
-        _buildEditableField("Nom", _nameController, (v) => _editableUser = _editableUser.copyWith(name: v)),
-        _buildEditableField("Prénom", _givenNameController, (v) => _editableUser = _editableUser.copyWith(givenName: v)),
-        _buildEditableField("Email", _emailController, (v) {}, readOnly: true),
-        _buildEditableField("Téléphone", _phoneController, (v) => _editableUser = _editableUser.copyWith(phoneNumber: v)),
-        _buildEditableField("Adresse", _addressController, (v) => _editableUser = _editableUser.copyWith(address: v), maxLines: 3),
+        _buildEditableField(AppLocalizations.of(context)!.name, _nameController, (v) => _editableUser = _editableUser.copyWith(name: v)),
+        _buildEditableField(AppLocalizations.of(context)!.givenNameLabel, _givenNameController, (v) => _editableUser = _editableUser.copyWith(givenName: v)),
+        _buildEditableField(AppLocalizations.of(context)!.emailLabel, _emailController, (v) {}, readOnly: true),
+        _buildEditableField(AppLocalizations.of(context)!.phoneLabel, _phoneController, (v) => _editableUser = _editableUser.copyWith(phoneNumber: v)),
+        _buildEditableField(AppLocalizations.of(context)!.addressLabel, _addressController, (v) => _editableUser = _editableUser.copyWith(address: v), maxLines: 3),
 
         const SizedBox(height: 20),
 
@@ -117,7 +117,7 @@ class _ProfilePageState extends State<ProfilePage> {
             icon: _isSaving
                 ? const CircularProgressIndicator(color: Colors.white, strokeWidth: 2)
                 : const Icon(Icons.save),
-            label: const Text("Enregistrer"),
+            label: Text(AppLocalizations.of(context)!.save),
             onPressed: _isSaving
                 ? null
                 : () async {
@@ -153,7 +153,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 _addressController.text = _editableUser.address;
                 _isEditing = false;
               }),
-              child: const Text("Annuler"),
+              child: Text(AppLocalizations.of(context)!.cancel),
             ),
           ],
         ),
