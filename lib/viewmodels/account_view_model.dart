@@ -148,6 +148,26 @@ bool get isAuthenticated => currentUser.id != null;
     notifyListeners();
   }
 
+  Stream<List<UserModel>> get gardenersStream {
+    return accountRepository.getGardenersStream();
+  }
+
+  Future<void> toggleGardenerStatus(BuildContext context, UserModel user, bool isGardener) async {
+    final updatedUser = user.copyWith(
+      profile: isGardener ? Profile.gardener : Profile.customer,
+    );
+    await accountRepository.updateUserProfile(context: context, user: updatedUser);
+  }
+
+  Future<List<UserModel>> searchCustomers(String name) async {
+    return await accountRepository.searchCustomersByName(name);
+  }
+
+  Future<void> promoteToGardener(BuildContext context, UserModel user) async {
+    final updatedUser = user.copyWith(profile: Profile.gardener);
+    await accountRepository.updateUserProfile(context: context, user: updatedUser);
+  }
+
   /// 🔹 Met à jour le profil utilisateur via UserService
   Future<bool> updateUserProfile(BuildContext context, UserModel updatedUser) async {
     final success = await accountRepository.updateUserProfile(

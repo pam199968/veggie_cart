@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import '../services/auth_service.dart';
 import '../services/user_service.dart';
 import '../models/user_model.dart';
+import '../models/profile.dart';
 
 class AccountRepository {
   final AuthService authService;
@@ -200,4 +201,15 @@ class AccountRepository {
       return null;
     }
   }
+
+  Stream<List<UserModel>> getGardenersStream() {
+    return userService.getUsersStream().map((users) {
+      return users.where((user) => user.profile == Profile.gardener).toList();
+    });
+  }
+
+  Future<List<UserModel>> searchCustomersByName(String name) {
+    return userService.searchCustomersByName(name);
+  }
+
 }

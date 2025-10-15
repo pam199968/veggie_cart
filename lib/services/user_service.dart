@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:veggie_cart/models/profile.dart';
 import '../models/user_model.dart';
 
 class UserService {
@@ -39,6 +40,42 @@ class UserService {
       }).toList();
     });
   }
+
+  // Recheche insensible à la casse des clients 
+  Future<List<UserModel>> searchCustomersByName(String searchTerm) async {
+    if (searchTerm.isEmpty) return [];
+
+    final lowerTerm = searchTerm.toLowerCase();
+
+    // 🔹 Requête sur le nom de famille
+    final nameQuery = await _usersCollection
+        .where('profile', isEqualTo: Profile.customer.label)
+        .where('nameLower', isGreaterThanOrEqualTo: lowerTerm)
+        .where('nameLower', isLessThanOrEqualTo: '$lowerTerm\uf8ff')
+        .get();
+
+    // 🔹 Requête sur le prénom
+    final givenNameQuery = await _usersCollection
+        .where('profile', isEqualTo: Profile.customer.label)
+        .where('givenNameLower', isGreaterThanOrEqualTo: lowerTerm)
+        .where('givenNameLower', isLessThanOrEqualTo: '$lowerTerm\uf8ff')
+        .get();
+
+    // 🔹 Fusionne les deux résultats sans doublons
+    final allDocs = [
+      ...nameQuery.docs,
+      ...givenNameQuery.docs,
+    ];
+
+    final uniqueDocs = {
+      for (var doc in allDocs) doc.id: doc,
+    };
+
+    return uniqueDocs.values.map((doc) {
+      return UserModel.fromMap(doc.data() as Map<String, dynamic>, doc.id);
+    }).toList();
+  }
+
 
   // UPDATE
   Future<void> updateUser(UserModel user) async {
