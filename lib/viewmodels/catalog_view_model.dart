@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import '../models/vegetable_model.dart';
 import '../repositories/catalog_repository.dart';
@@ -5,9 +6,9 @@ import '../repositories/catalog_repository.dart';
 class CatalogViewModel extends ChangeNotifier {
   final CatalogRepository catalogRepository;
 
-  CatalogViewModel({required this.catalogRepository}) {
-    _loadVegetables();
-  }
+  StreamSubscription<List<VegetableModel>>? _subscription;
+
+  CatalogViewModel({required this.catalogRepository});
 
   List<VegetableModel> _vegetables = [];
   List<VegetableModel> get vegetables => _vegetables;
@@ -18,33 +19,52 @@ class CatalogViewModel extends ChangeNotifier {
   String get searchQuery => _searchQuery;
   VegetableCategory? get selectedCategory => _selectedCategory;
 
-  void _loadVegetables() {
-    catalogRepository.getVegetables(onlyActive: false).listen((data) {
+  /// Charge les légumes et garde une seule subscription
+  Future<void> loadVegetables() async {
+    await _subscription?.cancel();
+
+    _subscription = catalogRepository
+        .getVegetables(
+          category: _selectedCategory,
+          searchQuery: _searchQuery,
+          onlyActive: false,
+        )
+        .listen((data) {
       _vegetables = data;
       notifyListeners();
     });
   }
 
-
   void setSearchQuery(String query) {
     _searchQuery = query;
-    _applyFilters();
+    _reloadStream();
   }
 
   void setCategory(VegetableCategory? category) {
     _selectedCategory = category;
-    _applyFilters();
+    _reloadStream();
   }
 
-  void _applyFilters() {
-    catalogRepository.getVegetables(
-      category: _selectedCategory,
-      searchQuery: _searchQuery,
-      onlyActive: false,
-    ).listen((data) {
+  /// Recharge le stream avec les filtres actuels
+  Future<void> _reloadStream() async {
+    await _subscription?.cancel();
+
+    _subscription = catalogRepository
+        .getVegetables(
+          category: _selectedCategory,
+          searchQuery: _searchQuery,
+          onlyActive: false,
+        )
+        .listen((data) {
       _vegetables = data;
       notifyListeners();
     });
+  }
+
+  @override
+  void dispose() {
+    _subscription?.cancel();
+    super.dispose();
   }
 
   Future<void> toggleActive(VegetableModel vegetable) async {
@@ -72,5 +92,10 @@ class CatalogViewModel extends ChangeNotifier {
 
   Future<void> deleteVegetable(String id) async {
     await catalogRepository.deleteVegetable(id);
+  }
+  
+  void cancelSubscriptions() {
+    _subscription?.cancel();
+    _subscription = null;
   }
 }

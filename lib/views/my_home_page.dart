@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/profile.dart';
 import '../viewmodels/account_view_model.dart';
+import '../viewmodels/catalog_view_model.dart';
 import 'profile_page.dart';
 import 'login_content.dart';
 import 'catalog_page_content.dart';
@@ -98,6 +99,8 @@ class _MyHomePageState extends State<MyHomePage> {
               icon: const Icon(Icons.logout),
               tooltip: Strings.logoutTooltip,
               onPressed: () async {
+                final vm = context.read<CatalogViewModel>();
+                vm.cancelSubscriptions(); // <--- important
                 await homeViewModel.signOut(context);
               },
             ),

@@ -5,6 +5,7 @@ import '../models/delivery_method.dart';
 import '../models/user_model.dart';
 import '../models/profile.dart';
 
+
 class AccountViewModel extends ChangeNotifier {
   final AccountRepository accountRepository;
 

@@ -3,12 +3,31 @@ import 'package:provider/provider.dart';
 import '../models/vegetable_model.dart';
 import '../viewmodels/catalog_view_model.dart';
 
-class CatalogPageContent extends StatelessWidget {
+class CatalogPageContent extends StatefulWidget {
   const CatalogPageContent({super.key});
+
+  @override
+  State<CatalogPageContent> createState() => _CatalogPageContentState();
+}
+
+class _CatalogPageContentState extends State<CatalogPageContent> {
+  bool _isInitialized = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Charge les légumes uniquement une fois
+    if (!_isInitialized) {
+      final vm = context.read<CatalogViewModel>();
+      vm.loadVegetables();
+      _isInitialized = true;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final vm = context.watch<CatalogViewModel>();
+
     return Scaffold(
       body: ListView(
         padding: const EdgeInsets.all(16),
@@ -30,7 +49,7 @@ class CatalogPageContent extends StatelessWidget {
               );
             }).toList(),
           ),
-          const SizedBox(height: 80), // pour respirer en bas
+          const SizedBox(height: 80), // marge en bas
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
@@ -41,7 +60,9 @@ class CatalogPageContent extends StatelessWidget {
     );
   }
 
-
+  // ============================
+  //   SEARCH & FILTER
+  // ============================
   Widget _buildSearchAndFilter(BuildContext context, CatalogViewModel vm) {
     return Padding(
       padding: const EdgeInsets.all(16),
@@ -80,23 +101,17 @@ class CatalogPageContent extends StatelessWidget {
   }
 
   // ============================
-  //   DIALOGUE D’AJOUT
+  //   DIALOGUES
   // ============================
   void _showAddVegetableDialog(BuildContext context, CatalogViewModel vm) {
     _showVegetableDialog(context, vm, isEdit: false);
   }
 
-  // ============================
-  //   DIALOGUE DE MODIFICATION
-  // ============================
   void _showEditVegetableDialog(
       BuildContext context, CatalogViewModel vm, VegetableModel vegetable) {
     _showVegetableDialog(context, vm, isEdit: true, vegetable: vegetable);
   }
 
-  // ============================
-  //   DIALOGUE GÉNÉRIQUE
-  // ============================
   void _showVegetableDialog(BuildContext context, CatalogViewModel vm,
       {required bool isEdit, VegetableModel? vegetable}) {
     final nameController = TextEditingController(text: vegetable?.name ?? '');
