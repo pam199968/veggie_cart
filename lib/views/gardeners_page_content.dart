@@ -10,7 +10,7 @@ class GardenersPageContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final accountViewModel = Provider.of<AccountViewModel>(context, listen: false);
+    final accountViewModel = context.watch<AccountViewModel>();
 
     return Scaffold(
       appBar: AppBar(

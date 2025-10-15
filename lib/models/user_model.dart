@@ -57,12 +57,16 @@ class UserModel {
       'givenName': givenName,
       'email': email,
       'phoneNumber': phoneNumber,
-      'profile': profile.label,
       'address': address,
-      'deliveryMethod': deliveryMethod.label,
+      'deliveryMethod': deliveryMethod.name,
       'pushNotifications': pushNotifications,
+      'profile': profile.name,
+      // 🔽 Ajout pour recherche insensible à la casse
+      'nameLower': name.toLowerCase(),
+      'givenNameLower': givenName.toLowerCase(),
     };
   }
+
 
   /// 🏗️ Construit un UserModel depuis Firestore
   factory UserModel.fromMap(Map<String, dynamic> map, String documentId) {
