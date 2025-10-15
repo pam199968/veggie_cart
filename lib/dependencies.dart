@@ -1,11 +1,14 @@
 // dependencies.dart
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
 import 'services/auth_service.dart';
 import 'repositories/account_repository.dart';
 import 'repositories/catalog_repository.dart';
+import 'repositories/weekly_offers_repository.dart';
 import 'services/user_service.dart';
 import 'services/catalog_service.dart';
+import 'services/weekly_offers_service.dart';
 import 'views/my_home_page.dart';
 import 'viewmodels/account_view_model.dart';
 import 'viewmodels/catalog_view_model.dart';
@@ -17,6 +20,8 @@ Widget buildApp({
   AuthService? authService,
   UserService? userService,
   CatalogService? catalogService,
+  WeeklyOffersService? weeklyOffersService,
+  
 }) {
   return MultiProvider(
     providers: [
@@ -29,6 +34,9 @@ Widget buildApp({
       Provider<CatalogService>(
         create: (context) => catalogService ?? CatalogService(),
       ),
+      Provider<WeeklyOffersService>(
+        create: (context) => weeklyOffersService ?? WeeklyOffersService(),
+      ),
       Provider<AccountRepository>(
         create: (context) => AccountRepository(
           authService: context.read(),
@@ -39,7 +47,12 @@ Widget buildApp({
         create: (context) => CatalogRepository(
           catalogService: context.read(),
           ),
-        ),
+      ),
+      Provider<WeeklyOffersRepository>(
+        create: (context) => WeeklyOffersRepository(
+          weeklyOffersService: context.read(),
+          ),
+      ),
       ChangeNotifierProvider<AccountViewModel>(
         create: (context) => AccountViewModel(
           accountRepository: context.read(),
