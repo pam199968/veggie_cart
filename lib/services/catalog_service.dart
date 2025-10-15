@@ -2,9 +2,12 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/vegetable_model.dart';
 
 class CatalogService {
-  final CollectionReference _catalogRef =
-      FirebaseFirestore.instance.collection('vegetables');
 
+  final CollectionReference _catalogRef;
+
+  CatalogService({FirebaseFirestore? firestore})
+      : _catalogRef = (firestore ?? FirebaseFirestore.instance).collection('vegetables');
+  
   /// CREATE
   Future<void> addVegetable(VegetableModel vegetable) async {
     await _catalogRef.add(vegetable.toMap());
