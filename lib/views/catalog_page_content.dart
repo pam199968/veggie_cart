@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:veggie_cart/l10n/app_localizations.dart';
 import '../models/vegetable_model.dart';
 import '../viewmodels/catalog_view_model.dart';
 
@@ -16,7 +17,6 @@ class _CatalogPageContentState extends State<CatalogPageContent> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    // Charge les légumes uniquement une fois
     if (!_isInitialized) {
       final vm = context.read<CatalogViewModel>();
       vm.loadVegetables();
@@ -49,20 +49,17 @@ class _CatalogPageContentState extends State<CatalogPageContent> {
               );
             }).toList(),
           ),
-          const SizedBox(height: 80), // marge en bas
+          const SizedBox(height: 80),
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _showAddVegetableDialog(context, vm),
         icon: const Icon(Icons.add),
-        label: const Text('Ajouter un légume'),
+        label: Text(AppLocalizations.of(context)!.addVegetable),
       ),
     );
   }
 
-  // ============================
-  //   SEARCH & FILTER
-  // ============================
   Widget _buildSearchAndFilter(BuildContext context, CatalogViewModel vm) {
     return Padding(
       padding: const EdgeInsets.all(16),
@@ -70,9 +67,9 @@ class _CatalogPageContentState extends State<CatalogPageContent> {
         children: [
           Expanded(
             child: TextField(
-              decoration: const InputDecoration(
-                hintText: 'Rechercher un légume...',
-                border: OutlineInputBorder(),
+              decoration: InputDecoration(
+                hintText: AppLocalizations.of(context)!.searchVegetable,
+                border: const OutlineInputBorder(),
               ),
               onChanged: vm.setSearchQuery,
             ),
@@ -80,11 +77,11 @@ class _CatalogPageContentState extends State<CatalogPageContent> {
           const SizedBox(width: 16),
           DropdownButton<VegetableCategory?>(
             value: vm.selectedCategory,
-            hint: const Text('Toutes Categories'),
+            hint: Text(AppLocalizations.of(context)!.allCategories),
             items: [
-              const DropdownMenuItem(
+              DropdownMenuItem(
                 value: null,
-                child: Text('Toutes Categories'),
+                child: Text(AppLocalizations.of(context)!.allCategories),
               ),
               ...VegetableCategory.values.map(
                 (cat) => DropdownMenuItem(
@@ -100,9 +97,6 @@ class _CatalogPageContentState extends State<CatalogPageContent> {
     );
   }
 
-  // ============================
-  //   DIALOGUES
-  // ============================
   void _showAddVegetableDialog(BuildContext context, CatalogViewModel vm) {
     _showVegetableDialog(context, vm, isEdit: false);
   }
@@ -145,24 +139,24 @@ class _CatalogPageContentState extends State<CatalogPageContent> {
             void onFieldChanged() => setState(() {});
 
             return AlertDialog(
-              title: Text(isEdit ? 'Modifier le légume' : 'Ajouter un légume'),
+              title: Text(isEdit ? AppLocalizations.of(context)!.editVegetable : AppLocalizations.of(context)!.addVegetable),
               content: SingleChildScrollView(
                 child: Column(
                   children: [
                     TextField(
                       controller: nameController,
-                      decoration: const InputDecoration(labelText: 'Nom'),
+                      decoration: InputDecoration(labelText: AppLocalizations.of(context)!.name),
                       onChanged: (_) => onFieldChanged(),
                     ),
                     TextField(
                       controller: descController,
                       decoration:
-                          const InputDecoration(labelText: 'Description'),
+                          InputDecoration(labelText: AppLocalizations.of(context)!.description),
                       maxLines: 2,
                     ),
                     DropdownButton<VegetableCategory>(
                       value: selectedCategory,
-                      hint: const Text('Catégorie'),
+                      hint: Text(AppLocalizations.of(context)!.category),
                       items: VegetableCategory.values.map((cat) {
                         return DropdownMenuItem(
                           value: cat,
@@ -176,12 +170,12 @@ class _CatalogPageContentState extends State<CatalogPageContent> {
                     ),
                     TextField(
                       controller: packagingController,
-                      decoration: const InputDecoration(labelText: 'Packaging'),
+                      decoration: InputDecoration(labelText: AppLocalizations.of(context)!.packaging),
                     ),
                     TextField(
                       controller: quantityController,
-                      decoration: const InputDecoration(
-                          labelText: 'Quantité standard (optionnelle)'),
+                      decoration: InputDecoration(
+                          labelText: AppLocalizations.of(context)!.standardQuantity),
                       keyboardType:
                           const TextInputType.numberWithOptions(decimal: true),
                       onChanged: (_) => onFieldChanged(),
@@ -189,14 +183,14 @@ class _CatalogPageContentState extends State<CatalogPageContent> {
                     TextField(
                       controller: priceController,
                       decoration:
-                          const InputDecoration(labelText: 'Prix (optionnel)'),
+                          InputDecoration(labelText: AppLocalizations.of(context)!.price),
                       keyboardType:
                           const TextInputType.numberWithOptions(decimal: true),
                       onChanged: (_) => onFieldChanged(),
                     ),
                     SwitchListTile(
                       value: active,
-                      title: const Text('Actif'),
+                      title: Text(AppLocalizations.of(context)!.active),
                       onChanged: (val) {
                         setState(() {
                           active = val;
@@ -209,7 +203,7 @@ class _CatalogPageContentState extends State<CatalogPageContent> {
               actions: [
                 TextButton(
                   onPressed: () => Navigator.pop(context),
-                  child: const Text('Annuler'),
+                  child: Text(AppLocalizations.of(context)!.cancel),
                 ),
                 ElevatedButton(
                   onPressed: isFormValid()
@@ -240,7 +234,7 @@ class _CatalogPageContentState extends State<CatalogPageContent> {
                           Navigator.pop(context);
                         }
                       : null,
-                  child: Text(isEdit ? 'Enregistrer' : 'Ajouter'),
+                  child: Text(isEdit ? AppLocalizations.of(context)!.save : AppLocalizations.of(context)!.add),
                 ),
               ],
             );
@@ -251,9 +245,6 @@ class _CatalogPageContentState extends State<CatalogPageContent> {
   }
 }
 
-// ============================
-//   WIDGET : VEGETABLE CARD
-// ============================
 class VegetableCard extends StatelessWidget {
   final VegetableModel vegetable;
   final VoidCallback onToggleActive;
@@ -330,7 +321,7 @@ class VegetableCard extends StatelessWidget {
                 TextButton.icon(
                   onPressed: onEdit,
                   icon: const Icon(Icons.edit),
-                  label: const Text('Edit'),
+                  label: Text(AppLocalizations.of(context)!.edit),
                 ),
                 IconButton(
                   onPressed: onDelete,

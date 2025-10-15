@@ -1,7 +1,8 @@
 // dependencies.dart
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
+import 'l10n/app_localizations.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'services/auth_service.dart';
 import 'repositories/account_repository.dart';
 import 'repositories/catalog_repository.dart';
@@ -83,6 +84,18 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.greenAccent),
       ),
+      localizationsDelegates: const [
+        // Ajoutez ici les délégués de localisation nécessaires
+        AppLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ] ,
+      supportedLocales: const [
+        Locale('en'), // Anglais
+        Locale('fr'), // Français
+        // Ajoutez d'autres locales si nécessaire
+      ],
       home: const MyHomePage(title: 'Mon panier maraîcher'),
     );
   }

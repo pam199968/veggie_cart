@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../viewmodels/account_view_model.dart';
 import '../models/user_model.dart';
 import '../models/profile.dart';
+import '../l10n/app_localizations.dart';
 import 'dart:async';
 
 class GardenersPageContent extends StatelessWidget {
@@ -14,11 +15,11 @@ class GardenersPageContent extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Liste des maraîchers'),
+        title: Text(AppLocalizations.of(context)!.gardenersListTitle),
         actions: [
           IconButton(
             icon: const Icon(Icons.add),
-            tooltip: 'Ajouter un maraîcher',
+            tooltip: AppLocalizations.of(context)!.addGardenerTooltip,
             onPressed: () => _showAddGardenerDialog(context),
           ),
         ],
@@ -31,11 +32,11 @@ class GardenersPageContent extends StatelessWidget {
           }
 
           if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const Center(child: Text('Aucun maraîcher trouvé.'));
+            return Center(child: Text(AppLocalizations.of(context)!.noGardenersFound));
           }
 
           final gardeners = snapshot.data!;
-          final currentUser = accountViewModel.currentUser; // récupère l'utilisateur connecté
+          final currentUser = accountViewModel.currentUser;
 
           return ListView.builder(
             padding: const EdgeInsets.all(8.0),
@@ -43,8 +44,7 @@ class GardenersPageContent extends StatelessWidget {
             itemBuilder: (context, index) {
               final user = gardeners[index];
               final isGardener = user.profile == Profile.gardener;
-              // Vérifie si c'est l'utilisateur connecté
-              final isCurrentUser = user.id == currentUser.id;  
+              final isCurrentUser = user.id == currentUser.id;
 
               return Card(
                 margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 4),
@@ -54,12 +54,12 @@ class GardenersPageContent extends StatelessWidget {
                   trailing: Checkbox(
                     value: isGardener,
                     onChanged: isCurrentUser
-                  ? null // checkbox read-only si c'est l'utilisateur connecté
-                  : (value) {
-                      if (value != null) {
-                        accountViewModel.toggleGardenerStatus(context, user, value);
-                      }
-                    },
+                      ? null
+                      : (value) {
+                          if (value != null) {
+                            accountViewModel.toggleGardenerStatus(context, user, value);
+                          }
+                        },
                   ),
                 ),
               );
@@ -70,7 +70,6 @@ class GardenersPageContent extends StatelessWidget {
     );
   }
 
-  /// 🧩 Dialogue d’ajout de maraîcher
   Future<void> _showAddGardenerDialog(BuildContext context) async {
     final accountViewModel = Provider.of<AccountViewModel>(context, listen: false);
     final TextEditingController searchController = TextEditingController();
@@ -82,7 +81,6 @@ class GardenersPageContent extends StatelessWidget {
       builder: (context) {
         return StatefulBuilder(
           builder: (context, setState) {
-            // Fonction interne de recherche avec délai (debounce)
             void onSearchChanged(String query) {
               if (debounce?.isActive ?? false) debounce!.cancel();
               debounce = Timer(const Duration(milliseconds: 300), () async {
@@ -100,7 +98,7 @@ class GardenersPageContent extends StatelessWidget {
             }
 
             return AlertDialog(
-              title: const Text('Ajouter un maraîcher'),
+              title: Text(AppLocalizations.of(context)!.addGardenerDialogTitle),
               content: SizedBox(
                 width: double.maxFinite,
                 child: Column(
@@ -108,15 +106,15 @@ class GardenersPageContent extends StatelessWidget {
                   children: [
                     TextField(
                       controller: searchController,
-                      decoration: const InputDecoration(
-                        labelText: 'Rechercher un utilisateur',
-                        prefixIcon: Icon(Icons.search),
+                      decoration: InputDecoration(
+                        labelText: AppLocalizations.of(context)!.searchUserLabel,
+                        prefixIcon: const Icon(Icons.search),
                       ),
                       onChanged: onSearchChanged,
                     ),
                     const SizedBox(height: 10),
                     if (searchResults.isEmpty)
-                      const Text('Aucun résultat')
+                      Text(AppLocalizations.of(context)!.noResults)
                     else
                       Flexible(
                         child: ListView.builder(
@@ -141,7 +139,7 @@ class GardenersPageContent extends StatelessWidget {
               actions: [
                 TextButton(
                   onPressed: () => Navigator.pop(context),
-                  child: const Text('Annuler'),
+                  child: Text(AppLocalizations.of(context)!.cancelButton),
                 ),
               ],
             );
