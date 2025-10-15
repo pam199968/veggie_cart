@@ -4,6 +4,8 @@ import '../services/auth_service.dart';
 import '../services/user_service.dart';
 import '../models/user_model.dart';
 import '../models/profile.dart';
+import '../exceptions/auth_error_mapper.dart';
+
 
 class AccountRepository {
   final AuthService authService;
@@ -55,13 +57,11 @@ class AccountRepository {
       return newUser;
 
     } on FirebaseAuthException catch (e) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erreur Auth : ${e.message}')),
-        );
-      }
-      return null;
-    } catch (e) {
+        final authError = mapFirebaseAuthException(e);
+
+        if (context.mounted) showErrorSnack(context, authError.message);
+        return null;
+      } catch (e) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Erreur inconnue : $e')),
@@ -140,13 +140,11 @@ class AccountRepository {
       return userModel;
 
     } on FirebaseAuthException catch (e) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erreur connexion : ${e.message}')),
-        );
-      }
-      return null;
-    } catch (e) {
+        final authError = mapFirebaseAuthException(e);
+
+        if (context.mounted) showErrorSnack(context, authError.message);
+        return null;
+      } catch (e) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Erreur inconnue : $e')),
@@ -154,7 +152,7 @@ class AccountRepository {
       }
       return null;
     }
-  }
+    }
 
   /// 🚪 Déconnexion
   Future<void> signOut(BuildContext context) async {
@@ -210,6 +208,12 @@ class AccountRepository {
 
   Future<List<UserModel>> searchCustomersByName(String name) {
     return userService.searchCustomersByName(name);
+  }
+
+  void showErrorSnack(BuildContext context, String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message)),
+    );
   }
 
 }
