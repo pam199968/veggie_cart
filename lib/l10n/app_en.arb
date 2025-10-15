@@ -44,5 +44,6 @@
   "active": "Active",
   "searchVegetable": "Search for a vegetable...",
   "allCategories": "All Categories",
-  "edit": "Edit"
+  "edit": "Edit",
+  "currencySymbol": "£"
 }

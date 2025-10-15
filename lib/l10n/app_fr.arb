@@ -44,5 +44,6 @@
   "active": "Actif",
   "searchVegetable": "Rechercher un légume...",
   "allCategories": "Toutes Categories",
-  "edit": "Editer"
+  "edit": "Editer",
+  "currencySymbol": "€"
 }

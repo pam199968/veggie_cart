@@ -312,7 +312,7 @@ class VegetableCard extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              '${vegetable.price?.toStringAsFixed(2) ?? '-'} € /${vegetable.packaging}',
+              '${vegetable.price?.toStringAsFixed(2) ?? '-'} ${AppLocalizations.of(context)!.currencySymbol} /${vegetable.packaging}',
               style: const TextStyle(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
@@ -344,6 +344,7 @@ class VegetableCard extends StatelessWidget {
       case VegetableCategory.root:
         return Colors.orange;
       case VegetableCategory.other:
+        return Colors.blueGrey;
       default:
         return Colors.grey;
     }

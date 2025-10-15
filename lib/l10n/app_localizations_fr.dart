@@ -146,5 +146,8 @@ class AppLocalizationsFr extends AppLocalizations {
   String get allCategories => 'Toutes Categories';
 
   @override
-  String get edit => 'Edit';
+  String get edit => 'Editer';
+
+  @override
+  String get currencySymbol => '€';
 }
