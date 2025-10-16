@@ -2,7 +2,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'l10n/app_localizations.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
 import 'services/auth_service.dart';
 import 'repositories/account_repository.dart';
 import 'repositories/catalog_repository.dart';
@@ -13,6 +12,9 @@ import 'services/weekly_offers_service.dart';
 import 'views/my_home_page.dart';
 import 'viewmodels/account_view_model.dart';
 import 'viewmodels/catalog_view_model.dart';
+import 'viewmodels/weekly_offers_view_model.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+
 
 
 /// Construit l'application avec toutes les dépendances injectées.
@@ -62,6 +64,11 @@ Widget buildApp({
       ChangeNotifierProvider<CatalogViewModel>(
         create: (context) => CatalogViewModel(
           catalogRepository: context.read(),
+        ),
+      ),
+      ChangeNotifierProvider<WeeklyOffersViewModel>(
+        create: (context) => WeeklyOffersViewModel(
+          repository: context.read<WeeklyOffersRepository>(),
         ),
       ),
     ],

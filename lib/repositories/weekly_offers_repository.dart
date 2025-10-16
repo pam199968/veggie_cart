@@ -41,13 +41,10 @@ class WeeklyOffersRepository {
   // 🧠 MÉTHODE MÉTIER : Duplication d’une offre
   // ----------------------------------------------------------------
   Future<WeeklyOffer?> duplicateWeeklyOffer({
-    required String sourceOfferId,
+    required WeeklyOffer original,
     required DateTime newStartDate,
     required DateTime newEndDate,
   }) async {
-    final original = await _weeklyOffersService.getWeeklyOffer(sourceOfferId);
-    if (original == null) return null;
-
     final duplicated = original.copyWith(
       id: null, // pour forcer Firestore à générer un nouvel ID
       title: '${original.title} (copie)',
