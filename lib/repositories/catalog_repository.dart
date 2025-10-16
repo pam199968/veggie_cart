@@ -9,6 +9,10 @@ class CatalogRepository {
     required CatalogService catalogService,
   }) : _service = catalogService;
 
+    /// Cache en mémoire pour les légumes actifs
+    List<VegetableModel>? _activeVegetablesCache;
+    DateTime? _lastCacheUpdate;
+
   /// 🔹 Récupérer tous les légumes
   /// Possibilité de filtrer par catégorie, recherche par nom et actif uniquement
   Stream<List<VegetableModel>> getVegetables({
@@ -39,6 +43,32 @@ class CatalogRepository {
 
       return filtered;
     });
+  }
+
+    /// Récupère **une seule fois** tous les légumes actifs
+    Future<List<VegetableModel>> getAllActiveVegetables({bool forceRefresh = false}) async {
+      // 🔹 Si cache disponible et pas de refresh forcé, on le renvoie
+      if (!forceRefresh && _activeVegetablesCache != null) {
+        // Durée de validité :10 min
+        final isRecent = _lastCacheUpdate != null &&
+            DateTime.now().difference(_lastCacheUpdate!).inMinutes < 10;
+        if (isRecent) return _activeVegetablesCache!;
+      }
+      // 🔹 Sinon, on recharge depuis Firestore
+      final all = await _service.getAllVegetablesOnce();
+      final active = all.where((v) => v.active).toList();
+
+      // 🔹 Mise à jour du cache
+      _activeVegetablesCache = active;
+      _lastCacheUpdate = DateTime.now();
+
+      return active;
+    }
+
+  /// Vide le cache manuellement (utile pour tests ou admin)
+  void clearCache() {
+    _activeVegetablesCache = null;
+    _lastCacheUpdate = null;
   }
 
   /// 🔹 Récupérer un légume par ID

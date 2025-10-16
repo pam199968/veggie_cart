@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:veggie_cart/views/weekly_offer_form_page.dart';
 import '../viewmodels/weekly_offers_view_model.dart';
 import '../models/weekly_offer.dart';
 
@@ -67,7 +68,10 @@ class OffersMngtPageContent extends StatelessWidget {
               const SizedBox(width: 12),
               ElevatedButton.icon(
                 onPressed: () {
-                  // TODO: ouvrir un formulaire de création
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const WeeklyOfferFormPage()),
+                  );
                 },
                 icon: const Icon(Icons.add),
                 label: const Text('Créer une offre'),
@@ -83,61 +87,94 @@ class OffersMngtPageContent extends StatelessWidget {
       BuildContext context, WeeklyOffersViewModel vm, WeeklyOffer offer) {
     final isPublished = offer.isPublished;
 
-    return Card(
-      color: isPublished ? Colors.green[50] : Colors.grey[100],
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Semaine du ${offer.startDate.day}/${offer.startDate.month}',
-              style: const TextStyle(fontWeight: FontWeight.bold),
-            ),
-            Text(
-                '${offer.startDate.toLocal().toString().split(' ')[0]} → ${offer.endDate.toLocal().toString().split(' ')[0]}'),
-            const Spacer(),
-            Wrap(
-              spacing: 8,
+    Color badgeColor = isPublished ? Colors.green : Colors.orange;
+    String badgeText = isPublished ? 'Publiée' : 'Brouillon';
+
+    return Stack(
+      children: [
+        Card(
+          color: isPublished ? Colors.green[50] : Colors.grey[100],
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          child: Padding(
+            padding: const EdgeInsets.all(12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                ElevatedButton.icon(
-                  onPressed: () {
-                    // TODO: ouvrir le formulaire d’édition
-                  },
-                  icon: const Icon(Icons.edit),
-                  label: const Text('Modifier'),
+                Text(
+                  'Semaine du ${offer.startDate.day}/${offer.startDate.month}',
+                  style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
-                OutlinedButton.icon(
-                  onPressed: () async {
-                    final newStart = offer.startDate.add(const Duration(days: 7));
-                    final newEnd = offer.endDate.add(const Duration(days: 7));
-                    await vm.duplicateOffer(offer, newStart, newEnd);
-                  },
-                  icon: const Icon(Icons.copy),
-                  label: const Text('Dupliquer'),
+                Text(
+                  '${offer.startDate.toLocal().toString().split(' ')[0]} → '
+                  '${offer.endDate.toLocal().toString().split(' ')[0]}',
                 ),
+                const Spacer(),
+                Wrap(
+                  spacing: 8,
+                  children: [
+                    ElevatedButton.icon(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) =>
+                                WeeklyOfferFormPage(existingOffer: offer),
+                          ),
+                        );
+                      },
+                      icon: const Icon(Icons.edit),
+                      label: const Text('Modifier'),
+                    ),
+                    OutlinedButton.icon(
+                      onPressed: () async {
+                        final newStart =
+                            offer.startDate.add(const Duration(days: 7));
+                        final newEnd =
+                            offer.endDate.add(const Duration(days: 7));
+                        await vm.duplicateOffer(offer, newStart, newEnd);
+                      },
+                      icon: const Icon(Icons.copy),
+                      label: const Text('Dupliquer'),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                isPublished
+                    ? TextButton.icon(
+                        onPressed: () async {
+                          await vm.updateOffer(
+                            offer.copyWith(isPublished: false),
+                          );
+                        },
+                        icon: const Icon(Icons.unpublished),
+                        label: const Text('Dépublier'),
+                      )
+                    : ElevatedButton.icon(
+                        onPressed: () async => vm.publishOffer(offer),
+                        icon: const Icon(Icons.send),
+                        label: const Text('Publier'),
+                      ),
               ],
             ),
-            const SizedBox(height: 8),
-            isPublished
-                ? TextButton.icon(
-                    onPressed: () async {
-                      await vm.updateOffer(
-                        offer.copyWith(isPublished: false),
-                      );
-                    },
-                    icon: const Icon(Icons.unpublished),
-                    label: const Text('Dépublier'),
-                  )
-                : ElevatedButton.icon(
-                    onPressed: () async => vm.publishOffer(offer),
-                    icon: const Icon(Icons.send),
-                    label: const Text('Publier'),
-                  ),
-          ],
+          ),
         ),
-      ),
+
+        // 🔹 Badge de statut en haut à droite
+        Positioned(
+          right: 12,
+          top: 8,
+          child: Chip(
+            label: Text(badgeText),
+            backgroundColor: badgeColor,
+            labelStyle: const TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.w500,
+              fontSize: 10,
+            ),
+          ),
+        ),
+      ],
     );
   }
+
 }

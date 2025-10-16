@@ -21,6 +21,14 @@ class CatalogService {
             .toList());
   }
 
+    /// 🔹 Récupération simple (non streamée)
+    Future<List<VegetableModel>> getAllVegetablesOnce() async {
+      final snapshot = await _catalogRef.get();
+      return snapshot.docs
+          .map((doc) => VegetableModel.fromMap(doc.data() as Map<String, dynamic>, doc.id))
+          .toList();
+    }
+
   /// READ (single)
   Future<VegetableModel?> getVegetableById(String id) async {
     final doc = await _catalogRef.doc(id).get();
