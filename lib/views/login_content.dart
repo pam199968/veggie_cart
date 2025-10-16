@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/delivery_method.dart';
 import '../viewmodels/account_view_model.dart';
-import '../l10n/app_localizations.dart';
-
+import 'package:veggie_cart/extensions/context_extension.dart';
 
 // Widget externe pour le formulaire connexion / création de compte
 class LoginContent extends StatefulWidget {
@@ -64,40 +63,40 @@ class _LoginContentState extends State<LoginContent> {
       children: [
         Image.asset('img/logo.jpeg', height: 100, width: 100),
         const SizedBox(height: 20),
-        _buildTextField(_nameController, AppLocalizations.of(context)!.nameLabel, (v) {
+        _buildTextField(_nameController, context.l10n.nameLabel, (v) {
           homeViewModel.currentUser =
               homeViewModel.currentUser.copyWith(name: v.trim());
         }),
-        _buildTextField(_givenNameController, AppLocalizations.of(context)!.givenNameLabel, (v) {
+        _buildTextField(_givenNameController, context.l10n.givenNameLabel, (v) {
           homeViewModel.currentUser =
               homeViewModel.currentUser.copyWith(givenName: v.trim());
         }),
-        _buildTextField(_emailController, AppLocalizations.of(context)!.emailLabel, (v) {
+        _buildTextField(_emailController, context.l10n.emailLabel, (v) {
           homeViewModel.currentUser =
               homeViewModel.currentUser.copyWith(email: v.trim());
         }),
-        _buildPasswordField(_passwordController, AppLocalizations.of(context)!.passwordLabel, (v) {
+        _buildPasswordField(_passwordController, context.l10n.passwordLabel, (v) {
           homeViewModel.password = v.trim();
         }),
         const SizedBox(height: 5),
         SizedBox(
           width: 300,
           child: Text(
-            AppLocalizations.of(context)!.passwordHint,
+            context.l10n.passwordHint,
             style: TextStyle(fontSize: 12, color: Colors.grey),
             textAlign: TextAlign.start,
           ),
         ),
         const SizedBox(height: 10),
         _buildPasswordField(
-            _confirmPasswordController, AppLocalizations.of(context)!.confirmPasswordLabel, (v) {
+            _confirmPasswordController, context.l10n.confirmPasswordLabel, (v) {
           homeViewModel.confirmPassword = v.trim();
         }),
-        _buildTextField(_phoneController, AppLocalizations.of(context)!.phoneLabel, (v) {
+        _buildTextField(_phoneController, context.l10n.phoneLabel, (v) {
           homeViewModel.currentUser =
               homeViewModel.currentUser.copyWith(phoneNumber: v.trim());
         }),
-        _buildTextField(_addressController, AppLocalizations.of(context)!.addressLabel, (v) {
+        _buildTextField(_addressController, context.l10n.addressLabel, (v) {
           homeViewModel.currentUser =
               homeViewModel.currentUser.copyWith(address: v.trim());
         }, maxLines: 4),
@@ -125,15 +124,15 @@ class _LoginContentState extends State<LoginContent> {
             ElevatedButton(
               onPressed: () async {
                 if (!homeViewModel.isEmailValid(homeViewModel.currentUser.email)) {
-                  _showError(context, AppLocalizations.of(context)!.emailError);
+                  _showError(context, context.l10n.emailError);
                   return;
                 }
                 if (!homeViewModel.isPasswordValid(homeViewModel.password)) {
-                  _showError(context, AppLocalizations.of(context)!.passwordError);
+                  _showError(context, context.l10n.passwordError);
                   return;
                 }
                 if (homeViewModel.password != homeViewModel.confirmPassword) {
-                  _showError(context, AppLocalizations.of(context)!.passwordMismatchError);
+                  _showError(context, context.l10n.passwordMismatchError);
                   return;
                 }
 
@@ -141,12 +140,12 @@ class _LoginContentState extends State<LoginContent> {
                 clearControllers();
                 if (mounted) homeViewModel.toggleSignUpForm();
               },
-              child: Text(AppLocalizations.of(context)!.createAccountButton),
+              child: Text(context.l10n.createAccountButton),
             ),
             const SizedBox(width: 10),
             TextButton(
               onPressed: () => homeViewModel.toggleSignUpForm(),
-              child: Text(AppLocalizations.of(context)!.cancelButton),
+              child: Text(context.l10n.cancelButton),
             ),
           ],
         ),
@@ -160,11 +159,11 @@ class _LoginContentState extends State<LoginContent> {
       children: [
         Image.asset('img/logo.jpeg', height: 100, width: 100),
         const SizedBox(height: 20),
-        _buildTextField(_emailController, AppLocalizations.of(context)!.emailLabel, (v) {
+        _buildTextField(_emailController, context.l10n.emailLabel, (v) {
           homeViewModel.currentUser =
               homeViewModel.currentUser.copyWith(email: v.trim());
         }),
-        _buildPasswordField(_passwordController, AppLocalizations.of(context)!.passwordLabel, (v) {
+        _buildPasswordField(_passwordController, context.l10n.passwordLabel, (v) {
           homeViewModel.password = v.trim();
         }),
         const SizedBox(height: 10),
@@ -173,7 +172,7 @@ class _LoginContentState extends State<LoginContent> {
           onPressed: () async {
             await homeViewModel.signIn(context);
           },
-          child: Text(AppLocalizations.of(context)!.signInButton),
+          child: Text(context.l10n.signInButton),
         ),
 
         const SizedBox(height: 12),
@@ -217,7 +216,7 @@ class _LoginContentState extends State<LoginContent> {
             TextButton(
               onPressed: () => homeViewModel.toggleSignUpForm(),
               child: Text(
-                AppLocalizations.of(context)!.createAccountLink,
+                context.l10n.createAccountLink,
                 style: const TextStyle(
                   color: Colors.blueAccent,
                   fontWeight: FontWeight.bold,
@@ -304,7 +303,7 @@ class DeliveryMethodDropdown extends StatelessWidget {
                 onChanged(v);
               }
             },
-            decoration: InputDecoration(labelText: AppLocalizations.of(context)!.deliveryMethodLabel),
+            decoration: InputDecoration(labelText: context.l10n.deliveryMethodLabel),
           ),
         );
       },
@@ -333,7 +332,7 @@ class PushNotificationSwitch extends StatelessWidget {
         return SizedBox(
           width: fieldWidth,
           child: SwitchListTile(
-            title: Text(AppLocalizations.of(context)!.pushNotificationLabel),
+            title: Text(context.l10n.pushNotificationLabel),
             value: value,
             onChanged: (v) {
               notifier.value = v;

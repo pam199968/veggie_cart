@@ -10,7 +10,7 @@ import 'orders_page_content.dart';
 import 'offers_page_content.dart';
 import 'client_orders_page_content.dart';
 import 'gardeners_page_content.dart';
-import '../i18n/strings.dart';
+import 'package:veggie_cart/extensions/context_extension.dart';
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});
@@ -79,7 +79,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(Strings.appTitle),
+        title: Text(context.l10n.appTitle),
         backgroundColor: Colors.greenAccent,
         actions: [
           if (isAuthenticated) ...[
@@ -97,7 +97,7 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             IconButton(
               icon: const Icon(Icons.logout),
-              tooltip: Strings.logoutTooltip,
+              tooltip: context.l10n.logoutTooltip,
               onPressed: () async {
                 final vm = context.read<CatalogViewModel>();
                 vm.cancelSubscriptions(); // <--- important

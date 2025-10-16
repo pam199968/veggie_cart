@@ -9,7 +9,8 @@ import 'package:veggie_cart/views/login_content.dart';
 import 'package:veggie_cart/viewmodels/account_view_model.dart';
 import 'package:veggie_cart/models/delivery_method.dart';
 import 'package:veggie_cart/models/user_model.dart';
-import 'package:veggie_cart/i18n/strings.dart';
+import 'package:veggie_cart/l10n/app_localizations.dart';
+
 
 // Générera login_content_test.mocks.dart
 @GenerateMocks([AccountViewModel])
@@ -18,6 +19,12 @@ import 'login_content_test.mocks.dart';
 void main() {
   group('LoginContent Widget Tests', () {
     late MockAccountViewModel mockViewModel;
+
+    AppLocalizations l10n(WidgetTester tester) {
+      final context = tester.element(find.byType(LoginContent));
+      return AppLocalizations.of(context)!;
+    }
+
 
     setUp(() {
       mockViewModel = MockAccountViewModel();
@@ -54,14 +61,14 @@ void main() {
         await tester.pumpAndSettle();
 
         // Assert
-        expect(find.text(Strings.emailLabel), findsOneWidget);
-        expect(find.text(Strings.passwordLabel), findsOneWidget);
-        expect(find.text(Strings.signInButton), findsOneWidget);
-        expect(find.text(Strings.createAccountLink), findsOneWidget);
+        expect(find.text(l10n(tester).emailLabel), findsOneWidget);
+        expect(find.text(l10n(tester).passwordLabel), findsOneWidget);
+        expect(find.text(l10n(tester).signInButton), findsOneWidget);
+        expect(find.text(l10n(tester).createAccountLink), findsOneWidget);
         
         // Vérifie que les champs de création de compte ne sont pas visibles
-        expect(find.text(Strings.nameLabel), findsNothing);
-        expect(find.text(Strings.givenNameLabel), findsNothing);
+        expect(find.text(l10n(tester).nameLabel), findsNothing);
+        expect(find.text(l10n(tester).givenNameLabel), findsNothing);
       });
 
       testWidgets('Le logo est affiché', 
@@ -83,7 +90,7 @@ void main() {
         await tester.pumpWidget(createTestWidget(mockViewModel));
         await tester.pumpAndSettle();
 
-        final emailField = find.widgetWithText(TextField, Strings.emailLabel);
+        final emailField = find.widgetWithText(TextField, l10n(tester).emailLabel);
         await tester.enterText(emailField, testEmail);
         await tester.pumpAndSettle();
 
@@ -100,7 +107,7 @@ void main() {
         await tester.pumpWidget(createTestWidget(mockViewModel));
         await tester.pumpAndSettle();
 
-        final passwordField = find.widgetWithText(TextField, Strings.passwordLabel);
+        final passwordField = find.widgetWithText(TextField, l10n(tester).passwordLabel);
         await tester.enterText(passwordField, testPassword);
         await tester.pumpAndSettle();
 
@@ -116,7 +123,7 @@ void main() {
 
         // Assert
         final passwordField = tester.widget<TextField>(
-          find.widgetWithText(TextField, Strings.passwordLabel)
+          find.widgetWithText(TextField, l10n(tester).passwordLabel)
         );
         expect(passwordField.obscureText, isTrue);
       });
@@ -130,7 +137,7 @@ void main() {
         await tester.pumpWidget(createTestWidget(mockViewModel));
         await tester.pumpAndSettle();
 
-        await tester.tap(find.text(Strings.signInButton));
+        await tester.tap(find.text(l10n(tester).signInButton));
         await tester.pumpAndSettle();
 
         // Assert
@@ -143,7 +150,7 @@ void main() {
         await tester.pumpWidget(createTestWidget(mockViewModel));
         await tester.pumpAndSettle();
 
-        await tester.tap(find.text(Strings.createAccountLink));
+        await tester.tap(find.text(l10n(tester).createAccountLink));
         await tester.pumpAndSettle();
 
         // Assert
@@ -162,15 +169,15 @@ void main() {
         await tester.pumpAndSettle();
 
         // Assert
-        expect(find.text(Strings.nameLabel), findsOneWidget);
-        expect(find.text(Strings.givenNameLabel), findsOneWidget);
-        expect(find.text(Strings.emailLabel), findsOneWidget);
-        expect(find.text(Strings.passwordLabel), findsOneWidget);
-        expect(find.text(Strings.confirmPasswordLabel), findsOneWidget);
-        expect(find.text(Strings.phoneLabel), findsOneWidget);
-        expect(find.text(Strings.addressLabel), findsOneWidget);
-        expect(find.text(Strings.createAccountButton), findsOneWidget);
-        expect(find.text(Strings.cancelButton), findsOneWidget);
+        expect(find.text(l10n(tester).nameLabel), findsOneWidget);
+        expect(find.text(l10n(tester).givenNameLabel), findsOneWidget);
+        expect(find.text(l10n(tester).emailLabel), findsOneWidget);
+        expect(find.text(l10n(tester).passwordLabel), findsOneWidget);
+        expect(find.text(l10n(tester).confirmPasswordLabel), findsOneWidget);
+        expect(find.text(l10n(tester).phoneLabel), findsOneWidget);
+        expect(find.text(l10n(tester).addressLabel), findsOneWidget);
+        expect(find.text(l10n(tester).createAccountButton), findsOneWidget);
+        expect(find.text(l10n(tester).cancelButton), findsOneWidget);
       });
 
       testWidgets('Affiche le hint du mot de passe', 
@@ -183,7 +190,7 @@ void main() {
         await tester.pumpAndSettle();
 
         // Assert
-        expect(find.text(Strings.passwordHint), findsOneWidget);
+        expect(find.text(l10n(tester).passwordHint), findsOneWidget);
       });
 
       testWidgets('Le dropdown de méthode de livraison est présent', 
@@ -197,7 +204,7 @@ void main() {
 
         // Assert
         expect(find.byType(DeliveryMethodDropdown), findsOneWidget);
-        expect(find.text(Strings.deliveryMethodLabel), findsOneWidget);
+        expect(find.text(l10n(tester).deliveryMethodLabel), findsOneWidget);
       });
 
       testWidgets('Le switch de notifications push est présent', 
@@ -211,7 +218,7 @@ void main() {
 
         // Assert
         expect(find.byType(PushNotificationSwitch), findsOneWidget);
-        expect(find.text(Strings.pushNotificationLabel), findsOneWidget);
+        expect(find.text(l10n(tester).pushNotificationLabel), findsOneWidget);
       });
 
       testWidgets('Tous les champs peuvent être remplis', 
@@ -224,16 +231,16 @@ void main() {
         await tester.pumpAndSettle();
 
         // Remplir tous les champs
-        await tester.enterText(find.widgetWithText(TextField, Strings.nameLabel), 'Dupont');
-        await tester.enterText(find.widgetWithText(TextField, Strings.givenNameLabel), 'Jean');
-        await tester.enterText(find.widgetWithText(TextField, Strings.emailLabel), 'jean@example.com');
+        await tester.enterText(find.widgetWithText(TextField, l10n(tester).nameLabel), 'Dupont');
+        await tester.enterText(find.widgetWithText(TextField, l10n(tester).givenNameLabel), 'Jean');
+        await tester.enterText(find.widgetWithText(TextField, l10n(tester).emailLabel), 'jean@example.com');
         
-        final passwordFields = find.widgetWithText(TextField, Strings.passwordLabel);
+        final passwordFields = find.widgetWithText(TextField, l10n(tester).passwordLabel);
         await tester.enterText(passwordFields, 'Password123!');
         
-        await tester.enterText(find.widgetWithText(TextField, Strings.confirmPasswordLabel), 'Password123!');
-        await tester.enterText(find.widgetWithText(TextField, Strings.phoneLabel), '0123456789');
-        await tester.enterText(find.widgetWithText(TextField, Strings.addressLabel), '123 Rue de Test');
+        await tester.enterText(find.widgetWithText(TextField, l10n(tester).confirmPasswordLabel), 'Password123!');
+        await tester.enterText(find.widgetWithText(TextField, l10n(tester).phoneLabel), '0123456789');
+        await tester.enterText(find.widgetWithText(TextField, l10n(tester).addressLabel), '123 Rue de Test');
         
         await tester.pumpAndSettle();
 
@@ -251,16 +258,16 @@ void main() {
         await tester.pumpWidget(createTestWidget(mockViewModel));
         await tester.pumpAndSettle();
         // Trouver le bouton
-        final createAccountButton = find.text(Strings.createAccountButton);
+        final createAccountButton = find.text(l10n(tester).createAccountButton);
         // Récupérer l’élément BuildContext du widget
         final context = tester.element(createAccountButton);
         // Faire défiler jusqu’à ce que le widget soit visible
         await Scrollable.ensureVisible(context);
-        await tester.tap(find.text(Strings.createAccountButton));
+        await tester.tap(find.text(l10n(tester).createAccountButton));
         await tester.pumpAndSettle();
 
         // Assert
-        expect(find.text(Strings.emailError), findsOneWidget);
+        expect(find.text(l10n(tester).emailError), findsOneWidget);
         verifyNever(mockViewModel.signUp(any));
       });
 
@@ -275,11 +282,11 @@ void main() {
         await tester.pumpWidget(createTestWidget(mockViewModel));
         await tester.pumpAndSettle();
 
-        await tester.tap(find.text(Strings.createAccountButton));
+        await tester.tap(find.text(l10n(tester).createAccountButton));
         await tester.pumpAndSettle();
 
         // Assert
-        expect(find.text(Strings.passwordError), findsOneWidget);
+        expect(find.text(l10n(tester).passwordError), findsOneWidget);
         verifyNever(mockViewModel.signUp(any));
       });
 
@@ -296,16 +303,16 @@ void main() {
         await tester.pumpWidget(createTestWidget(mockViewModel));
         await tester.pumpAndSettle();
         // Trouver le bouton
-        final createAccountButton = find.text(Strings.createAccountButton);
+        final createAccountButton = find.text(l10n(tester).createAccountButton);
         // Récupérer l’élément BuildContext du widget
         final context = tester.element(createAccountButton);
         // Faire défiler jusqu’à ce que le widget soit visible
         await Scrollable.ensureVisible(context);
-        await tester.tap(find.text(Strings.createAccountButton));
+        await tester.tap(find.text(l10n(tester).createAccountButton));
         await tester.pumpAndSettle();
 
         // Assert
-        expect(find.text(Strings.passwordMismatchError), findsOneWidget);
+        expect(find.text(l10n(tester).passwordMismatchError), findsOneWidget);
         verifyNever(mockViewModel.signUp(any));
       });
 
@@ -323,7 +330,7 @@ void main() {
         await tester.pumpWidget(createTestWidget(mockViewModel));
         await tester.pumpAndSettle();
         // Trouver le bouton
-        final createAccountButton = find.text(Strings.createAccountButton);
+        final createAccountButton = find.text(l10n(tester).createAccountButton);
         // Récupérer l’élément BuildContext du widget
         final context = tester.element(createAccountButton);
         // Faire défiler jusqu’à ce que le widget soit visible
@@ -345,7 +352,7 @@ void main() {
         await tester.pumpWidget(createTestWidget(mockViewModel));
         await tester.pumpAndSettle();
         // Trouver le bouton
-        final cancelButton = find.text(Strings.cancelButton);
+        final cancelButton = find.text(l10n(tester).cancelButton);
         // Récupérer l’élément BuildContext du widget
         final context = tester.element(cancelButton);
         // Faire défiler jusqu’à ce que le widget soit visible

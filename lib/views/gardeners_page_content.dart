@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import '../viewmodels/account_view_model.dart';
 import '../models/user_model.dart';
 import '../models/profile.dart';
-import '../l10n/app_localizations.dart';
+import 'package:veggie_cart/extensions/context_extension.dart';
 import 'dart:async';
 
 class GardenersPageContent extends StatelessWidget {
@@ -15,11 +15,11 @@ class GardenersPageContent extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(AppLocalizations.of(context)!.gardenersListTitle),
+        title: Text(context.l10n.gardenersListTitle),
         actions: [
           IconButton(
             icon: const Icon(Icons.add),
-            tooltip: AppLocalizations.of(context)!.addGardenerTooltip,
+            tooltip: context.l10n.addGardenerTooltip,
             onPressed: () => _showAddGardenerDialog(context),
           ),
         ],
@@ -32,7 +32,7 @@ class GardenersPageContent extends StatelessWidget {
           }
 
           if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return Center(child: Text(AppLocalizations.of(context)!.noGardenersFound));
+            return Center(child: Text(context.l10n.noGardenersFound));
           }
 
           final gardeners = snapshot.data!;
@@ -98,7 +98,7 @@ class GardenersPageContent extends StatelessWidget {
             }
 
             return AlertDialog(
-              title: Text(AppLocalizations.of(context)!.addGardenerDialogTitle),
+              title: Text(context.l10n.addGardenerDialogTitle),
               content: SizedBox(
                 width: double.maxFinite,
                 child: Column(
@@ -107,14 +107,14 @@ class GardenersPageContent extends StatelessWidget {
                     TextField(
                       controller: searchController,
                       decoration: InputDecoration(
-                        labelText: AppLocalizations.of(context)!.searchUserLabel,
+                        labelText: context.l10n.searchUserLabel,
                         prefixIcon: const Icon(Icons.search),
                       ),
                       onChanged: onSearchChanged,
                     ),
                     const SizedBox(height: 10),
                     if (searchResults.isEmpty)
-                      Text(AppLocalizations.of(context)!.noResults)
+                      Text(context.l10n.noResults)
                     else
                       Flexible(
                         child: ListView.builder(
@@ -139,7 +139,7 @@ class GardenersPageContent extends StatelessWidget {
               actions: [
                 TextButton(
                   onPressed: () => Navigator.pop(context),
-                  child: Text(AppLocalizations.of(context)!.cancel),
+                  child: Text(context.l10n.cancel),
                 ),
               ],
             );

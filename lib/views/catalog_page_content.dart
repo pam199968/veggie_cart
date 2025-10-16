@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:veggie_cart/l10n/app_localizations.dart';
+import 'package:veggie_cart/extensions/context_extension.dart';
 import '../models/vegetable_model.dart';
 import '../viewmodels/catalog_view_model.dart';
 
@@ -55,7 +55,7 @@ class _CatalogPageContentState extends State<CatalogPageContent> {
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _showAddVegetableDialog(context, vm),
         icon: const Icon(Icons.add),
-        label: Text(AppLocalizations.of(context)!.addVegetable),
+        label: Text(context.l10n.addVegetable),
       ),
     );
   }
@@ -68,7 +68,7 @@ class _CatalogPageContentState extends State<CatalogPageContent> {
           Expanded(
             child: TextField(
               decoration: InputDecoration(
-                hintText: AppLocalizations.of(context)!.searchVegetable,
+                hintText: context.l10n.searchVegetable,
                 border: const OutlineInputBorder(),
               ),
               onChanged: vm.setSearchQuery,
@@ -77,11 +77,11 @@ class _CatalogPageContentState extends State<CatalogPageContent> {
           const SizedBox(width: 16),
           DropdownButton<VegetableCategory?>(
             value: vm.selectedCategory,
-            hint: Text(AppLocalizations.of(context)!.allCategories),
+            hint: Text(context.l10n.allCategories),
             items: [
               DropdownMenuItem(
                 value: null,
-                child: Text(AppLocalizations.of(context)!.allCategories),
+                child: Text(context.l10n.allCategories),
               ),
               ...VegetableCategory.values.map(
                 (cat) => DropdownMenuItem(
@@ -139,24 +139,24 @@ class _CatalogPageContentState extends State<CatalogPageContent> {
             void onFieldChanged() => setState(() {});
 
             return AlertDialog(
-              title: Text(isEdit ? AppLocalizations.of(context)!.editVegetable : AppLocalizations.of(context)!.addVegetable),
+              title: Text(isEdit ? context.l10n.editVegetable : context.l10n.addVegetable),
               content: SingleChildScrollView(
                 child: Column(
                   children: [
                     TextField(
                       controller: nameController,
-                      decoration: InputDecoration(labelText: AppLocalizations.of(context)!.name),
+                      decoration: InputDecoration(labelText: context.l10n.name),
                       onChanged: (_) => onFieldChanged(),
                     ),
                     TextField(
                       controller: descController,
                       decoration:
-                          InputDecoration(labelText: AppLocalizations.of(context)!.description),
+                          InputDecoration(labelText: context.l10n.description),
                       maxLines: 2,
                     ),
                     DropdownButton<VegetableCategory>(
                       value: selectedCategory,
-                      hint: Text(AppLocalizations.of(context)!.category),
+                      hint: Text(context.l10n.category),
                       items: VegetableCategory.values.map((cat) {
                         return DropdownMenuItem(
                           value: cat,
@@ -170,12 +170,12 @@ class _CatalogPageContentState extends State<CatalogPageContent> {
                     ),
                     TextField(
                       controller: packagingController,
-                      decoration: InputDecoration(labelText: AppLocalizations.of(context)!.packaging),
+                      decoration: InputDecoration(labelText: context.l10n.packaging),
                     ),
                     TextField(
                       controller: quantityController,
                       decoration: InputDecoration(
-                          labelText: AppLocalizations.of(context)!.standardQuantity),
+                          labelText: context.l10n.standardQuantity),
                       keyboardType:
                           const TextInputType.numberWithOptions(decimal: true),
                       onChanged: (_) => onFieldChanged(),
@@ -183,14 +183,14 @@ class _CatalogPageContentState extends State<CatalogPageContent> {
                     TextField(
                       controller: priceController,
                       decoration:
-                          InputDecoration(labelText: AppLocalizations.of(context)!.price),
+                          InputDecoration(labelText: context.l10n.price),
                       keyboardType:
                           const TextInputType.numberWithOptions(decimal: true),
                       onChanged: (_) => onFieldChanged(),
                     ),
                     SwitchListTile(
                       value: active,
-                      title: Text(AppLocalizations.of(context)!.active),
+                      title: Text(context.l10n.active),
                       onChanged: (val) {
                         setState(() {
                           active = val;
@@ -203,7 +203,7 @@ class _CatalogPageContentState extends State<CatalogPageContent> {
               actions: [
                 TextButton(
                   onPressed: () => Navigator.pop(context),
-                  child: Text(AppLocalizations.of(context)!.cancel),
+                  child: Text(context.l10n.cancel),
                 ),
                 ElevatedButton(
                   onPressed: isFormValid()
@@ -234,7 +234,7 @@ class _CatalogPageContentState extends State<CatalogPageContent> {
                           Navigator.pop(context);
                         }
                       : null,
-                  child: Text(isEdit ? AppLocalizations.of(context)!.save : AppLocalizations.of(context)!.add),
+                  child: Text(isEdit ? context.l10n.save : context.l10n.add),
                 ),
               ],
             );
@@ -312,7 +312,7 @@ class VegetableCard extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              '${vegetable.price?.toStringAsFixed(2) ?? '-'} ${AppLocalizations.of(context)!.currencySymbol} /${vegetable.packaging}',
+              '${vegetable.price?.toStringAsFixed(2) ?? '-'} ${context.l10n.currencySymbol} /${vegetable.packaging}',
               style: const TextStyle(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
@@ -321,7 +321,7 @@ class VegetableCard extends StatelessWidget {
                 TextButton.icon(
                   onPressed: onEdit,
                   icon: const Icon(Icons.edit),
-                  label: Text(AppLocalizations.of(context)!.edit),
+                  label: Text(context.l10n.edit),
                 ),
                 IconButton(
                   onPressed: onDelete,
