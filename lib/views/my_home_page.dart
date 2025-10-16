@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:veggie_cart/views/offers_mngt_page_content.dart';
 import '../models/profile.dart';
 import '../viewmodels/account_view_model.dart';
 import '../viewmodels/catalog_view_model.dart';
@@ -59,6 +60,9 @@ class _MyHomePageState extends State<MyHomePage> {
       switch (_currentPage) {
         case 'offres':
           bodyContent = const OffersPageContent();
+          break;
+          case 'gestion_offres':
+          bodyContent = const OffersMngtPageContent();
           break;
         case 'commandes':
           bodyContent = const OrdersPageContent();
@@ -125,24 +129,33 @@ class _MyHomePageState extends State<MyHomePage> {
                       color: Colors.greenAccent,
                     ),
                   ),
+                  if (homeViewModel.currentUser.profile == Profile.customer) ...[
+                    ListTile(
+                      leading: const Icon(Icons.local_offer),
+                      title: const Text('Offres de la semaine'),
+                      selected: _currentPage == 'offres',
+                      onTap: () {
+                        _navigateTo('offres');
+                      },
+                    ),
+                    ListTile(
+                      leading: const Icon(Icons.shopping_bag),
+                      title: const Text('Mes commandes'),
+                      selected: _currentPage == 'commandes',
+                      onTap: () {
+                        _navigateTo('commandes');
+                      },
+                    ),
+                  ],
+                  if (homeViewModel.currentUser.profile == Profile.gardener) ...[
                   ListTile(
                     leading: const Icon(Icons.local_offer),
-                    title: const Text('Offres de la semaine'),
-                    selected: _currentPage == 'offres',
+                    title: const Text('Gestion des offres'),
+                    selected: _currentPage == 'gestion_offres',
                     onTap: () {
-                      _navigateTo('offres');
+                      _navigateTo('gestion_offres');
                     },
                   ),
-                  if (homeViewModel.currentUser.profile == Profile.customer)
-                  ListTile(
-                    leading: const Icon(Icons.shopping_bag),
-                    title: const Text('Mes commandes'),
-                    selected: _currentPage == 'commandes',
-                    onTap: () {
-                      _navigateTo('commandes');
-                    },
-                  ),
-                  if (homeViewModel.currentUser.profile == Profile.gardener) ...[
                     ListTile(
                       leading: const Icon(Icons.receipt_long),
                       title: const Text('Commandes client'),
