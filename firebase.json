@@ -1,1 +1,38 @@
-{"flutter":{"platforms":{"android":{"default":{"projectId":"veggieharvest","appId":"1:806207618403:android:ce0ec965592663f36aa756","fileOutput":"android/app/google-services.json"}},"dart":{"lib/firebase_options.dart":{"projectId":"veggieharvest","configurations":{"android":"1:806207618403:android:ce0ec965592663f36aa756","web":"1:806207618403:web:e436ffd119e5b6b96aa756"}}}}}}
+{
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "veggieharvest",
+          "appId": "1:806207618403:android:ce0ec965592663f36aa756",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "veggieharvest",
+          "configurations": {
+            "android": "1:806207618403:android:ce0ec965592663f36aa756",
+            "web": "1:806207618403:web:e436ffd119e5b6b96aa756"
+          }
+        }
+      }
+    }
+  },
+  "functions": [
+    {
+      "source": "functions",
+      "codebase": "default",
+      "ignore": [
+        "node_modules",
+        ".git",
+        "firebase-debug.log",
+        "firebase-debug.*.log",
+        "*.local"
+      ],
+      "predeploy": [
+        "npm --prefix \"$RESOURCE_DIR\" run lint"
+      ]
+    }
+  ]
+}

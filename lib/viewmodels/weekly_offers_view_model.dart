@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 import '../models/weekly_offer.dart';
 import '../repositories/weekly_offers_repository.dart';
 
@@ -51,9 +52,28 @@ class WeeklyOffersViewModel extends ChangeNotifier {
 
   Future<void> publishOffer(WeeklyOffer offer) async {
     await _repository.updateWeeklyOffer(offer.copyWith(isPublished: true));
-    // TODO: implémenter l’envoi de notification via Firebase Cloud Messaging
+
+    final HttpsCallable callable = FirebaseFunctions.instance.httpsCallable(
+      'sendWeeklyOfferEmail',
+    );
+
+    try {
+      final result = await callable.call(<String, dynamic>{
+        'offer': {
+          'title': offer.title,
+          'description': offer.description,
+          'startDate': offer.startDate.toIso8601String(),
+          'endDate': offer.endDate.toIso8601String(),
+        }
+      });
+      print('Emails envoyés : ${result.data}');
+    } catch (e) {
+      print('Erreur envoi email : $e');
+    }
+
     await loadOffers(publishedOnly: _showPublishedOnly);
   }
+
 
   void toggleFilter() {
     _showPublishedOnly = !_showPublishedOnly;
