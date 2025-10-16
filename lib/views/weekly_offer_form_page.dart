@@ -125,27 +125,67 @@ class _WeeklyOfferFormPageState extends State<WeeklyOfferFormPage> {
                 maxLines: 3,
               ),
               const SizedBox(height: 12),
-              Row(
-                children: [
-                  Expanded(
-                    child: ListTile(
-                      title: Text(_startDate == null
-                          ? 'Date de début'
-                          : 'Début : ${_startDate!.toLocal().toString().split(" ")[0]}'),
-                      trailing: const Icon(Icons.calendar_today),
-                      onTap: () => _pickDate(context, true),
-                    ),
-                  ),
-                  Expanded(
-                    child: ListTile(
-                      title: Text(_endDate == null
-                          ? 'Date de fin'
-                          : 'Fin : ${_endDate!.toLocal().toString().split(" ")[0]}'),
-                      trailing: const Icon(Icons.calendar_today),
-                      onTap: () => _pickDate(context, false),
-                    ),
-                  ),
-                ],
+              // Bloc date responsive
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  // On considère qu'on peut mettre les deux ListTile côte à côte si l'écran est assez large
+                  final isWide = constraints.maxWidth > 400; // seuil ajustable selon design
+                  if (isWide) {
+                    // Côté à côte
+                    return Row(
+                      children: [
+                        Expanded(
+                          child: ListTile(
+                            title: Text(
+                              _startDate == null
+                                  ? 'Date de début'
+                                  : 'Début : ${_startDate!.toLocal().toString().split(" ")[0]}',
+                              overflow: TextOverflow.ellipsis, // évite le débordement
+                            ),
+                            trailing: const Icon(Icons.calendar_today),
+                            onTap: () => _pickDate(context, true),
+                          ),
+                        ),
+                        Expanded(
+                          child: ListTile(
+                            title: Text(
+                              _endDate == null
+                                  ? 'Date de fin'
+                                  : 'Fin : ${_endDate!.toLocal().toString().split(" ")[0]}',
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            trailing: const Icon(Icons.calendar_today),
+                            onTap: () => _pickDate(context, false),
+                          ),
+                        ),
+                      ],
+                    );
+                  } else {
+                    // Empilés verticalement sur petits écrans
+                    return Column(
+                      children: [
+                        ListTile(
+                          title: Text(
+                            _startDate == null
+                                ? 'Date de début'
+                                : 'Début : ${_startDate!.toLocal().toString().split(" ")[0]}',
+                          ),
+                          trailing: const Icon(Icons.calendar_today),
+                          onTap: () => _pickDate(context, true),
+                        ),
+                        ListTile(
+                          title: Text(
+                            _endDate == null
+                                ? 'Date de fin'
+                                : 'Fin : ${_endDate!.toLocal().toString().split(" ")[0]}',
+                          ),
+                          trailing: const Icon(Icons.calendar_today),
+                          onTap: () => _pickDate(context, false),
+                        ),
+                      ],
+                    );
+                  }
+                },
               ),
               SwitchListTile(
                 title: const Text('Publier l’offre'),

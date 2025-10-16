@@ -15,26 +15,39 @@ class OffersMngtPageContent extends StatelessWidget {
           return const Center(child: CircularProgressIndicator());
         }
 
+        // Column avec Expanded pour GridView
         return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildHeader(context, vm),
             const SizedBox(height: 16),
             Expanded(
               child: vm.offers.isEmpty
                   ? const Center(child: Text('Aucune offre disponible'))
-                  : GridView.builder(
-                      padding: const EdgeInsets.all(12),
-                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 3,
-                        mainAxisSpacing: 12,
-                        crossAxisSpacing: 12,
-                        childAspectRatio: 1.2,
-                      ),
-                      itemCount: vm.offers.length,
-                      itemBuilder: (context, index) {
-                        final offer = vm.offers[index];
-                        return _buildOfferCard(context, vm, offer);
+                  : LayoutBuilder(
+                      builder: (context, constraints) {
+                        // Nombre de colonnes responsive
+                        int crossAxisCount = 1;
+                        if (constraints.maxWidth >= 900) {
+                          crossAxisCount = 3;
+                        } else if (constraints.maxWidth >= 600) {
+                          crossAxisCount = 2;
+                        }
+
+                        return GridView.builder(
+                          padding: const EdgeInsets.all(12),
+                          gridDelegate:
+                              SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: crossAxisCount,
+                            mainAxisSpacing: 12,
+                            crossAxisSpacing: 12,
+                            childAspectRatio: 1.2,
+                          ),
+                          itemCount: vm.offers.length,
+                          itemBuilder: (context, index) {
+                            final offer = vm.offers[index];
+                            return _buildOfferCard(context, vm, offer);
+                          },
+                        );
                       },
                     ),
             ),
@@ -48,35 +61,44 @@ class OffersMngtPageContent extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(
-            'Gestion des offres hebdomadaires',
-            style: Theme.of(context).textTheme.headlineSmall,
+          // Texte flexible
+          Expanded(
+            child: Text(
+              'Gestion des offres',
+              style: Theme.of(context).textTheme.headlineSmall,
+              overflow: TextOverflow.ellipsis,
+            ),
           ),
-          Row(
-            children: [
-              TextButton.icon(
-                onPressed: vm.toggleFilter,
-                icon: Icon(vm.showPublishedOnly
-                    ? Icons.visibility
-                    : Icons.visibility_off),
-                label: Text(vm.showPublishedOnly
-                    ? 'Afficher tous'
-                    : 'Afficher publiés'),
+          const SizedBox(width: 8),
+          // Row des boutons flexible + FittedBox
+          Flexible(
+            child: FittedBox(
+              fit: BoxFit.scaleDown, // réduit la taille si nécessaire
+              child: Row(
+                children: [
+                  TextButton.icon(
+                    onPressed: vm.toggleFilter,
+                    icon: Icon(
+                        vm.showPublishedOnly ? Icons.visibility : Icons.visibility_off),
+                    label: Text(
+                      vm.showPublishedOnly ? 'Afficher tous' : 'Afficher publiés',
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  ElevatedButton.icon(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const WeeklyOfferFormPage()),
+                      );
+                    },
+                    icon: const Icon(Icons.add),
+                    label: const Text('Créer une offre'),
+                  ),
+                ],
               ),
-              const SizedBox(width: 12),
-              ElevatedButton.icon(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => const WeeklyOfferFormPage()),
-                  );
-                },
-                icon: const Icon(Icons.add),
-                label: const Text('Créer une offre'),
-              ),
-            ],
+            ),
           ),
         ],
       ),
@@ -86,9 +108,8 @@ class OffersMngtPageContent extends StatelessWidget {
   Widget _buildOfferCard(
       BuildContext context, WeeklyOffersViewModel vm, WeeklyOffer offer) {
     final isPublished = offer.isPublished;
-
-    Color badgeColor = isPublished ? Colors.green : Colors.orange;
-    String badgeText = isPublished ? 'Publiée' : 'Brouillon';
+    final badgeColor = isPublished ? Colors.green : Colors.orange;
+    final badgeText = isPublished ? 'Publiée' : 'Brouillon';
 
     return Stack(
       children: [
@@ -100,10 +121,28 @@ class OffersMngtPageContent extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  'Semaine du ${offer.startDate.day}/${offer.startDate.month}',
-                  style: const TextStyle(fontWeight: FontWeight.bold),
+                // Wrap le contenu du haut et le badge
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Semaine du ${offer.startDate.day}/${offer.startDate.month}',
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    Chip(
+                      label: Text(
+                        badgeText,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w500,
+                          fontSize: 10,
+                        ),
+                      ),
+                      backgroundColor: badgeColor,
+                    ),
+                  ],
                 ),
+                const SizedBox(height: 4),
                 Text(
                   '${offer.startDate.toLocal().toString().split(' ')[0]} → '
                   '${offer.endDate.toLocal().toString().split(' ')[0]}',
@@ -127,10 +166,8 @@ class OffersMngtPageContent extends StatelessWidget {
                     ),
                     OutlinedButton.icon(
                       onPressed: () async {
-                        final newStart =
-                            offer.startDate.add(const Duration(days: 7));
-                        final newEnd =
-                            offer.endDate.add(const Duration(days: 7));
+                        final newStart = offer.startDate.add(const Duration(days: 7));
+                        final newEnd = offer.endDate.add(const Duration(days: 7));
                         await vm.duplicateOffer(offer, newStart, newEnd);
                       },
                       icon: const Icon(Icons.copy),
@@ -157,24 +194,8 @@ class OffersMngtPageContent extends StatelessWidget {
               ],
             ),
           ),
-        ),
-
-        // 🔹 Badge de statut en haut à droite
-        Positioned(
-          right: 12,
-          top: 8,
-          child: Chip(
-            label: Text(badgeText),
-            backgroundColor: badgeColor,
-            labelStyle: const TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.w500,
-              fontSize: 10,
-            ),
-          ),
-        ),
+        )
       ],
     );
   }
-
 }
