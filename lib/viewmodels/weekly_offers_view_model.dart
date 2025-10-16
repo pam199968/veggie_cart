@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import '../models/weekly_offer.dart';
 import '../repositories/weekly_offers_repository.dart';
@@ -51,28 +52,33 @@ class WeeklyOffersViewModel extends ChangeNotifier {
   }
 
   Future<void> publishOffer(WeeklyOffer offer) async {
-    await _repository.updateWeeklyOffer(offer.copyWith(isPublished: true));
+  // Formateur de date au format français
+  final dateFormatter = DateFormat('dd/MM/yyyy', 'fr_FR');
 
-    final HttpsCallable callable = FirebaseFunctions.instance.httpsCallable(
-      'sendWeeklyOfferEmail',
-    );
+  // Mise à jour de l'offre publiée
+  await _repository.updateWeeklyOffer(offer.copyWith(isPublished: true));
 
-    try {
-      final result = await callable.call(<String, dynamic>{
-        'offer': {
-          'title': offer.title,
-          'description': offer.description,
-          'startDate': offer.startDate.toIso8601String(),
-          'endDate': offer.endDate.toIso8601String(),
-        }
-      });
-      print('Emails envoyés : ${result.data}');
-    } catch (e) {
-      print('Erreur envoi email : $e');
-    }
+  // Préparation de la fonction callable
+  final callable = FirebaseFunctions.instance.httpsCallable('sendWeeklyOfferEmail');
 
-    await loadOffers(publishedOnly: _showPublishedOnly);
+  try {
+    // Appel de la fonction cloud avec dates formatées
+    await callable.call({
+      'offer': {
+        'title': offer.title,
+        'description': offer.description,
+        'startDate': dateFormatter.format(offer.startDate),
+        'endDate': dateFormatter.format(offer.endDate),
+      },
+    });
+  } catch (e) {
+    // Ici, on ne log pas dans la console mais on peut gérer l'erreur proprement
+    rethrow; // ou gérer via un système de logs / alertes UI
   }
+
+  // Rechargement des offres après publication
+  await loadOffers(publishedOnly: _showPublishedOnly);
+}
 
 
   void toggleFilter() {
