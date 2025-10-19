@@ -100,16 +100,16 @@ class AppLocalizationsFr extends AppLocalizations {
   String get save => 'Enregistrer';
 
   @override
-  String get gardenersListTitle => 'Liste des maraîchers';
+  String get gardenersListTitle => 'Liste des administrateurs';
 
   @override
-  String get addGardenerTooltip => 'Ajouter un maraîcher';
+  String get addGardenerTooltip => 'Ajouter un administrateur';
 
   @override
-  String get noGardenersFound => 'Aucun maraîcher trouvé';
+  String get noGardenersFound => 'Aucun administrateur trouvé';
 
   @override
-  String get addGardenerDialogTitle => 'Ajouter un maraîcher';
+  String get addGardenerDialogTitle => 'Ajouter un administrateur';
 
   @override
   String get searchUserLabel => 'Rechercher un utilisateur';
