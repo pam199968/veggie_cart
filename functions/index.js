@@ -46,7 +46,22 @@ exports.sendWeeklyOfferEmail = onCall(
           console.log("Aucun utilisateur à notifier.");
           return {success: true, message: "Aucun utilisateur à notifier."};
         }
-
+        // 🔹 Construction de la liste des légumes en texte formaté
+        let vegetablesText = "";
+        if (offer.vegetables && Array.isArray(offer.vegetables) &&
+            offer.vegetables.length > 0) {
+          vegetablesText = "\n🧺 Légumes disponibles cette semaine :\n\n";
+          vegetablesText += offer.vegetables.map((veg) => {
+            const price = veg.price ? `${veg.price.toFixed(2)} €` : "—";
+            const packaging = veg.packaging || "N/A";
+            const qty = veg.standardQuantity !== undefined &&
+            veg.standardQuantity !== null ?
+              veg.standardQuantity: "—";
+            return `• ${veg.name} — ${price} / ` +
+            `${packaging} (Qté standard : ${qty})`;
+          }).join("\n");
+          vegetablesText += "\n\n";
+        }
         const sendEmailPromises = [];
 
         usersSnapshot.forEach((doc) => {
@@ -62,6 +77,7 @@ exports.sendWeeklyOfferEmail = onCall(
           `Découvrez notre nouvelle offre de la semaine du ` +
           `${offer.startDate} au ${offer.endDate} !\n\n` +
           `${offer.description}\n\n` +
+          `${vegetablesText}` +
           `À très bientôt !\n\n` +
           `— L’équipe VeggieCart 🌱`,
           };

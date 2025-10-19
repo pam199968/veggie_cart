@@ -83,31 +83,44 @@ class WeeklyOffersViewModel extends ChangeNotifier {
   }
 
   /// 🔹 Publication
-  Future<void> publishOffer(WeeklyOffer offer) async {
-    final updatedOffer = offer.copyWith(status: WeeklyOfferStatus.published);
-    await _repository.updateWeeklyOffer(updatedOffer);
+/// 🔹 Publication d'une offre (avec envoi de notification)
+Future<void> publishOffer(WeeklyOffer offer) async {
+  final updatedOffer = offer.copyWith(status: WeeklyOfferStatus.published);
+  await _repository.updateWeeklyOffer(updatedOffer);
 
-    final dateFormatter = DateFormat('dd/MM/yyyy', 'fr_FR');
-    final callable = FirebaseFunctions.instance.httpsCallable('sendWeeklyOfferEmail');
+  final dateFormatter = DateFormat('dd/MM/yyyy', 'fr_FR');
+  final callable = FirebaseFunctions.instance.httpsCallable('sendWeeklyOfferEmail');
 
-    try {
-      await callable.call({
-        'offer': {
-          'title': offer.title,
-          'description': offer.description,
-          'startDate': dateFormatter.format(offer.startDate),
-          'endDate': dateFormatter.format(offer.endDate),
-        },
-      });
-    } catch (e) {
-      debugPrint('Erreur lors de l\'envoi de la notification : $e');
-    }
+  try {
+    // 🔸 Préparation de la liste des légumes (format simple et clair)
+    final List<Map<String, dynamic>> vegetableList = offer.vegetables.map((veg) {
+      return {
+        'name': veg.name,
+        'price': veg.price ?? 0,
+        'packaging': veg.packaging,
+        'standardQuantity': veg.standardQuantity,
+      };
+    }).toList();
 
-    await loadOffers(
-      publishedOnly: _showPublishedOnly,
-      includeClosed: _showClosedOffers,
-    );
+    // 🔸 Appel de la fonction Firebase avec les données complètes
+    await callable.call({
+      'offer': {
+        'title': offer.title,
+        'description': offer.description,
+        'startDate': dateFormatter.format(offer.startDate),
+        'endDate': dateFormatter.format(offer.endDate),
+        'vegetables': vegetableList,
+      },
+    });
+  } catch (e) {
+    debugPrint('Erreur lors de l\'envoi de la notification : $e');
   }
+
+  await loadOffers(
+    publishedOnly: _showPublishedOnly,
+    includeClosed: _showClosedOffers,
+  );
+}
 
   /// 🔹 Clôturer / Réouvrir
   Future<void> closeOffer(WeeklyOffer offer) async {

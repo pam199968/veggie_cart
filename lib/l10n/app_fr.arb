@@ -46,7 +46,7 @@
   "profileLabel": "Profil",
   "addressLabel": "Adresse",
   "deliveryMethodLabel": "Méthode de livraison",
-  "pushNotificationLabel": "Activer les notifications push",
+  "pushNotificationLabel": "Activer les notifications par email",
   "createAccountButton": "Créer le compte",
   "signInButton": "Se connecter",
   "createAccountLink": "Créer un compte",

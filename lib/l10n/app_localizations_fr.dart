@@ -152,7 +152,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get deliveryMethodLabel => 'Méthode de livraison';
 
   @override
-  String get pushNotificationLabel => 'Activer les notifications push';
+  String get pushNotificationLabel => 'Activer les notifications par email';
 
   @override
   String get createAccountButton => 'Créer le compte';
