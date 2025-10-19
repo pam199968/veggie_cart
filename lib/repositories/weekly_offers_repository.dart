@@ -50,7 +50,7 @@ class WeeklyOffersRepository {
       title: '${original.title} (copie)',
       startDate: newStartDate,
       endDate: newEndDate,
-      isPublished: false,
+      status: WeeklyOfferStatus.draft,
     );
 
     final newId = await _weeklyOffersService.addWeeklyOffer(duplicated);

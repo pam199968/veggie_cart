@@ -1,13 +1,45 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'vegetable_model.dart';
 
+/// Enum représentant les états d'une offre hebdomadaire
+enum WeeklyOfferStatus {
+  draft,     // Brouillon
+  published, // Publiée
+  closed,    // Fermée
+}
+
+extension WeeklyOfferStatusExtension on WeeklyOfferStatus {
+  String get label {
+    switch (this) {
+      case WeeklyOfferStatus.draft:
+        return 'Brouillon';
+      case WeeklyOfferStatus.published:
+        return 'Publiée';
+      case WeeklyOfferStatus.closed:
+        return 'Fermée';
+    }
+  }
+
+  static WeeklyOfferStatus fromString(String value) {
+    switch (value) {
+      case 'published':
+        return WeeklyOfferStatus.published;
+      case 'closed':
+        return WeeklyOfferStatus.closed;
+      case 'draft':
+      default:
+        return WeeklyOfferStatus.draft;
+    }
+  }
+}
+
 class WeeklyOffer {
   final String? id;
   final String title;
   final String description;
   final DateTime startDate;
   final DateTime endDate;
-  final bool isPublished;
+  final WeeklyOfferStatus status;
   final List<VegetableModel> vegetables;
 
   WeeklyOffer({
@@ -16,11 +48,11 @@ class WeeklyOffer {
     required this.description,
     required this.startDate,
     required this.endDate,
-    required this.isPublished,
+    required this.status,
     required this.vegetables,
   });
 
-  /// Conversion Map → Objet
+  /// Conversion Firestore → Objet
   factory WeeklyOffer.fromMap(Map<String, dynamic> map, String documentId) {
     return WeeklyOffer(
       id: documentId,
@@ -28,21 +60,21 @@ class WeeklyOffer {
       description: map['description'] ?? '',
       startDate: (map['startDate'] as Timestamp).toDate(),
       endDate: (map['endDate'] as Timestamp).toDate(),
-      isPublished: map['isPublished'] ?? false,
+      status: WeeklyOfferStatusExtension.fromString(map['status'] ?? 'draft'),
       vegetables: (map['vegetables'] as List<dynamic>? ?? [])
           .map((v) => VegetableModel.fromMap(Map<String, dynamic>.from(v), v['id'] ?? ''))
           .toList(),
     );
   }
 
-  /// Conversion Objet → Map
+  /// Conversion Objet → Firestore
   Map<String, dynamic> toMap() {
     return {
       'title': title,
       'description': description,
       'startDate': Timestamp.fromDate(startDate),
       'endDate': Timestamp.fromDate(endDate),
-      'isPublished': isPublished,
+      'status': status.name, // 'draft', 'published', 'closed'
       'vegetables': vegetables.map((v) => v.toMap()..['id'] = v.id).toList(),
     };
   }
@@ -54,7 +86,7 @@ class WeeklyOffer {
     String? description,
     DateTime? startDate,
     DateTime? endDate,
-    bool? isPublished,
+    WeeklyOfferStatus? status,
     List<VegetableModel>? vegetables,
   }) {
     return WeeklyOffer(
@@ -63,8 +95,11 @@ class WeeklyOffer {
       description: description ?? this.description,
       startDate: startDate ?? this.startDate,
       endDate: endDate ?? this.endDate,
-      isPublished: isPublished ?? this.isPublished,
+      status: status ?? this.status,
       vegetables: vegetables ?? this.vegetables,
     );
   }
+
+  /// Utilitaire pratique pour savoir si l’offre est publiée
+  bool get isPublished => status == WeeklyOfferStatus.published;
 }

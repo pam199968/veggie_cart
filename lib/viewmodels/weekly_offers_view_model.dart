@@ -18,71 +18,131 @@ class WeeklyOffersViewModel extends ChangeNotifier {
   bool _showPublishedOnly = true;
   bool get showPublishedOnly => _showPublishedOnly;
 
-  Future<void> loadOffers({bool publishedOnly = true}) async {
+  bool _showClosedOffers = false;
+  bool get showClosedOffers => _showClosedOffers;
+
+  /// 🔹 Chargement des offres depuis Firestore
+  Future<void> loadOffers({
+    bool publishedOnly = true,
+    bool includeClosed = false,
+  }) async {
     _loading = true;
     _showPublishedOnly = publishedOnly;
+    _showClosedOffers = includeClosed;
     notifyListeners();
 
     final result = await _repository.getAllWeeklyOffers();
-    _offers = publishedOnly
-        ? result.where((o) => o.isPublished).toList()
+
+    // 🔸 Étape 1 : filtrer selon statut "publié uniquement" ou non
+    var filtered = publishedOnly
+        ? result.where((o) => o.status == WeeklyOfferStatus.published).toList()
         : result;
+
+    // 🔸 Étape 2 : exclure les offres fermées si on ne souhaite pas les voir
+    if (!includeClosed) {
+      filtered = filtered
+          .where((o) => o.status != WeeklyOfferStatus.closed)
+          .toList();
+    }
+
+    _offers = filtered;
     _loading = false;
     notifyListeners();
   }
 
+  /// 🔹 Création d'une nouvelle offre
   Future<void> createOffer(WeeklyOffer offer) async {
-    await _repository.createWeeklyOffer(offer);
-    await loadOffers(publishedOnly: _showPublishedOnly);
+    final newOffer = offer.copyWith(status: WeeklyOfferStatus.draft);
+    await _repository.createWeeklyOffer(newOffer);
+    await loadOffers(
+      publishedOnly: _showPublishedOnly,
+      includeClosed: _showClosedOffers,
+    );
   }
 
+  /// 🔹 Mise à jour
   Future<void> updateOffer(WeeklyOffer offer) async {
     await _repository.updateWeeklyOffer(offer);
-    await loadOffers(publishedOnly: _showPublishedOnly);
+    await loadOffers(
+      publishedOnly: _showPublishedOnly,
+      includeClosed: _showClosedOffers,
+    );
   }
 
-  Future<void> deleteOffer(String id) async {
-    await _repository.deleteWeeklyOffer(id);
-    await loadOffers(publishedOnly: _showPublishedOnly);
-  }
-
+  /// 🔹 Duplication
   Future<void> duplicateOffer(WeeklyOffer source, DateTime start, DateTime end) async {
-    await _repository.duplicateWeeklyOffer(original: source, newStartDate: start, newEndDate: end);
-    await loadOffers(publishedOnly: _showPublishedOnly);
+    await _repository.duplicateWeeklyOffer(
+      original: source,
+      newStartDate: start,
+      newEndDate: end,
+    );
+    await loadOffers(
+      publishedOnly: _showPublishedOnly,
+      includeClosed: _showClosedOffers,
+    );
   }
 
+  /// 🔹 Publication
   Future<void> publishOffer(WeeklyOffer offer) async {
-  // Formateur de date au format français
-  final dateFormatter = DateFormat('dd/MM/yyyy', 'fr_FR');
+    final updatedOffer = offer.copyWith(status: WeeklyOfferStatus.published);
+    await _repository.updateWeeklyOffer(updatedOffer);
 
-  // Mise à jour de l'offre publiée
-  await _repository.updateWeeklyOffer(offer.copyWith(isPublished: true));
+    final dateFormatter = DateFormat('dd/MM/yyyy', 'fr_FR');
+    final callable = FirebaseFunctions.instance.httpsCallable('sendWeeklyOfferEmail');
 
-  // Préparation de la fonction callable
-  final callable = FirebaseFunctions.instance.httpsCallable('sendWeeklyOfferEmail');
+    try {
+      await callable.call({
+        'offer': {
+          'title': offer.title,
+          'description': offer.description,
+          'startDate': dateFormatter.format(offer.startDate),
+          'endDate': dateFormatter.format(offer.endDate),
+        },
+      });
+    } catch (e) {
+      debugPrint('Erreur lors de l\'envoi de la notification : $e');
+    }
 
-  try {
-    // Appel de la fonction cloud avec dates formatées
-    await callable.call({
-      'offer': {
-        'title': offer.title,
-        'description': offer.description,
-        'startDate': dateFormatter.format(offer.startDate),
-        'endDate': dateFormatter.format(offer.endDate),
-      },
-    });
-  } catch (e) {
-    // Ici, on ne log pas dans la console mais on peut gérer l'erreur proprement
-    rethrow; // ou gérer via un système de logs / alertes UI
+    await loadOffers(
+      publishedOnly: _showPublishedOnly,
+      includeClosed: _showClosedOffers,
+    );
   }
 
-  // Rechargement des offres après publication
-  await loadOffers(publishedOnly: _showPublishedOnly);
-}
+  /// 🔹 Clôturer / Réouvrir
+  Future<void> closeOffer(WeeklyOffer offer) async {
+    final updatedOffer = offer.copyWith(status: WeeklyOfferStatus.closed);
+    await _repository.updateWeeklyOffer(updatedOffer);
+    await loadOffers(
+      publishedOnly: _showPublishedOnly,
+      includeClosed: _showClosedOffers,
+    );
+  }
 
+  Future<void> reopenOffer(WeeklyOffer offer) async {
+    final updatedOffer = offer.copyWith(status: WeeklyOfferStatus.draft);
+    await _repository.updateWeeklyOffer(updatedOffer);
+    await loadOffers(
+      publishedOnly: _showPublishedOnly,
+      includeClosed: _showClosedOffers,
+    );
+  }
 
+  /// 🔹 Basculer le filtre "publiées seulement"
   void toggleFilter() {
     _showPublishedOnly = !_showPublishedOnly;
-    loadOffers(publishedOnly: _showPublishedOnly);
+    loadOffers(
+      publishedOnly: _showPublishedOnly,
+      includeClosed: _showClosedOffers,
+    );
+  }
+
+  /// 🔹 Basculer l’affichage des offres fermées
+  void toggleShowClosed() {
+    _showClosedOffers = !_showClosedOffers;
+    loadOffers(
+      publishedOnly: _showPublishedOnly,
+      includeClosed: _showClosedOffers,
+    );
   }
 }

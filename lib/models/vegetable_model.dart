@@ -86,4 +86,13 @@ class VegetableModel {
       'image': image,
     };
   }
+
+/// 🔹 Représentation lisible pour les aperçus
+  @override
+  String toString() {
+    final quantity = standardQuantity != null ? '${standardQuantity!.toStringAsFixed(0)} $packaging' : packaging;
+    final formattedPrice = price != null ? '${price!.toStringAsFixed(2)}€' : '-';
+    return '$name ($quantity, $formattedPrice)';
+  }
+
 }

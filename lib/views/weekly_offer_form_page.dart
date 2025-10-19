@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:intl/intl.dart';
 import '../models/weekly_offer.dart';
 import '../models/vegetable_model.dart';
 import '../viewmodels/weekly_offers_view_model.dart';
@@ -7,7 +8,7 @@ import '../repositories/catalog_repository.dart';
 
 class WeeklyOfferFormPage extends StatefulWidget {
   final WeeklyOffer? existingOffer;
-
+  
   const WeeklyOfferFormPage({super.key, this.existingOffer});
 
   @override
@@ -16,11 +17,12 @@ class WeeklyOfferFormPage extends StatefulWidget {
 
 class _WeeklyOfferFormPageState extends State<WeeklyOfferFormPage> {
   final _formKey = GlobalKey<FormState>();
+  final DateFormat _frenchDateFormat = DateFormat('dd/MM/yyyy', 'fr_FR');
   late TextEditingController _titleController;
   late TextEditingController _descriptionController;
   DateTime? _startDate;
   DateTime? _endDate;
-  bool _isPublished = false;
+  late WeeklyOfferStatus _status;
   List<VegetableModel> _selectedVegetables = [];
 
   @override
@@ -31,7 +33,7 @@ class _WeeklyOfferFormPageState extends State<WeeklyOfferFormPage> {
     _descriptionController = TextEditingController(text: offer?.description ?? '');
     _startDate = offer?.startDate;
     _endDate = offer?.endDate;
-    _isPublished = offer?.isPublished ?? false;
+    _status = offer?.status ?? WeeklyOfferStatus.draft;
     _selectedVegetables = offer?.vegetables ?? [];
   }
 
@@ -42,6 +44,7 @@ class _WeeklyOfferFormPageState extends State<WeeklyOfferFormPage> {
       initialDate: initial,
       firstDate: DateTime(2020),
       lastDate: DateTime(2100),
+      locale: const Locale('fr', 'FR'),
     );
     if (picked != null) {
       setState(() {
@@ -85,7 +88,7 @@ class _WeeklyOfferFormPageState extends State<WeeklyOfferFormPage> {
       description: _descriptionController.text,
       startDate: _startDate!,
       endDate: _endDate!,
-      isPublished: _isPublished,
+      status: _status,
       vegetables: _selectedVegetables,
     );
 
@@ -101,11 +104,11 @@ class _WeeklyOfferFormPageState extends State<WeeklyOfferFormPage> {
 
   @override
   Widget build(BuildContext context) {
+    final isEditing = widget.existingOffer != null;
+
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.existingOffer == null
-            ? 'Nouvelle offre'
-            : 'Modifier l’offre'),
+        title: Text(isEditing ? 'Modifier l’offre' : 'Nouvelle offre'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),
@@ -125,13 +128,10 @@ class _WeeklyOfferFormPageState extends State<WeeklyOfferFormPage> {
                 maxLines: 3,
               ),
               const SizedBox(height: 12),
-              // Bloc date responsive
               LayoutBuilder(
                 builder: (context, constraints) {
-                  // On considère qu'on peut mettre les deux ListTile côte à côte si l'écran est assez large
-                  final isWide = constraints.maxWidth > 400; // seuil ajustable selon design
+                  final isWide = constraints.maxWidth > 400;
                   if (isWide) {
-                    // Côté à côte
                     return Row(
                       children: [
                         Expanded(
@@ -139,8 +139,9 @@ class _WeeklyOfferFormPageState extends State<WeeklyOfferFormPage> {
                             title: Text(
                               _startDate == null
                                   ? 'Date de début'
-                                  : 'Début : ${_startDate!.toLocal().toString().split(" ")[0]}',
-                              overflow: TextOverflow.ellipsis, // évite le débordement
+                                  : 'Début : ${_frenchDateFormat.format(_startDate!)
+}',
+                              overflow: TextOverflow.ellipsis,
                             ),
                             trailing: const Icon(Icons.calendar_today),
                             onTap: () => _pickDate(context, true),
@@ -151,7 +152,8 @@ class _WeeklyOfferFormPageState extends State<WeeklyOfferFormPage> {
                             title: Text(
                               _endDate == null
                                   ? 'Date de fin'
-                                  : 'Fin : ${_endDate!.toLocal().toString().split(" ")[0]}',
+                                  : 'Fin : ${_frenchDateFormat.format(_endDate!)
+}',
                               overflow: TextOverflow.ellipsis,
                             ),
                             trailing: const Icon(Icons.calendar_today),
@@ -161,14 +163,14 @@ class _WeeklyOfferFormPageState extends State<WeeklyOfferFormPage> {
                       ],
                     );
                   } else {
-                    // Empilés verticalement sur petits écrans
                     return Column(
                       children: [
                         ListTile(
                           title: Text(
                             _startDate == null
                                 ? 'Date de début'
-                                : 'Début : ${_startDate!.toLocal().toString().split(" ")[0]}',
+                                : 'Début : ${_frenchDateFormat.format(_startDate!)
+}',
                           ),
                           trailing: const Icon(Icons.calendar_today),
                           onTap: () => _pickDate(context, true),
@@ -177,7 +179,7 @@ class _WeeklyOfferFormPageState extends State<WeeklyOfferFormPage> {
                           title: Text(
                             _endDate == null
                                 ? 'Date de fin'
-                                : 'Fin : ${_endDate!.toLocal().toString().split(" ")[0]}',
+                                : 'Fin : ${_frenchDateFormat.format(_endDate!)}',
                           ),
                           trailing: const Icon(Icons.calendar_today),
                           onTap: () => _pickDate(context, false),
@@ -187,11 +189,30 @@ class _WeeklyOfferFormPageState extends State<WeeklyOfferFormPage> {
                   }
                 },
               ),
-              SwitchListTile(
-                title: const Text('Publier l’offre'),
-                value: _isPublished,
-                onChanged: (v) => setState(() => _isPublished = v),
-              ),
+              if (isEditing) ...[
+                const SizedBox(height: 12),
+                DropdownButtonFormField<WeeklyOfferStatus>(
+                  value: _status,
+                  decoration: const InputDecoration(labelText: 'Statut de l’offre'),
+                  onChanged: (v) {
+                    if (v != null) setState(() => _status = v);
+                  },
+                  items: const [
+                    DropdownMenuItem(
+                      value: WeeklyOfferStatus.draft,
+                      child: Text('Brouillon'),
+                    ),
+                    DropdownMenuItem(
+                      value: WeeklyOfferStatus.published,
+                      child: Text('Publiée'),
+                    ),
+                    DropdownMenuItem(
+                      value: WeeklyOfferStatus.closed,
+                      child: Text('Fermée'),
+                    ),
+                  ],
+                ),
+              ],
               const Divider(),
               ListTile(
                 title: const Text('Légumes inclus'),
@@ -216,8 +237,7 @@ class _WeeklyOfferFormPageState extends State<WeeklyOfferFormPage> {
                             title: Text('Modifier le prix de ${veg.name}'),
                             content: TextField(
                               controller: controller,
-                              keyboardType:
-                                  const TextInputType.numberWithOptions(decimal: true),
+                              keyboardType: const TextInputType.numberWithOptions(decimal: true),
                               decoration: const InputDecoration(labelText: 'Prix (€)'),
                             ),
                             actions: [
