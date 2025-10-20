@@ -5,58 +5,67 @@ class OrderService {
   final CollectionReference _ordersRef =
       FirebaseFirestore.instance.collection('orders');
 
-  /// 🔹 Créer une nouvelle commande
-  Future<void> createOrder(OrderModel order) async {
-    await _ordersRef.doc(order.id).set(order.toMap());
+  CollectionReference get ordersRef => _ordersRef;
+
+  /// 🔹 Flux temps réel paginé par client
+  Stream<List<OrderModel>> streamOrdersByCustomer({
+    required String customerId,
+    int limit = 10,
+    DocumentSnapshot? startAfterDoc,
+  }) {
+    Query query = _ordersRef
+        .where('customerId', isEqualTo: customerId)
+        .orderBy('createdAt', descending: true)
+        .limit(limit);
+
+    if (startAfterDoc != null) {
+      query = query.startAfterDocument(startAfterDoc);
+    }
+
+    return query.snapshots().map((snapshot) => snapshot.docs
+        .map((doc) => OrderModel.fromMap(doc.data() as Map<String, dynamic>, doc.id))
+        .toList());
   }
 
-  /// 🔹 Récupérer une commande par son ID
-  Future<OrderModel?> getOrderById(String id) async {
-    final doc = await _ordersRef.doc(id).get();
-    if (!doc.exists) return null;
-    final data = doc.data() as Map<String, dynamic>;
-    return OrderModel.fromMap(data, doc.id);
-  }
+  Future<List<OrderModel>> getOrdersByCustomerPaginated({
+    required String customerId,
+    int limit = 20,
+    OrderModel? startAfter,
+  }) async {
+    Query query = _ordersRef
+        .where('customerId', isEqualTo: customerId)
+        .orderBy('createdAt', descending: true)
+        .limit(limit);
 
-  /// 🔹 Récupérer toutes les commandes
-  Future<List<OrderModel>> getAllOrders() async {
-    final snapshot =
-        await _ordersRef.orderBy('createdAt', descending: true).get();
+    if (startAfter != null) {
+      final doc = await _ordersRef.doc(startAfter.id).get();
+      query = query.startAfterDocument(doc);
+    }
+
+    final snapshot = await query.get();
     return snapshot.docs
         .map((doc) => OrderModel.fromMap(doc.data() as Map<String, dynamic>, doc.id))
         .toList();
   }
 
-  /// 🔹 Mettre à jour une commande
-  Future<void> updateOrder(OrderModel order) async {
-    await _ordersRef.doc(order.id).update(order.toMap());
-  }
-
-  /// 🔹 Supprimer une commande
-  Future<void> deleteOrder(String id) async {
-    await _ordersRef.doc(id).delete();
-  }
-
-  /// 🔹 Flux temps réel de commandes
-  Stream<List<OrderModel>> streamOrders() {
-    return _ordersRef
-        .orderBy('createdAt', descending: true)
-        .snapshots()
-        .map((snapshot) => snapshot.docs
-            .map((doc) =>
-                OrderModel.fromMap(doc.data() as Map<String, dynamic>, doc.id))
-            .toList());
-  }
-
-  /// 🔹 Exemple de filtre par client
-  Stream<List<OrderModel>> streamOrdersByCustomer(String customerId) {
-    return _ordersRef
+  /// 🔹 Récupère une seule page (sans flux) pour le scroll infini
+  Future<List<OrderModel>> fetchOrdersPage({
+    required String customerId,
+    int limit = 10,
+    DocumentSnapshot? startAfterDoc,
+  }) async {
+    Query query = _ordersRef
         .where('customerId', isEqualTo: customerId)
         .orderBy('createdAt', descending: true)
-        .snapshots()
-        .map((snapshot) => snapshot.docs
-            .map((doc) =>
-                OrderModel.fromMap(doc.data() as Map<String, dynamic>, doc.id))
-            .toList());
+        .limit(limit);
+
+    if (startAfterDoc != null) {
+      query = query.startAfterDocument(startAfterDoc);
+    }
+
+    final snapshot = await query.get();
+    return snapshot.docs
+        .map((doc) => OrderModel.fromMap(doc.data() as Map<String, dynamic>, doc.id))
+        .toList();
   }
 }

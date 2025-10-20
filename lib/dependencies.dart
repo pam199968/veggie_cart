@@ -1,18 +1,23 @@
 // dependencies.dart
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:veggie_cart/repositories/order_repository.dart';
 import 'l10n/app_localizations.dart';
 import 'services/auth_service.dart';
 import 'repositories/account_repository.dart';
 import 'repositories/catalog_repository.dart';
 import 'repositories/weekly_offers_repository.dart';
 import 'services/user_service.dart';
+import 'services/order_service.dart';
 import 'services/catalog_service.dart';
 import 'services/weekly_offers_service.dart';
 import 'views/my_home_page.dart';
 import 'viewmodels/account_view_model.dart';
 import 'viewmodels/catalog_view_model.dart';
 import 'viewmodels/weekly_offers_view_model.dart';
+import 'viewmodels/my_orders_view_model.dart';
+
+
 import 'package:flutter_localizations/flutter_localizations.dart';
 
 
@@ -24,6 +29,7 @@ Widget buildApp({
   UserService? userService,
   CatalogService? catalogService,
   WeeklyOffersService? weeklyOffersService,
+  OrderService? orderService,
   
 }) {
   return MultiProvider(
@@ -39,6 +45,9 @@ Widget buildApp({
       ),
       Provider<WeeklyOffersService>(
         create: (context) => weeklyOffersService ?? WeeklyOffersService(),
+      ),
+      Provider<OrderService>(
+        create: (_) => OrderService(),
       ),
       Provider<AccountRepository>(
         create: (context) => AccountRepository(
@@ -56,6 +65,9 @@ Widget buildApp({
           weeklyOffersService: context.read(),
           ),
       ),
+      Provider<OrderRepository>(
+        create: (context) => OrderRepository(service: context.read<OrderService>()),
+      ),
       ChangeNotifierProvider<AccountViewModel>(
         create: (context) => AccountViewModel(
           accountRepository: context.read(),
@@ -69,6 +81,12 @@ Widget buildApp({
       ChangeNotifierProvider<WeeklyOffersViewModel>(
         create: (context) => WeeklyOffersViewModel(
           repository: context.read<WeeklyOffersRepository>(),
+        ),
+      ),
+      ChangeNotifierProvider<OrderViewModel>(
+        create: (context) => OrderViewModel(
+          accountViewModel: context.read<AccountViewModel>(),
+          repository: context.read<OrderRepository>(),
         ),
       ),
     ],

@@ -4,10 +4,11 @@ import 'package:veggie_cart/views/offers_mngt_page_content.dart';
 import '../models/profile.dart';
 import '../viewmodels/account_view_model.dart';
 import '../viewmodels/catalog_view_model.dart';
+import '../viewmodels/my_orders_view_model.dart';
 import 'profile_page.dart';
 import 'login_content.dart';
 import 'catalog_page_content.dart';
-import 'orders_page_content.dart';
+import 'my_orders_page_content.dart';
 import 'offers_page_content.dart';
 import 'client_orders_page_content.dart';
 import 'gardeners_page_content.dart';
@@ -22,7 +23,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  String _currentPage = 'offres';
+  String _currentPage = '';
   bool _isLoading = true;
 
   @override
@@ -46,6 +47,15 @@ class _MyHomePageState extends State<MyHomePage> {
     final homeViewModel = context.watch<AccountViewModel>();
     final isAuthenticated = homeViewModel.isAuthenticated;
 
+        // Définition de la page initiale selon le profil
+    if (homeViewModel.currentUser.profile == Profile.customer) {
+      _currentPage = 'weekly_offers';
+    } else if (homeViewModel.currentUser.profile == Profile.gardener) {
+      _currentPage = 'offers_management';
+    } else {
+      _currentPage = ''; // cas par défaut
+    }
+
     if (_isLoading) {
       return const Scaffold(
         body: Center(child: CircularProgressIndicator()),
@@ -65,7 +75,7 @@ class _MyHomePageState extends State<MyHomePage> {
           bodyContent = const OffersMngtPageContent();
           break;
         case 'my_orders':
-          bodyContent = const OrdersPageContent();
+          bodyContent = const MyOrdersPageContent();
           break;
         case 'customer_orders':
           bodyContent = const ClientOrdersPageContent();
@@ -103,8 +113,12 @@ class _MyHomePageState extends State<MyHomePage> {
               icon: const Icon(Icons.logout),
               tooltip: context.l10n.logoutTooltip,
               onPressed: () async {
-                final vm = context.read<CatalogViewModel>();
-                vm.cancelSubscriptions(); // <--- important
+                final catalogVM = context.read<CatalogViewModel>();
+                catalogVM.cancelSubscriptions();
+
+                final orderVM = context.read<OrderViewModel>();
+                orderVM.cancelSubscriptions(); // <--- important pour fermer le flux de commandes
+
                 await homeViewModel.signOut(context);
               },
             ),
