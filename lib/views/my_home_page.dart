@@ -35,26 +35,28 @@ class _MyHomePageState extends State<MyHomePage> {
   Future<void> _attemptAutoLogin() async {
     final accountVM = context.read<AccountViewModel>();
     await accountVM.tryAutoLogin();
-    if (mounted) {
-      setState(() {
-        _isLoading = false;
-      });
-    }
+
+    if (!mounted) return;
+
+    setState(() {
+      _isLoading = false;
+
+      // Définition de la page initiale selon le profil, UNE SEULE FOIS
+      if (accountVM.currentUser.profile == Profile.customer) {
+        _currentPage = 'weekly_offers';
+      } else if (accountVM.currentUser.profile == Profile.gardener) {
+        _currentPage = 'offers_management';
+      } else {
+        _currentPage = ''; // ou LoginContent
+      }
+    });
   }
+
 
   @override
   Widget build(BuildContext context) {
     final homeViewModel = context.watch<AccountViewModel>();
     final isAuthenticated = homeViewModel.isAuthenticated;
-
-        // Définition de la page initiale selon le profil
-    if (homeViewModel.currentUser.profile == Profile.customer) {
-      _currentPage = 'weekly_offers';
-    } else if (homeViewModel.currentUser.profile == Profile.gardener) {
-      _currentPage = 'offers_management';
-    } else {
-      _currentPage = ''; // cas par défaut
-    }
 
     if (_isLoading) {
       return const Scaffold(
@@ -78,7 +80,7 @@ class _MyHomePageState extends State<MyHomePage> {
           bodyContent = const MyOrdersPageContent();
           break;
         case 'customer_orders':
-          bodyContent = const ClientOrdersPageContent();
+          bodyContent = const CustomerOrdersPageContent();
           break;
         case 'catalog':
           bodyContent = const CatalogPageContent();
@@ -173,9 +175,9 @@ class _MyHomePageState extends State<MyHomePage> {
                     ListTile(
                       leading: const Icon(Icons.receipt_long),
                       title: const Text('Commandes client'),
-                      selected: _currentPage == 'clients_orders',
+                      selected: _currentPage == 'customer_orders',
                       onTap: () {
-                        _navigateTo('clients_orders');
+                        _navigateTo('customer_orders');
                       },
                     ),
                     ListTile(
