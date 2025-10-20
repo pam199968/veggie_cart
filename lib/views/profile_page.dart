@@ -100,48 +100,93 @@ class _ProfilePageState extends State<ProfilePage> {
 
   Widget _buildEditForm(AccountViewModel homeViewModel, AccountRepository accountRepository) {
     return ListView(
+      padding: const EdgeInsets.symmetric(vertical: 10),
       children: [
-        const SizedBox(height: 10),
-        _buildEditableField(context.l10n.name, _nameController, (v) => _editableUser = _editableUser.copyWith(name: v)),
-        _buildEditableField(context.l10n.givenNameLabel, _givenNameController, (v) => _editableUser = _editableUser.copyWith(givenName: v)),
-        _buildEditableField(context.l10n.emailLabel, _emailController, (v) {}, readOnly: true),
-        _buildEditableField(context.l10n.phoneLabel, _phoneController, (v) => _editableUser = _editableUser.copyWith(phoneNumber: v)),
-        _buildEditableField(context.l10n.addressLabel, _addressController, (v) => _editableUser = _editableUser.copyWith(address: v), maxLines: 3),
+        _buildEditableField(
+          context.l10n.name,
+          _nameController,
+          (v) => _editableUser = _editableUser.copyWith(name: v),
+        ),
+        _buildEditableField(
+          context.l10n.givenNameLabel,
+          _givenNameController,
+          (v) => _editableUser = _editableUser.copyWith(givenName: v),
+        ),
+        _buildEditableField(
+          context.l10n.emailLabel,
+          _emailController,
+          (v) {},
+          readOnly: true,
+        ),
+        _buildEditableField(
+          context.l10n.phoneLabel,
+          _phoneController,
+          (v) => _editableUser = _editableUser.copyWith(phoneNumber: v),
+        ),
+        _buildEditableField(
+          context.l10n.addressLabel,
+          _addressController,
+          (v) => _editableUser = _editableUser.copyWith(address: v),
+          maxLines: 3,
+        ),
+
+        // ---------------------------
+        // Dropdown pour la méthode de livraison
+        const SizedBox(height: 16),
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 6),
+          child: DropdownButtonFormField<DeliveryMethod>(
+            value: _editableUser.deliveryMethod,
+            decoration: InputDecoration(
+              labelText: context.l10n.deliveryMethodLabel,
+              border: const OutlineInputBorder(),
+            ),
+            items: DeliveryMethod.values.map((method) {
+              return DropdownMenuItem(
+                value: method,
+                child: Text(method.label),
+              );
+            }).toList(),
+            onChanged: (method) {
+              if (method != null) {
+                setState(() {
+                  _editableUser = _editableUser.copyWith(deliveryMethod: method);
+                });
+              }
+            },
+          ),
+        ),
 
         const SizedBox(height: 20),
-
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-          ElevatedButton.icon(
-            icon: _isSaving
-                ? const CircularProgressIndicator(color: Colors.white, strokeWidth: 2)
-                : const Icon(Icons.save),
-            label: Text(context.l10n.save),
-            onPressed: _isSaving
-                ? null
-                : () async {
-                    setState(() => _isSaving = true);
+            ElevatedButton.icon(
+              icon: _isSaving
+                  ? const CircularProgressIndicator(color: Colors.white, strokeWidth: 2)
+                  : const Icon(Icons.save),
+              label: Text(context.l10n.save),
+              onPressed: _isSaving
+                  ? null
+                  : () async {
+                      setState(() => _isSaving = true);
 
-                    // 🔹 Mise à jour via HomeViewModel (qui utilise AccountRepository)
-                    final success = await homeViewModel.updateUserProfile(
-                      context,
-                      _editableUser,
-                    );
+                      final success = await homeViewModel.updateUserProfile(
+                        context,
+                        _editableUser,
+                      );
 
-                    if (success) {
-                      setState(() {
-                        // Met à jour le user courant et sort du mode édition
-                        homeViewModel.currentUser = _editableUser;
-                        _isEditing = false;
-                        _isSaving = false;
-                      });
-                    } else {
-                      setState(() => _isSaving = false);
-                    }
-                  },
-          ),
-
+                      if (success) {
+                        setState(() {
+                          homeViewModel.currentUser = _editableUser;
+                          _isEditing = false;
+                          _isSaving = false;
+                        });
+                      } else {
+                        setState(() => _isSaving = false);
+                      }
+                    },
+            ),
             const SizedBox(width: 16),
             OutlinedButton(
               onPressed: () => setState(() {
@@ -160,6 +205,7 @@ class _ProfilePageState extends State<ProfilePage> {
       ],
     );
   }
+
 
   Widget _buildEditableField(
     String label,
