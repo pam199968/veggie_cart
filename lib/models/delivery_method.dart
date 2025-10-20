@@ -19,11 +19,11 @@ extension DeliveryMethodExtension on DeliveryMethod {
   // Pour convertir depuis un String Firestore
   static DeliveryMethod fromString(String value) {
     switch (value) {
-      case "Retrait au marché":
+      case "marketPickup":
         return DeliveryMethod.marketPickup;
-      case "Livraison à domicile":
+      case "homeDelivery":
         return DeliveryMethod.homeDelivery;
-      case "Retrait à la ferme":
+      case "farmPickup":
       default:
         return DeliveryMethod.farmPickup;
     }

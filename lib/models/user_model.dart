@@ -58,9 +58,9 @@ class UserModel {
       'email': email,
       'phoneNumber': phoneNumber,
       'address': address,
-      'deliveryMethod': deliveryMethod.label,
+      'deliveryMethod': deliveryMethod.name,
       'pushNotifications': pushNotifications,
-      'profile': profile.label,
+      'profile': profile.name,
       // 🔽 Ajout pour recherche insensible à la casse
       'nameLower': name.toLowerCase(),
       'givenNameLower': givenName.toLowerCase(),
@@ -76,10 +76,10 @@ class UserModel {
       givenName: map['givenName'] ?? '',
       email: map['email'] ?? '',
       phoneNumber: map['phoneNumber'] ?? '',
-      profile: ProfileExtension.fromString(map['profile'] ?? 'Client'),
+      profile: ProfileExtension.fromString(map['profile'] ?? 'customer'),
       address: map['address'] ?? '',
       deliveryMethod: DeliveryMethodExtension.fromString(
-        map['deliveryMethod'] ?? 'Retrait à la ferme',
+        map['deliveryMethod'] ?? 'farmPickup',
       ),
       pushNotifications: map['pushNotifications'] ?? true,
     );

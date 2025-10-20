@@ -38,7 +38,7 @@ exports.sendWeeklyOfferEmail = onCall(
         const usersSnapshot = await db
             .collection("users")
             .where("pushNotifications", "==", true)
-            .where("profile", "==", "Client")
+            .where("profile", "==", "customer")
             .get();
 
         console.log(`Nombre d'utilisateurs à notifier : ${usersSnapshot.size}`);

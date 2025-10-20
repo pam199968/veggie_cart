@@ -1,0 +1,355 @@
+{
+  "vegetables": {
+    "laitue": {
+      "name": "Laitue",
+      "category": "leaf",
+      "description": "Salade verte tendre, cultivée au printemps et en été.",
+      "packaging": "pièce",
+      "standardQuantity": 1,
+      "price": 1.20,
+      "active": true
+    },
+    "epinard": {
+      "name": "Épinard",
+      "category": "leaf",
+      "description": "Feuilles vertes riches en fer et vitamines.",
+      "packaging": "kg",
+      "standardQuantity": 1,
+      "price": 3.50,
+      "active": true
+    },
+    "bette": {
+      "name": "Bette (blette)",
+      "category": "leaf",
+      "description": "Feuilles vertes et côtes charnues, très utilisées en gratin.",
+      "packaging": "kg",
+      "standardQuantity": 1,
+      "price": 3.00,
+      "active": true
+    },
+    "chou_framboise": {
+      "name": "Chou frisé",
+      "category": "leaf",
+      "description": "Chou vert ou violet à feuilles frisées, riche en nutriments.",
+      "packaging": "pièce",
+      "standardQuantity": 1,
+      "price": 2.50,
+      "active": true
+    },
+    "roquette": {
+      "name": "Roquette",
+      "category": "leaf",
+      "description": "Feuille légèrement piquante, très utilisée en salade.",
+      "packaging": "botte",
+      "standardQuantity": 1,
+      "price": 1.80,
+      "active": true
+    },
+    "mesclun": {
+      "name": "Mesclun",
+      "category": "leaf",
+      "description": "Mélange de jeunes pousses de salades variées.",
+      "packaging": "barquette",
+      "standardQuantity": 0.25,
+      "price": 2.20,
+      "active": true
+    },
+    "chou_chinois": {
+      "name": "Chou chinois",
+      "category": "leaf",
+      "description": "Chou tendre et doux, idéal pour les woks.",
+      "packaging": "pièce",
+      "standardQuantity": 1,
+      "price": 2.80,
+      "active": true
+    },
+    "tomate": {
+      "name": "Tomate",
+      "category": "fruit",
+      "description": "Star des potagers, juteuse et sucrée.",
+      "packaging": "kg",
+      "standardQuantity": 1,
+      "price": 3.00,
+      "active": true
+    },
+    "courgette": {
+      "name": "Courgette",
+      "category": "fruit",
+      "description": "Légume d’été tendre, parfait en ratatouille.",
+      "packaging": "kg",
+      "standardQuantity": 1,
+      "price": 2.20,
+      "active": true
+    },
+    "poivron": {
+      "name": "Poivron",
+      "category": "fruit",
+      "description": "Vert, rouge ou jaune, croquant et sucré.",
+      "packaging": "kg",
+      "standardQuantity": 1,
+      "price": 3.00,
+      "active": true
+    },
+    "aubergine": {
+      "name": "Aubergine",
+      "category": "fruit",
+      "description": "Légume violet à chair moelleuse, très méditerranéen.",
+      "packaging": "kg",
+      "standardQuantity": 1,
+      "price": 2.80,
+      "active": true
+    },
+    "concombre": {
+      "name": "Concombre",
+      "category": "fruit",
+      "description": "Frais et croquant, idéal en salade.",
+      "packaging": "pièce",
+      "standardQuantity": 1,
+      "price": 1.50,
+      "active": true
+    },
+    "potiron": {
+      "name": "Potiron",
+      "category": "fruit",
+      "description": "Courge d’automne, sucrée et onctueuse en soupe.",
+      "packaging": "kg",
+      "standardQuantity": 1,
+      "price": 2.50,
+      "active": true
+    },
+    "butternut": {
+      "name": "Courge butternut",
+      "category": "fruit",
+      "description": "Chair douce et parfumée, parfaite pour les veloutés.",
+      "packaging": "kg",
+      "standardQuantity": 1,
+      "price": 2.80,
+      "active": true
+    },
+    "melon": {
+      "name": "Melon",
+      "category": "other",
+      "description": "Fruit d’été sucré, souvent cultivé dans le sud de la France.",
+      "packaging": "pièce",
+      "standardQuantity": 1,
+      "price": 3.50,
+      "active": true
+    },
+    "piment": {
+      "name": "Piment doux",
+      "category": "fruit",
+      "description": "Piment non piquant, utilisé en ratatouille ou grillé.",
+      "packaging": "kg",
+      "standardQuantity": 1,
+      "price": 4.00,
+      "active": true
+    },
+    "carotte": {
+      "name": "Carotte",
+      "category": "root",
+      "description": "Racine orange riche en bêta-carotène.",
+      "packaging": "kg",
+      "standardQuantity": 1,
+      "price": 2.00,
+      "active": true
+    },
+    "navet": {
+      "name": "Navet",
+      "category": "root",
+      "description": "Racine blanche ou violette, douce et légèrement piquante.",
+      "packaging": "kg",
+      "standardQuantity": 1,
+      "price": 2.20,
+      "active": true
+    },
+    "panais": {
+      "name": "Panais",
+      "category": "root",
+      "description": "Racine blanche au goût sucré et légèrement épicé.",
+      "packaging": "kg",
+      "standardQuantity": 1,
+      "price": 3.00,
+      "active": true
+    },
+    "betterave": {
+      "name": "Betterave rouge",
+      "category": "root",
+      "description": "Racine rouge sucrée, riche en antioxydants.",
+      "packaging": "kg",
+      "standardQuantity": 1,
+      "price": 2.50,
+      "active": true
+    },
+    "radis": {
+      "name": "Radis rose",
+      "category": "root",
+      "description": "Petit légume croquant et piquant.",
+      "packaging": "botte",
+      "standardQuantity": 1,
+      "price": 1.80,
+      "active": true
+    },
+    "oignon": {
+      "name": "Oignon jaune",
+      "category": "root",
+      "description": "Base aromatique incontournable.",
+      "packaging": "kg",
+      "standardQuantity": 1,
+      "price": 2.00,
+      "active": true
+    },
+    "ail": {
+      "name": "Ail",
+      "category": "root",
+      "description": "Condiment fort et parfumé.",
+      "packaging": "tête",
+      "standardQuantity": 1,
+      "price": 0.80,
+      "active": true
+    },
+    "poireau": {
+      "name": "Poireau",
+      "category": "root",
+      "description": "Légume d’hiver, doux et fondant.",
+      "packaging": "kg",
+      "standardQuantity": 1,
+      "price": 2.50,
+      "active": true
+    },
+    "celeri_rave": {
+      "name": "Céleri-rave",
+      "category": "root",
+      "description": "Racine parfumée utilisée en purée ou en rémoulade.",
+      "packaging": "pièce",
+      "standardQuantity": 1,
+      "price": 2.80,
+      "active": true
+    },
+    "topinambour": {
+      "name": "Topinambour",
+      "category": "root",
+      "description": "Racine douce au goût d’artichaut.",
+      "packaging": "kg",
+      "standardQuantity": 1,
+      "price": 3.50,
+      "active": true
+    },
+    "persil": {
+      "name": "Persil",
+      "category": "other",
+      "description": "Herbe aromatique fraîche et parfumée.",
+      "packaging": "botte",
+      "standardQuantity": 1,
+      "price": 1.50,
+      "active": true
+    },
+    "ciboulette": {
+      "name": "Ciboulette",
+      "category": "other",
+      "description": "Herbe aromatique au goût d’oignon doux.",
+      "packaging": "botte",
+      "standardQuantity": 1,
+      "price": 1.50,
+      "active": true
+    },
+    "basilic": {
+      "name": "Basilic",
+      "category": "other",
+      "description": "Herbe aromatique emblématique de la cuisine méditerranéenne.",
+      "packaging": "pot",
+      "standardQuantity": 1,
+      "price": 2.50,
+      "active": true
+    },
+    "menthe": {
+      "name": "Menthe",
+      "category": "other",
+      "description": "Feuille rafraîchissante, utilisée en boisson et dessert.",
+      "packaging": "botte",
+      "standardQuantity": 1,
+      "price": 1.80,
+      "active": true
+    },
+    "aneth": {
+      "name": "Aneth",
+      "category": "other",
+      "description": "Aromate pour poissons et salades.",
+      "packaging": "botte",
+      "standardQuantity": 1,
+      "price": 1.80,
+      "active": true
+    },
+    "cerfeuil": {
+      "name": "Cerfeuil",
+      "category": "other",
+      "description": "Herbe douce utilisée dans les omelettes et potages.",
+      "packaging": "botte",
+      "standardQuantity": 1,
+      "price": 1.50,
+      "active": true
+    },
+    "haricot_vert": {
+      "name": "Haricot vert",
+      "category": "fruit",
+      "description": "Légume vert fin et croquant, très courant en été.",
+      "packaging": "kg",
+      "standardQuantity": 1,
+      "price": 3.20,
+      "active": true
+    },
+    "petit_pois": {
+      "name": "Petit pois",
+      "category": "fruit",
+      "description": "Grain vert sucré et tendre, souvent en gousse.",
+      "packaging": "kg",
+      "standardQuantity": 1,
+      "price": 4.00,
+      "active": true
+    },
+    "fève": {
+      "name": "Fève",
+      "category": "fruit",
+      "description": "Légumineuse printanière riche en protéines.",
+      "packaging": "kg",
+      "standardQuantity": 1,
+      "price": 4.50,
+      "active": true
+    },
+    "chou_fleur": {
+      "name": "Chou-fleur",
+      "category": "leaf",
+      "description": "Inflorescence blanche croquante, riche en fibres.",
+      "packaging": "pièce",
+      "standardQuantity": 1,
+      "price": 2.80,
+      "active": true
+    },
+    "brocoli": {
+      "name": "Brocoli",
+      "category": "leaf",
+      "description": "Légume vert en bouquets, riche en vitamines.",
+      "packaging": "kg",
+      "standardQuantity": 1,
+      "price": 3.00,
+      "active": true
+    },
+    "endive": {
+      "name": "Endive",
+      "category": "leaf",
+      "description": "Légume blanc croquant, typique du nord de la France.",
+      "packaging": "kg",
+      "standardQuantity": 1,
+      "price": 2.80,
+      "active": true
+    },
+    "asperge": {
+      "name": "Asperge",
+      "category": "root",
+      "description": "Tige tendre, blanche ou verte, récoltée au printemps.",
+      "packaging": "botte",
+      "standardQuantity": 1,
+      "price": 4.50,
+      "active": true
+    }
+  }
+}

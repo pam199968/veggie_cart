@@ -49,14 +49,14 @@ class UserService {
 
     // 🔹 Requête sur le nom de famille
     final nameQuery = await _usersCollection
-        .where('profile', isEqualTo: Profile.customer.label)
+        .where('profile', isEqualTo: Profile.customer.name)
         .where('nameLower', isGreaterThanOrEqualTo: lowerTerm)
         .where('nameLower', isLessThanOrEqualTo: '$lowerTerm\uf8ff')
         .get();
 
     // 🔹 Requête sur le prénom
     final givenNameQuery = await _usersCollection
-        .where('profile', isEqualTo: Profile.customer.label)
+        .where('profile', isEqualTo: Profile.customer.name)
         .where('givenNameLower', isGreaterThanOrEqualTo: lowerTerm)
         .where('givenNameLower', isLessThanOrEqualTo: '$lowerTerm\uf8ff')
         .get();

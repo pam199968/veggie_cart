@@ -17,9 +17,9 @@ extension ProfileExtension on Profile {
   // Pour convertir depuis un String Firestore
   static Profile fromString(String value) {
     switch (value) {
-      case "Client":
+      case "customer":
         return Profile.customer;
-      case "Maraicher":
+      case "gardener":
         return Profile.gardener;
       default:
         return Profile.customer;

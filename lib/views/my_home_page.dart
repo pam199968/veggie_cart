@@ -58,22 +58,22 @@ class _MyHomePageState extends State<MyHomePage> {
       bodyContent = const LoginContent();
     } else {
       switch (_currentPage) {
-        case 'offres':
+        case 'weekly_offers':
           bodyContent = const OffersPageContent();
           break;
-          case 'gestion_offres':
+          case 'offers_management':
           bodyContent = const OffersMngtPageContent();
           break;
-        case 'commandes':
+        case 'my_orders':
           bodyContent = const OrdersPageContent();
           break;
-        case 'commandes_client':
+        case 'customer_orders':
           bodyContent = const ClientOrdersPageContent();
           break;
-        case 'catalogue':
+        case 'catalog':
           bodyContent = const CatalogPageContent();
           break;
-        case 'maraichers':
+        case 'gardeners':
           bodyContent = const GardenersPageContent();
           break;
         default:
@@ -119,8 +119,8 @@ class _MyHomePageState extends State<MyHomePage> {
                 padding: EdgeInsets.zero,
                 children: [
                   UserAccountsDrawerHeader(
-                    accountName: Text(homeViewModel.currentUser.givenName ?? 'Utilisateur'),
-                    accountEmail: Text(homeViewModel.currentUser.email ?? ''),
+                    accountName: Text(homeViewModel.currentUser.givenName),
+                    accountEmail: Text(homeViewModel.currentUser.email),
                     currentAccountPicture: const CircleAvatar(
                       backgroundColor: Colors.white,
                       child: Icon(Icons.person, color: Colors.green),
@@ -133,17 +133,17 @@ class _MyHomePageState extends State<MyHomePage> {
                     ListTile(
                       leading: const Icon(Icons.local_offer),
                       title: const Text('Offres de la semaine'),
-                      selected: _currentPage == 'offres',
+                      selected: _currentPage == 'weekly_offers',
                       onTap: () {
-                        _navigateTo('offres');
+                        _navigateTo('weekly_offers');
                       },
                     ),
                     ListTile(
                       leading: const Icon(Icons.shopping_bag),
                       title: const Text('Mes commandes'),
-                      selected: _currentPage == 'commandes',
+                      selected: _currentPage == 'my_orders',
                       onTap: () {
-                        _navigateTo('commandes');
+                        _navigateTo('my_orders');
                       },
                     ),
                   ],
@@ -151,33 +151,33 @@ class _MyHomePageState extends State<MyHomePage> {
                   ListTile(
                     leading: const Icon(Icons.local_offer),
                     title: const Text('Gestion des offres'),
-                    selected: _currentPage == 'gestion_offres',
+                    selected: _currentPage == 'offers_management',
                     onTap: () {
-                      _navigateTo('gestion_offres');
+                      _navigateTo('offers_management');
                     },
                   ),
                     ListTile(
                       leading: const Icon(Icons.receipt_long),
                       title: const Text('Commandes client'),
-                      selected: _currentPage == 'commandes_client',
+                      selected: _currentPage == 'clients_orders',
                       onTap: () {
-                        _navigateTo('commandes_client');
+                        _navigateTo('clients_orders');
                       },
                     ),
                     ListTile(
                       leading: const Icon(Icons.store),
                       title: const Text('Catalogue'),
-                      selected: _currentPage == 'catalogue',
+                      selected: _currentPage == 'catalog',
                       onTap: () {
-                        _navigateTo('catalogue');
+                        _navigateTo('catalog');
                       },
                     ),
                     ListTile(
                       leading: const Icon(Icons.manage_accounts),
-                      title: const Text('Liste des maraichers'),
-                      selected: _currentPage == 'maraichers',
+                      title: const Text('Liste des administrateurs'),
+                      selected: _currentPage == 'gardeners',
                       onTap: () {
-                        _navigateTo('maraichers');
+                        _navigateTo('gardeners');
                       },
                     ),
                   ],
