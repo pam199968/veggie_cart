@@ -115,7 +115,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get searchUserLabel => 'Rechercher un utilisateur';
 
   @override
-  String get appTitle => 'Mon panier maraîcher';
+  String get appTitle => 'Mon panier maraîcher au Bi\'O jardin';
 
   @override
   String get logoutTooltip => 'Déconnexion';
