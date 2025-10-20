@@ -49,10 +49,61 @@ extension OrderStatusExtension on OrderStatus {
   }
 }
 
+/// 🔹 Version allégée de WeeklyOffer pour OrderModel
+class WeeklyOfferSummary {
+  final String id;
+  final String title;
+  final String description;
+  final DateTime startDate;
+  final DateTime endDate;
+  final WeeklyOfferStatus status;
+
+  WeeklyOfferSummary({
+    required this.id,
+    required this.title,
+    required this.description,
+    required this.startDate,
+    required this.endDate,
+    required this.status,
+  });
+
+  factory WeeklyOfferSummary.fromWeeklyOffer(WeeklyOffer offer) {
+    return WeeklyOfferSummary(
+      id: offer.id ?? '',
+      title: offer.title,
+      description: offer.description,
+      startDate: offer.startDate,
+      endDate: offer.endDate,
+      status: offer.status,
+    );
+  }
+
+  factory WeeklyOfferSummary.fromMap(Map<String, dynamic> map, String id) {
+    return WeeklyOfferSummary(
+      id: id,
+      title: map['title'] ?? '',
+      description: map['description'] ?? '',
+      startDate: (map['startDate'] as Timestamp).toDate(),
+      endDate: (map['endDate'] as Timestamp).toDate(),
+      status: WeeklyOfferStatusExtension.fromString(map['status'] ?? 'draft'),
+    );
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'title': title,
+      'description': description,
+      'startDate': Timestamp.fromDate(startDate),
+      'endDate': Timestamp.fromDate(endDate),
+      'status': status.name,
+    };
+  }
+}
+
 class OrderModel {
   final String id;
   final String customerId;
-  final WeeklyOffer offer;
+  final WeeklyOfferSummary offerSummary;
   final DeliveryMethod deliveryMethod;
   final OrderStatus status;
   final String? notes;
@@ -63,7 +114,7 @@ class OrderModel {
   OrderModel({
     required this.id,
     required this.customerId,
-    required this.offer,
+    required this.offerSummary,
     required this.deliveryMethod,
     this.status = OrderStatus.pending,
     this.notes,
@@ -72,51 +123,44 @@ class OrderModel {
     required this.updatedAt,
   });
 
-  /// 🔹 Conversion Map → Order
   factory OrderModel.fromMap(Map<String, dynamic> map, String documentId) {
-    return OrderModel(
-      id: documentId,
-      customerId: map['customerId'] ?? '',
-      offer: WeeklyOffer.fromMap(
-        Map<String, dynamic>.from(map['offer'] ?? {}),
-        map['offer']['id'] ?? '', // ou documentId si tu veux utiliser l'ID du parent
-      ),
-      deliveryMethod: DeliveryMethodExtension.fromString(
-        map['deliveryMethod'] ?? "Retrait à la ferme",
-      ),
-      status: OrderStatusExtension.fromString(map['status'] ?? 'pending'),
-      notes: map['notes'],
-      items: (map['items'] as List<dynamic>? ?? [])
-          .map((item) =>
-              VegetableModel.fromMap(Map<String, dynamic>.from(item), item['id'] ?? ''))
-          .toList(),
-      createdAt: (map['createdAt'] is Timestamp)
-          ? (map['createdAt'] as Timestamp).toDate()
-          : DateTime.tryParse(map['createdAt']?.toString() ?? '') ?? DateTime.now(),
-      updatedAt: (map['updatedAt'] is Timestamp)
-          ? (map['updatedAt'] as Timestamp).toDate()
-          : DateTime.tryParse(map['updatedAt']?.toString() ?? '') ?? DateTime.now(),
-    );
-  }
+  final offerMap = Map<String, dynamic>.from(map['offer'] ?? {});
+  return OrderModel(
+    id: documentId,
+    customerId: map['customerId'] ?? '',
+    offerSummary: WeeklyOfferSummary.fromMap(offerMap, offerMap['id'] ?? ''),
+    deliveryMethod: DeliveryMethodExtension.fromString(
+      map['deliveryMethod'] ?? "Retrait à la ferme",
+    ),
+    status: OrderStatusExtension.fromString(map['status'] ?? 'pending'),
+    notes: map['notes'],
+    items: (map['items'] as List<dynamic>? ?? [])
+        .map((item) =>
+            VegetableModel.fromMap(Map<String, dynamic>.from(item), item['id'] ?? ''))
+        .toList(),
+    createdAt: (map['createdAt'] as Timestamp).toDate(),
+    updatedAt: (map['updatedAt'] as Timestamp).toDate(),
+  );
+}
 
-  /// 🔹 Conversion Order → Map
-  Map<String, dynamic> toMap() {
-    return {
-      'customerId': customerId,
-      'offer': offer.toMap(),
-      'deliveryMethod': deliveryMethod.label,
-      'status': status.name,
-      'notes': notes,
-      'items': items.map((v) => v.toMap()).toList(),
-      'createdAt': Timestamp.fromDate(createdAt),
-      'updatedAt': Timestamp.fromDate(updatedAt),
-    };
-  }
+Map<String, dynamic> toMap() {
+  return {
+    'customerId': customerId,
+    'offer': offerSummary.toMap(), // 🔹 juste le résumé
+    'deliveryMethod': deliveryMethod.label,
+    'status': status.name,
+    'notes': notes,
+    'items': items.map((v) => v.toMap()).toList(),
+    'createdAt': Timestamp.fromDate(createdAt),
+    'updatedAt': Timestamp.fromDate(updatedAt),
+  };
+}
+
 
   OrderModel copyWith({
     String? id,
     String? customerId,
-    WeeklyOffer? offer,
+    WeeklyOfferSummary? offerSummary,
     DeliveryMethod? deliveryMethod,
     OrderStatus? status,
     String? notes,
@@ -127,7 +171,7 @@ class OrderModel {
     return OrderModel(
       id: id ?? this.id,
       customerId: customerId ?? this.customerId,
-      offer: offer ?? this.offer,
+      offerSummary: offerSummary ?? this.offerSummary,
       deliveryMethod: deliveryMethod ?? this.deliveryMethod,
       status: status ?? this.status,
       notes: notes ?? this.notes,
