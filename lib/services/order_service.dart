@@ -5,8 +5,9 @@ import '../models/order_model.dart';
 import '../models/vegetable_model.dart';
 
 class OrderService {
-  final CollectionReference _ordersRef =
-      FirebaseFirestore.instance.collection('orders');
+  final CollectionReference _ordersRef = FirebaseFirestore.instance.collection(
+    'orders',
+  );
 
   CollectionReference get ordersRef => _ordersRef;
 
@@ -25,9 +26,14 @@ class OrderService {
       query = query.startAfterDocument(startAfterDoc);
     }
 
-    return query.snapshots().map((snapshot) => snapshot.docs
-        .map((doc) => OrderModel.fromMap(doc.data() as Map<String, dynamic>, doc.id))
-        .toList());
+    return query.snapshots().map(
+      (snapshot) => snapshot.docs
+          .map(
+            (doc) =>
+                OrderModel.fromMap(doc.data() as Map<String, dynamic>, doc.id),
+          )
+          .toList(),
+    );
   }
 
   Future<List<OrderModel>> getOrdersByCustomerPaginated({
@@ -47,7 +53,10 @@ class OrderService {
 
     final snapshot = await query.get();
     return snapshot.docs
-        .map((doc) => OrderModel.fromMap(doc.data() as Map<String, dynamic>, doc.id))
+        .map(
+          (doc) =>
+              OrderModel.fromMap(doc.data() as Map<String, dynamic>, doc.id),
+        )
         .toList();
   }
 
@@ -68,8 +77,85 @@ class OrderService {
 
     final snapshot = await query.get();
     return snapshot.docs
-        .map((doc) => OrderModel.fromMap(doc.data() as Map<String, dynamic>, doc.id))
+        .map(
+          (doc) =>
+              OrderModel.fromMap(doc.data() as Map<String, dynamic>, doc.id),
+        )
         .toList();
+  }
+
+  /// 🔹 Flux temps réel pour **toutes les commandes**
+  Stream<List<OrderModel>> streamAllOrders({
+    int limit = 50,
+    List<OrderStatus>? statuses, // 🔹 nouveau paramètre optionnel
+  }) {
+    Query query = _ordersRef.orderBy('createdAt', descending: true);
+
+    // 🔹 Filtre sur les statuts
+    if (statuses != null && statuses.isNotEmpty) {
+      final statusStrings = statuses.map((s) => s.name).toList();
+      query = query.where('status', whereIn: statusStrings);
+    }
+
+    // 🔹 Limite de documents
+    query = query.limit(limit);
+
+    return query.snapshots().map(
+      (snapshot) => snapshot.docs
+          .map(
+            (doc) =>
+                OrderModel.fromMap(doc.data() as Map<String, dynamic>, doc.id),
+          )
+          .toList(),
+    );
+  }
+
+  /// 🔹 Pagination pour toutes les commandes
+  Future<List<OrderModel>> getAllOrdersPaginated({
+    int limit = 20,
+    OrderModel? startAfter,
+    List<OrderStatus>? statuses, // 🔹 liste d'états à filtrer
+  }) async {
+    try {
+      Query query = _ordersRef
+          .orderBy('createdAt', descending: true)
+          .limit(limit);
+
+      // 🔹 Filtre sur les statuts si fournis
+      if (statuses != null && statuses.isNotEmpty) {
+        // Firestore Web ne supporte que whereIn <= 10 éléments
+        query = query.where(
+          'status',
+          whereIn: statuses.map((s) => s.name).toList(),
+        );
+      }
+
+      if (startAfter != null) {
+        final doc = await _ordersRef.doc(startAfter.id).get();
+        if (doc.exists) {
+          query = query.startAfterDocument(doc);
+        }
+      }
+
+      final snapshot = await query.get();
+      return snapshot.docs
+          .map(
+            (doc) =>
+                OrderModel.fromMap(doc.data() as Map<String, dynamic>, doc.id),
+          )
+          .toList();
+    } catch (e) {
+      return [];
+    }
+  }
+
+  /// 🔹 Mise à jour du statut d'une commande
+  Future<void> updateOrderStatus(String orderId, OrderStatus newStatus) async {
+    await _ordersRef.doc(orderId).update({
+      'status': newStatus
+          .name, // Assurez-vous que OrderModel.fromMap peut parser le string
+      'updatedAt': DateTime.now(),
+    });
   }
 }
 
@@ -107,9 +193,11 @@ extension OrderServiceExtension on OrderService {
 
   /// Génération du numéro de commande lisible
   String _generateOrderNumber(String firestoreId) {
-    final datePart = DateTime.now().toIso8601String().split('T')[0].replaceAll('-', '');
+    final datePart = DateTime.now()
+        .toIso8601String()
+        .split('T')[0]
+        .replaceAll('-', '');
     final idPart = firestoreId.substring(firestoreId.length - 4).toUpperCase();
     return 'CMD-$datePart-$idPart';
   }
 }
-

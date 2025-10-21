@@ -30,19 +30,14 @@ extension OrderStatusExtension on OrderStatus {
 
   static OrderStatus fromString(String value) {
     switch (value.toLowerCase()) {
-      case "confirmée":
       case "confirmed":
         return OrderStatus.confirmed;
-      case "prête":
       case "ready":
         return OrderStatus.ready;
-      case "livrée":
       case "delivered":
         return OrderStatus.delivered;
-      case "annulée":
       case "cancelled":
         return OrderStatus.cancelled;
-      case "en attente":
       case "pending":
       default:
         return OrderStatus.pending;

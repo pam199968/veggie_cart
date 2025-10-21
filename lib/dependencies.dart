@@ -21,6 +21,7 @@ import 'repositories/order_repository.dart';
 // 🔹 ViewModels
 import 'viewmodels/account_view_model.dart';
 import 'viewmodels/catalog_view_model.dart';
+import 'viewmodels/customer_orders_view_model.dart';
 import 'viewmodels/weekly_offers_view_model.dart';
 import 'viewmodels/my_orders_view_model.dart';
 import 'viewmodels/cart_view_model.dart';
@@ -104,6 +105,12 @@ Widget buildApp({
         create: (context) => OrderViewModel(
           accountViewModel: context.read<AccountViewModel>(),
           repository: context.read<OrderRepository>(),
+        ),
+      ),
+      ChangeNotifierProvider<CustomerOrdersViewModel>(
+        create: (context) => CustomerOrdersViewModel(
+          orderRepository: context.read<OrderRepository>(),
+          userService: context.read<UserService>(),
         ),
       ),
 

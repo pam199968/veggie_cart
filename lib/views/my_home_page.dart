@@ -10,7 +10,7 @@ import 'login_content.dart';
 import 'catalog_page_content.dart';
 import 'my_orders_page_content.dart';
 import 'offers_page_content.dart';
-import 'client_orders_page_content.dart';
+import 'customer_orders_page_content.dart';
 import 'gardeners_page_content.dart';
 import 'package:veggie_cart/extensions/context_extension.dart';
 
