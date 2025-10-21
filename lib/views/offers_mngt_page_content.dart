@@ -136,29 +136,29 @@ class OffersMngtPageContent extends StatelessWidget {
     // 🔹 Actions selon le statut
     List<Widget> actionButtons = switch (status) {
       WeeklyOfferStatus.draft => [
-        ElevatedButton.icon(
+        IconButton(
           onPressed: () async => await vm.publishOffer(offer),
           icon: const Icon(Icons.send),
-          label: const Text('Publier'),
+          tooltip: 'Publier',
         ),
-        TextButton.icon(
+        IconButton(
           onPressed: () async => await vm.closeOffer(offer),
           icon: const Icon(Icons.lock),
-          label: const Text('Fermer'),
+          tooltip: 'Fermer',
         ),
       ],
       WeeklyOfferStatus.published => [
-        TextButton.icon(
+        IconButton(
           onPressed: () async => await vm.closeOffer(offer),
           icon: const Icon(Icons.lock),
-          label: const Text('Fermer'),
+          tooltip: 'Fermer',
         ),
       ],
       WeeklyOfferStatus.closed => [
-        OutlinedButton.icon(
+        IconButton(
           onPressed: () async => await vm.reopenOffer(offer),
           icon: const Icon(Icons.refresh),
-          label: const Text('Réouvrir'),
+          tooltip: 'Réouvrir',
         ),
       ],
     };
