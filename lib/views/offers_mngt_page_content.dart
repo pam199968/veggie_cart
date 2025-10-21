@@ -8,7 +8,6 @@ import '../models/weekly_offer.dart';
 
 class OffersMngtPageContent extends StatelessWidget {
   const OffersMngtPageContent({super.key});
-  
 
   @override
   Widget build(BuildContext context) {
@@ -36,12 +35,13 @@ class OffersMngtPageContent extends StatelessWidget {
 
                         return GridView.builder(
                           padding: const EdgeInsets.all(12),
-                          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: crossAxisCount,
-                            mainAxisSpacing: 12,
-                            crossAxisSpacing: 12,
-                            childAspectRatio: 1.2,
-                          ),
+                          gridDelegate:
+                              SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: crossAxisCount,
+                                mainAxisSpacing: 12,
+                                crossAxisSpacing: 12,
+                                childAspectRatio: 1.2,
+                              ),
                           itemCount: vm.offers.length,
                           itemBuilder: (context, index) {
                             final offer = vm.offers[index];
@@ -125,44 +125,42 @@ class OffersMngtPageContent extends StatelessWidget {
   }
 
   Widget _buildOfferCard(
-      BuildContext context, WeeklyOffersViewModel vm, WeeklyOffer offer) {
+    BuildContext context,
+    WeeklyOffersViewModel vm,
+    WeeklyOffer offer,
+  ) {
     final status = offer.status;
     final style = _statusStyle(status);
     final DateFormat frenchDateFormat = DateFormat('dd/MM/yyyy', 'fr_FR');
 
-    // 🔹 Prépare un aperçu des légumes (max 3 visibles)
-    final veggiePreview = (offer.vegetables.take(3).toList());
-    final hasMoreVeggies =
-        offer.vegetables.length > 3;
-
     // 🔹 Actions selon le statut
     List<Widget> actionButtons = switch (status) {
       WeeklyOfferStatus.draft => [
-          ElevatedButton.icon(
-            onPressed: () async => await vm.publishOffer(offer),
-            icon: const Icon(Icons.send),
-            label: const Text('Publier'),
-          ),
-          TextButton.icon(
-            onPressed: () async => await vm.closeOffer(offer),
-            icon: const Icon(Icons.lock),
-            label: const Text('Fermer'),
-          ),
-        ],
+        ElevatedButton.icon(
+          onPressed: () async => await vm.publishOffer(offer),
+          icon: const Icon(Icons.send),
+          label: const Text('Publier'),
+        ),
+        TextButton.icon(
+          onPressed: () async => await vm.closeOffer(offer),
+          icon: const Icon(Icons.lock),
+          label: const Text('Fermer'),
+        ),
+      ],
       WeeklyOfferStatus.published => [
-          TextButton.icon(
-            onPressed: () async => await vm.closeOffer(offer),
-            icon: const Icon(Icons.lock),
-            label: const Text('Fermer'),
-          ),
-        ],
+        TextButton.icon(
+          onPressed: () async => await vm.closeOffer(offer),
+          icon: const Icon(Icons.lock),
+          label: const Text('Fermer'),
+        ),
+      ],
       WeeklyOfferStatus.closed => [
-          OutlinedButton.icon(
-            onPressed: () async => await vm.reopenOffer(offer),
-            icon: const Icon(Icons.refresh),
-            label: const Text('Réouvrir'),
-          ),
-        ],
+        OutlinedButton.icon(
+          onPressed: () async => await vm.reopenOffer(offer),
+          icon: const Icon(Icons.refresh),
+          label: const Text('Réouvrir'),
+        ),
+      ],
     };
 
     return Card(
@@ -170,133 +168,127 @@ class OffersMngtPageContent extends StatelessWidget {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
         padding: const EdgeInsets.all(12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // === En-tête : semaine + statut ===
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'Semaine du ${offer.startDate.day}/${offer.startDate.month}',
-                  style: const TextStyle(fontWeight: FontWeight.bold),
-                ),
-                Chip(
-                  avatar: Icon(style['icon'] as IconData,
-                      color: Colors.white, size: 14),
-                  label: Text(
-                    style['label'] as String,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w500,
-                      fontSize: 10,
-                    ),
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // 🔹 Ligne 1 : tous les boutons (icônes + actions dynamiques)
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  // Sous-wrap pour les boutons d'édition et duplication
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 4,
+                    children: [
+                      IconButton(
+                        tooltip: 'Modifier',
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) =>
+                                  WeeklyOfferFormPage(existingOffer: offer),
+                            ),
+                          );
+                        },
+                        icon: const Icon(Icons.edit),
+                      ),
+                      IconButton(
+                        tooltip: 'Dupliquer',
+                        onPressed: () async {
+                          final newStart = offer.startDate.add(
+                            const Duration(days: 7),
+                          );
+                          final newEnd = offer.endDate.add(
+                            const Duration(days: 7),
+                          );
+                          await vm.duplicateOffer(offer, newStart, newEnd);
+                        },
+                        icon: const Icon(Icons.copy),
+                      ),
+                      // On ajoute ici les boutons d’action dynamiques
+                      ...actionButtons,
+                    ],
                   ),
-                  backgroundColor: style['color'] as Color?,
+                ],
+              ),
+
+              const SizedBox(height: 8),
+
+              // 🔹 Ligne 2 : semaine + statut
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Semaine du ${offer.startDate.day}/${offer.startDate.month}',
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  Chip(
+                    avatar: Icon(
+                      style['icon'] as IconData,
+                      color: Colors.white,
+                      size: 14,
+                    ),
+                    label: Text(
+                      style['label'] as String,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w500,
+                        fontSize: 10,
+                      ),
+                    ),
+                    backgroundColor: style['color'] as Color?,
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 6),
+
+              // 🔹 Titre
+              Text(
+                offer.title,
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+
+              if (offer.description.isNotEmpty) ...[
+                const SizedBox(height: 4),
+                Text(
+                  offer.description,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(color: Colors.grey[700], fontSize: 13),
                 ),
               ],
-            ),
 
-            const SizedBox(height: 6),
+              const SizedBox(height: 8),
 
-            // === Titre de l’offre ===
-            Text(
-              offer.title,
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
-              ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-
-            // === Description courte ===
-            if (offer.description.isNotEmpty) ...[
-              const SizedBox(height: 4),
-              Text(
-                offer.description,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  color: Colors.grey[700],
-                  fontSize: 13,
-                ),
-              ),
-            ],
-
-            const SizedBox(height: 8),
-
-            // === Légumes (aperçu) ===
-            if (veggiePreview.isNotEmpty) ...[
+              // 🔹 Légumes
               Wrap(
                 spacing: 6,
                 runSpacing: 4,
                 children: [
-                  for (var veg in veggiePreview)
-                    Chip(
-                      label: Text(
-                        veg.toString(),
-                        style: const TextStyle(fontSize: 11),
-                      ),
-                      backgroundColor: Colors.grey[200],
-                    ),
-                  if (hasMoreVeggies)
-                    Chip(
-                      label: Text(
-                        '+${offer.vegetables.length - veggiePreview.length}',
-                        style: const TextStyle(
-                            fontSize: 11, fontWeight: FontWeight.w500),
-                      ),
-                      backgroundColor: Colors.grey[300],
-                    ),
+                  for (var veg in offer.vegetables.take(3))
+                    Chip(label: Text(veg.toString())),
+                  if (offer.vegetables.length > 3)
+                    Chip(label: Text('+${offer.vegetables.length - 3}')),
                 ],
               ),
+
+              const SizedBox(height: 8),
+
+              // 🔹 Dates
+              Text(
+                '${frenchDateFormat.format(offer.startDate)} → ${frenchDateFormat.format(offer.endDate)}',
+                style: const TextStyle(fontSize: 12, color: Colors.black54),
+              ),
             ],
-
-            const SizedBox(height: 8),
-
-            Text(
-              '${frenchDateFormat.format(offer.startDate)} → '
-              '${frenchDateFormat.format(offer.endDate)}',
-              style: const TextStyle(fontSize: 12, color: Colors.black54),
-            ),
-
-            const Spacer(),
-
-            // === Boutons d’action ===
-            Wrap(
-              spacing: 8,
-              runSpacing: 4,
-              children: [
-                ElevatedButton.icon(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) =>
-                            WeeklyOfferFormPage(existingOffer: offer),
-                      ),
-                    );
-                  },
-                  icon: const Icon(Icons.edit),
-                  label: const Text('Modifier'),
-                ),
-                OutlinedButton.icon(
-                  onPressed: () async {
-                    final newStart = offer.startDate.add(const Duration(days: 7));
-                    final newEnd = offer.endDate.add(const Duration(days: 7));
-                    await vm.duplicateOffer(offer, newStart, newEnd);
-                  },
-                  icon: const Icon(Icons.copy),
-                  label: const Text('Dupliquer'),
-                ),
-              ],
-            ),
-
-            const SizedBox(height: 8),
-
-            ...actionButtons,
-          ],
+          ),
         ),
       ),
     );
