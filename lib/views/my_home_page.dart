@@ -40,40 +40,52 @@ class _MyHomePageState extends State<MyHomePage> {
 
     setState(() {
       _isLoading = false;
-
-      // Définition de la page initiale selon le profil, UNE SEULE FOIS
-      if (accountVM.currentUser.profile == Profile.customer) {
-        _currentPage = 'weekly_offers';
-      } else if (accountVM.currentUser.profile == Profile.gardener) {
-        _currentPage = 'offers_management';
-      } else {
-        _currentPage = ''; // ou LoginContent
-      }
+      _setInitialPage(accountVM.currentUser?.profile);
     });
   }
 
+  void _setInitialPage(Profile? profile) {
+    if (profile == Profile.customer) {
+      _currentPage = 'weekly_offers';
+    } else if (profile == Profile.gardener) {
+      _currentPage = 'offers_management';
+    } else {
+      _currentPage = '';
+    }
+  }
+
+  void _navigateTo(String page) {
+    setState(() {
+      _currentPage = page;
+    });
+    Navigator.pop(context); // ferme le drawer
+  }
 
   @override
   Widget build(BuildContext context) {
-    final homeViewModel = context.watch<AccountViewModel>();
-    final isAuthenticated = homeViewModel.isAuthenticated;
+    final accountVM = context.watch<AccountViewModel>();
+    final isAuthenticated = accountVM.isAuthenticated;
 
     if (_isLoading) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      );
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
     Widget bodyContent;
 
     if (!isAuthenticated) {
-      bodyContent = const LoginContent();
+      bodyContent = LoginContent(
+        onLoginSuccess: () {
+          setState(() {
+            _setInitialPage(accountVM.currentUser.profile);
+          });
+        },
+      );
     } else {
       switch (_currentPage) {
         case 'weekly_offers':
           bodyContent = const OffersPageContent();
           break;
-          case 'offers_management':
+        case 'offers_management':
           bodyContent = const OffersMngtPageContent();
           break;
         case 'my_orders':
@@ -105,8 +117,7 @@ class _MyHomePageState extends State<MyHomePage> {
               onPressed: () {
                 Navigator.of(context).push(
                   MaterialPageRoute(
-                    builder: (_) =>
-                        ProfilePage(user: homeViewModel.currentUser),
+                    builder: (_) => ProfilePage(user: accountVM.currentUser),
                   ),
                 );
               },
@@ -119,101 +130,77 @@ class _MyHomePageState extends State<MyHomePage> {
                 catalogVM.cancelSubscriptions();
 
                 final orderVM = context.read<OrderViewModel>();
-                orderVM.cancelSubscriptions(); // <--- important pour fermer le flux de commandes
+                orderVM.cancelSubscriptions();
 
-                await homeViewModel.signOut(context);
+                await accountVM.signOut(context);
+
+                setState(() {
+                  _currentPage = '';
+                });
               },
             ),
           ],
         ],
       ),
-
-      // ✅ Burger menu Drawer
       drawer: isAuthenticated
           ? Drawer(
               child: ListView(
                 padding: EdgeInsets.zero,
                 children: [
                   UserAccountsDrawerHeader(
-                    accountName: Text(homeViewModel.currentUser.givenName),
-                    accountEmail: Text(homeViewModel.currentUser.email),
+                    accountName: Text(accountVM.currentUser.givenName),
+                    accountEmail: Text(accountVM.currentUser.email),
                     currentAccountPicture: const CircleAvatar(
                       backgroundColor: Colors.white,
                       child: Icon(Icons.person, color: Colors.green),
                     ),
-                    decoration: const BoxDecoration(
-                      color: Colors.greenAccent,
-                    ),
+                    decoration: const BoxDecoration(color: Colors.greenAccent),
                   ),
-                  if (homeViewModel.currentUser.profile == Profile.customer) ...[
+                  if (accountVM.currentUser.profile == Profile.customer) ...[
                     ListTile(
                       leading: const Icon(Icons.local_offer),
                       title: const Text('Offres de la semaine'),
                       selected: _currentPage == 'weekly_offers',
-                      onTap: () {
-                        _navigateTo('weekly_offers');
-                      },
+                      onTap: () => _navigateTo('weekly_offers'),
                     ),
                     ListTile(
                       leading: const Icon(Icons.shopping_bag),
                       title: const Text('Mes commandes'),
                       selected: _currentPage == 'my_orders',
-                      onTap: () {
-                        _navigateTo('my_orders');
-                      },
+                      onTap: () => _navigateTo('my_orders'),
                     ),
                   ],
-                  if (homeViewModel.currentUser.profile == Profile.gardener) ...[
-                  ListTile(
-                    leading: const Icon(Icons.local_offer),
-                    title: const Text('Gestion des offres'),
-                    selected: _currentPage == 'offers_management',
-                    onTap: () {
-                      _navigateTo('offers_management');
-                    },
-                  ),
+                  if (accountVM.currentUser.profile == Profile.gardener) ...[
+                    ListTile(
+                      leading: const Icon(Icons.local_offer),
+                      title: const Text('Gestion des offres'),
+                      selected: _currentPage == 'offers_management',
+                      onTap: () => _navigateTo('offers_management'),
+                    ),
                     ListTile(
                       leading: const Icon(Icons.receipt_long),
                       title: const Text('Commandes client'),
                       selected: _currentPage == 'customer_orders',
-                      onTap: () {
-                        _navigateTo('customer_orders');
-                      },
+                      onTap: () => _navigateTo('customer_orders'),
                     ),
                     ListTile(
                       leading: const Icon(Icons.store),
                       title: const Text('Catalogue'),
                       selected: _currentPage == 'catalog',
-                      onTap: () {
-                        _navigateTo('catalog');
-                      },
+                      onTap: () => _navigateTo('catalog'),
                     ),
                     ListTile(
                       leading: const Icon(Icons.manage_accounts),
                       title: const Text('Liste des administrateurs'),
                       selected: _currentPage == 'gardeners',
-                      onTap: () {
-                        _navigateTo('gardeners');
-                      },
+                      onTap: () => _navigateTo('gardeners'),
                     ),
                   ],
                 ],
               ),
             )
           : null,
-
       body: Center(child: bodyContent),
     );
   }
-
-  void _navigateTo(String page) {
-    setState(() {
-      _currentPage = page;
-    });
-    Navigator.pop(context); // Ferme le Drawer après la sélection
-  }
 }
-
-
-
-

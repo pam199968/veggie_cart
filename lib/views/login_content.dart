@@ -4,9 +4,10 @@ import '../models/delivery_method.dart';
 import '../viewmodels/account_view_model.dart';
 import 'package:veggie_cart/extensions/context_extension.dart';
 
-// Widget externe pour le formulaire connexion / création de compte
 class LoginContent extends StatefulWidget {
-  const LoginContent({super.key});
+  final VoidCallback? onLoginSuccess;
+
+  const LoginContent({super.key, this.onLoginSuccess});
 
   @override
   State<LoginContent> createState() => _LoginContentState();
@@ -17,7 +18,8 @@ class _LoginContentState extends State<LoginContent> {
   final TextEditingController _givenNameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _confirmPasswordController = TextEditingController();
+  final TextEditingController _confirmPasswordController =
+      TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _addressController = TextEditingController();
 
@@ -57,7 +59,8 @@ class _LoginContentState extends State<LoginContent> {
     );
   }
 
-  Widget _buildSignUpForm(BuildContext context, AccountViewModel homeViewModel) {
+  Widget _buildSignUpForm(
+      BuildContext context, AccountViewModel homeViewModel) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -75,7 +78,8 @@ class _LoginContentState extends State<LoginContent> {
           homeViewModel.currentUser =
               homeViewModel.currentUser.copyWith(email: v.trim());
         }),
-        _buildPasswordField(_passwordController, context.l10n.passwordLabel, (v) {
+        _buildPasswordField(_passwordController, context.l10n.passwordLabel,
+            (v) {
           homeViewModel.password = v.trim();
         }),
         const SizedBox(height: 5),
@@ -139,6 +143,9 @@ class _LoginContentState extends State<LoginContent> {
                 await homeViewModel.signUp(context);
                 clearControllers();
                 if (mounted) homeViewModel.toggleSignUpForm();
+
+                // 🔹 Après un signup réussi, on redirige
+                if (widget.onLoginSuccess != null) widget.onLoginSuccess!();
               },
               child: Text(context.l10n.createAccountButton),
             ),
@@ -163,21 +170,26 @@ class _LoginContentState extends State<LoginContent> {
           homeViewModel.currentUser =
               homeViewModel.currentUser.copyWith(email: v.trim());
         }),
-        _buildPasswordField(_passwordController, context.l10n.passwordLabel, (v) {
+        _buildPasswordField(_passwordController, context.l10n.passwordLabel,
+            (v) {
           homeViewModel.password = v.trim();
         }),
         const SizedBox(height: 10),
-
         ElevatedButton(
           onPressed: () async {
-            await homeViewModel.signIn(context);
+            try {
+              await homeViewModel.signIn(context);
+              // 🔹 Redirige vers la page correcte après login réussi
+              if (widget.onLoginSuccess != null) widget.onLoginSuccess!();
+            } catch (e) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text("Erreur de connexion : $e")),
+              );
+            }
           },
           child: Text(context.l10n.signInButton),
         ),
-
         const SizedBox(height: 12),
-
-        // 🔗 Ligne avec "Mot de passe oublié ?" et "Créer un compte"
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -186,7 +198,9 @@ class _LoginContentState extends State<LoginContent> {
                 final email = homeViewModel.currentUser.email;
                 if (email.isEmpty) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text("Veuillez entrer votre email pour réinitialiser le mot de passe.")),
+                    const SnackBar(
+                        content: Text(
+                            "Veuillez entrer votre email pour réinitialiser le mot de passe.")),
                   );
                   return;
                 }
@@ -194,7 +208,9 @@ class _LoginContentState extends State<LoginContent> {
                 try {
                   await homeViewModel.sendPasswordResetEmail(email);
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text("Email de réinitialisation envoyé ✅, pensez à vérifiez dans vos spams")),
+                    const SnackBar(
+                        content: Text(
+                            "Email de réinitialisation envoyé ✅, pensez à vérifier vos spams")),
                   );
                 } catch (e) {
                   ScaffoldMessenger.of(context).showSnackBar(
@@ -210,9 +226,7 @@ class _LoginContentState extends State<LoginContent> {
                 ),
               ),
             ),
-
-            const Text(" | "), // petit séparateur esthétique
-
+            const Text(" | "),
             TextButton(
               onPressed: () => homeViewModel.toggleSignUpForm(),
               child: Text(
@@ -229,19 +243,14 @@ class _LoginContentState extends State<LoginContent> {
     );
   }
 
-  // 🔹 Widgets utilitaires
   Widget _buildTextField(
-    TextEditingController controller,
-    String label,
-    Function(String) onChanged, {
-    int maxLines = 1,
-  }) {
+      TextEditingController controller, String label, Function(String) onChanged,
+      {int maxLines = 1}) {
     return SizedBox(
       width: 300,
       child: TextField(
         controller: controller,
         decoration: InputDecoration(labelText: label),
-        maxLength: 40,
         maxLines: maxLines,
         onChanged: onChanged,
       ),
@@ -256,7 +265,6 @@ class _LoginContentState extends State<LoginContent> {
         controller: controller,
         obscureText: true,
         decoration: InputDecoration(labelText: label),
-        maxLength: 20,
         maxLines: 1,
         onChanged: onChanged,
       ),
@@ -268,7 +276,7 @@ class _LoginContentState extends State<LoginContent> {
   }
 }
 
-// 🔹 Dropdown avec callback intégré
+// 🔹 Dropdown et Switch restent identiques
 class DeliveryMethodDropdown extends StatelessWidget {
   final ValueNotifier<DeliveryMethod> notifier;
   final Function(DeliveryMethod) onChanged;
@@ -303,7 +311,8 @@ class DeliveryMethodDropdown extends StatelessWidget {
                 onChanged(v);
               }
             },
-            decoration: InputDecoration(labelText: context.l10n.deliveryMethodLabel),
+            decoration:
+                InputDecoration(labelText: context.l10n.deliveryMethodLabel),
           ),
         );
       },
@@ -311,7 +320,6 @@ class DeliveryMethodDropdown extends StatelessWidget {
   }
 }
 
-// 🔹 Switch avec callback intégré
 class PushNotificationSwitch extends StatelessWidget {
   final ValueNotifier<bool> notifier;
   final Function(bool) onChanged;
@@ -344,4 +352,3 @@ class PushNotificationSwitch extends StatelessWidget {
     );
   }
 }
- 
