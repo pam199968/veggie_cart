@@ -7,6 +7,7 @@ import '../repositories/weekly_offers_repository.dart';
 class WeeklyOffersViewModel extends ChangeNotifier {
   final WeeklyOffersRepository _repository;
 
+
   WeeklyOffersViewModel({required WeeklyOffersRepository repository})
       : _repository = repository;
 
@@ -20,7 +21,19 @@ class WeeklyOffersViewModel extends ChangeNotifier {
 
   bool _showClosedOffers = false;
   bool get showClosedOffers => _showClosedOffers;
+  bool _disposed = false;
 
+@override
+  void dispose() {
+    _disposed = true;
+    super.dispose();
+  }
+
+void safeNotifyListeners() {
+    if (!_disposed) {
+      notifyListeners();
+    }
+  }
   /// 🔹 Chargement des offres depuis Firestore
   Future<void> loadOffers({
     bool publishedOnly = true,
@@ -29,7 +42,7 @@ class WeeklyOffersViewModel extends ChangeNotifier {
     _loading = true;
     _showPublishedOnly = publishedOnly;
     _showClosedOffers = includeClosed;
-    notifyListeners();
+    safeNotifyListeners();
 
     final result = await _repository.getAllWeeklyOffers();
 

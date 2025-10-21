@@ -1,18 +1,32 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../models/weekly_offer.dart';
 import '../viewmodels/account_view_model.dart';
 import '../viewmodels/weekly_offers_view_model.dart';
 import '../viewmodels/cart_view_model.dart';
 
-class OffersPageContent extends StatelessWidget {
+class OffersPageContent extends StatefulWidget {
   const OffersPageContent({super.key});
+
+  @override
+  State<OffersPageContent> createState() => _OffersPageContentState();
+}
+
+class _OffersPageContentState extends State<OffersPageContent> {
+  @override
+  void initState() {
+    super.initState();
+    // 🔹 Appeler loadOffers après le premier frame
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        context.read<WeeklyOffersViewModel>().loadOffers();
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     final offersVm = context.watch<WeeklyOffersViewModel>();
-    final cartVm = context.watch<CartViewModel>();
 
     if (offersVm.loading) {
       return const Center(child: CircularProgressIndicator());
@@ -24,7 +38,6 @@ class OffersPageContent extends StatelessWidget {
       );
     }
 
-    // Affiche la liste des offres publiées
     return ListView.builder(
       itemCount: offersVm.offers.length,
       itemBuilder: (context, index) {
@@ -39,6 +52,11 @@ class OffersPageContent extends StatelessWidget {
             subtitle: Text(offer.description),
             trailing: const Icon(Icons.arrow_forward_ios),
             onTap: () {
+              // ⚡️ Associer l'offre courante au panier
+              final cartVm = context.read<CartViewModel>();
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                cartVm.setOffer(offer);// ⚡️ ici seulement, avant de naviguer
+              });
               Navigator.push(
                 context,
                 MaterialPageRoute(
@@ -52,6 +70,8 @@ class OffersPageContent extends StatelessWidget {
     );
   }
 }
+
+
 
 /// 🔹 Écran pour sélectionner les articles et ajouter au panier
 class OfferDetailScreen extends StatelessWidget {
@@ -108,9 +128,22 @@ class OfferDetailScreen extends StatelessWidget {
                 children: [
                   IconButton(
                     icon: const Icon(Icons.remove_circle_outline),
-                    onPressed: qty > 0 ? () => cartVm.updateQuantity(veg, qty - 1) : null,
+                    onPressed: qty > 0 ? () => cartVm.updateQuantity(veg, (qty - 1).clamp(0.0, double.infinity)) : null,
                   ),
-                  Text(qty.toString()),
+                  SizedBox(
+                    width: 60,
+                    child: TextField(
+                      keyboardType: TextInputType.numberWithOptions(decimal: true),
+                      textAlign: TextAlign.center,
+                      controller: TextEditingController(text: qty.toStringAsFixed(2)),
+                      onSubmitted: (value) {
+                        final parsed = double.tryParse(value);
+                        if (parsed != null && parsed >= 0) {
+                          cartVm.updateQuantity(veg, parsed);
+                        }
+                      },
+                    ),
+                  ),
                   IconButton(
                     icon: const Icon(Icons.add_circle_outline),
                     onPressed: () => cartVm.updateQuantity(veg, qty + 1),

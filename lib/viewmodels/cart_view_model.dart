@@ -1,19 +1,21 @@
 import 'package:flutter/material.dart';
+
+import '../models/delivery_method.dart';
+import '../models/order_item.dart';
+import '../models/order_model.dart';
 import '../models/vegetable_model.dart';
 import '../models/weekly_offer.dart';
-import '../models/order_model.dart';
-import '../models/delivery_method.dart';
 import '../repositories/order_repository.dart';
 import 'account_view_model.dart';
 import 'weekly_offers_view_model.dart';
 
 class CartViewModel extends ChangeNotifier {
   final AccountViewModel accountViewModel;
-  final WeeklyOffersViewModel weeklyOffersViewModel ;
+  final WeeklyOffersViewModel weeklyOffersViewModel;
   final OrderRepository orderRepository;
 
   WeeklyOffer? _offer;
-  final Map<VegetableModel, double> _items = {}; // vegetableId → quantité
+  final Map<VegetableModel, double> _items = {}; // vegetable → quantité
 
   CartViewModel({
     required this.accountViewModel,
@@ -51,17 +53,28 @@ class CartViewModel extends ChangeNotifier {
   /// 🔸 Légumes sélectionnés avec leurs quantités locales
   List<VegetableModel> get selectedVegetables {
     if (_offer == null) return [];
+
+    // On ne renvoie que les légumes présents dans le panier
     return _offer!.vegetables
         .where((v) => _items.containsKey(v))
-        .map((v) => v.copyWith(selectedQuantity: _items[v]))
+        .map((v) {
+          // Copier le modèle avec la quantité sélectionnée
+          return v.copyWith(selectedQuantity: _items[v]);
+        })
+        .toList();
+  }
+
+  /// 🔸 Transforme le panier en liste d'OrderItem
+  List<OrderItem> get orderItems {
+    return _items.entries
+        .map((e) => OrderItem(vegetable: e.key, quantity: e.value))
         .toList();
   }
 
   // Nombre de Légumes dans le panier
   int get totalItems {
-    return items.length;
+    return _items.length;
   }
-
 
   /// ✅ Créer la commande
   Future<void> submitOrder({
@@ -78,11 +91,10 @@ class CartViewModel extends ChangeNotifier {
       customerId: customerId,
       offerSummary: offerSummary,
       deliveryMethod: deliveryMethod,
-      items: selectedVegetables,
+      items: orderItems, // 🔹 utilise la liste d'OrderItem
       notes: notes,
     );
 
     clearCart();
   }
-
 }

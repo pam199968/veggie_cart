@@ -103,7 +103,7 @@ class OrderCard extends StatelessWidget {
             const Text('Articles:', style: TextStyle(fontWeight: FontWeight.bold)),
             ...order.items.map((item) => Padding(
                   padding: const EdgeInsets.only(top: 2),
-                  child: Text('- ${item.name} (${item.packaging})'),
+                  child: Text('- ${item.vegetable.name} (${item.vegetable.packaging}) - Qté : ${item.quantity}'),
                 )),
             const SizedBox(height: 8),
             Text('Créée le: ${order.createdAt.toLocal()}'),

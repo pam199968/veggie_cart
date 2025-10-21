@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/weekly_offer.dart';
 import '../models/delivery_method.dart';
 import '../models/vegetable_model.dart';
+import 'order_item.dart';
 
 enum OrderStatus {
   pending,
@@ -108,7 +109,8 @@ class OrderModel {
   final DeliveryMethod deliveryMethod;
   final OrderStatus status;
   final String? notes;
-  final List<VegetableModel> items;
+  final List<OrderItem> items;
+
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -138,9 +140,9 @@ class OrderModel {
     status: OrderStatusExtension.fromString(map['status'] ?? 'pending'),
     notes: map['notes'],
     items: (map['items'] as List<dynamic>? ?? [])
-        .map((item) =>
-            VegetableModel.fromMap(Map<String, dynamic>.from(item), item['id'] ?? ''))
-        .toList(),
+    .map((item) => OrderItem.fromMap(Map<String, dynamic>.from(item)))
+    .toList(),
+
     createdAt: (map['createdAt'] as Timestamp).toDate(),
     updatedAt: (map['updatedAt'] as Timestamp).toDate(),
   );
@@ -154,7 +156,7 @@ Map<String, dynamic> toMap() {
     'deliveryMethod': deliveryMethod.label,
     'status': status.name,
     'notes': notes,
-    'items': items.map((v) => v.toMap()).toList(),
+    'items': items.map((i) => i.toMap()).toList(),
     'createdAt': Timestamp.fromDate(createdAt),
     'updatedAt': Timestamp.fromDate(updatedAt),
   };
@@ -169,7 +171,7 @@ Map<String, dynamic> toMap() {
     DeliveryMethod? deliveryMethod,
     OrderStatus? status,
     String? notes,
-    List<VegetableModel>? items,
+    List<OrderItem>? items,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {

@@ -1,5 +1,5 @@
 import '../models/delivery_method.dart';
-import '../models/vegetable_model.dart';
+import '../models/order_item.dart';
 import '../services/order_service.dart';
 import '../models/order_model.dart';
 
@@ -32,7 +32,7 @@ class OrderRepository {
     required String customerId,
     required WeeklyOfferSummary offerSummary,
     required DeliveryMethod deliveryMethod,
-    List<VegetableModel> items = const [],
+    List<OrderItem> items = const [],
     OrderStatus status = OrderStatus.pending,
     String? notes,
   }) async {
