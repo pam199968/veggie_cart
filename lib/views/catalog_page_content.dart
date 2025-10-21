@@ -345,8 +345,6 @@ class VegetableCard extends StatelessWidget {
         return Colors.orange;
       case VegetableCategory.other:
         return Colors.blueGrey;
-      default:
-        return Colors.grey;
     }
   }
 }

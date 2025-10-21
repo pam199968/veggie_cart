@@ -1,3 +1,5 @@
+import '../models/delivery_method.dart';
+import '../models/vegetable_model.dart';
 import '../services/order_service.dart';
 import '../models/order_model.dart';
 
@@ -22,6 +24,25 @@ class OrderRepository {
       customerId: customerId,
       limit: limit,
       startAfter: startAfter,
+    );
+  }
+
+  /// 🔹 Création de commande via le service
+  Future<OrderModel> createOrder({
+    required String customerId,
+    required WeeklyOfferSummary offerSummary,
+    required DeliveryMethod deliveryMethod,
+    List<VegetableModel> items = const [],
+    OrderStatus status = OrderStatus.pending,
+    String? notes,
+  }) async {
+    return service.createOrder(
+      customerId: customerId,
+      offerSummary: offerSummary,
+      deliveryMethod: deliveryMethod,
+      items: items,
+      status: status,
+      notes: notes,
     );
   }
 }

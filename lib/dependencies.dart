@@ -1,81 +1,98 @@
 // dependencies.dart
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:veggie_cart/repositories/order_repository.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+
 import 'l10n/app_localizations.dart';
+
+// 🔹 Services
 import 'services/auth_service.dart';
+import 'services/user_service.dart';
+import 'services/catalog_service.dart';
+import 'services/weekly_offers_service.dart';
+import 'services/order_service.dart';
+
+// 🔹 Repositories
 import 'repositories/account_repository.dart';
 import 'repositories/catalog_repository.dart';
 import 'repositories/weekly_offers_repository.dart';
-import 'services/user_service.dart';
-import 'services/order_service.dart';
-import 'services/catalog_service.dart';
-import 'services/weekly_offers_service.dart';
-import 'views/my_home_page.dart';
+import 'repositories/order_repository.dart';
+
+// 🔹 ViewModels
 import 'viewmodels/account_view_model.dart';
 import 'viewmodels/catalog_view_model.dart';
 import 'viewmodels/weekly_offers_view_model.dart';
 import 'viewmodels/my_orders_view_model.dart';
+import 'viewmodels/cart_view_model.dart';
 
-
-import 'package:flutter_localizations/flutter_localizations.dart';
-
-
+// 🔹 UI
+import 'views/my_home_page.dart';
 
 /// Construit l'application avec toutes les dépendances injectées.
-/// On peut fournir des instances mock pour les tests.
 Widget buildApp({
   AuthService? authService,
   UserService? userService,
   CatalogService? catalogService,
   WeeklyOffersService? weeklyOffersService,
   OrderService? orderService,
-  
 }) {
   return MultiProvider(
     providers: [
+      // ----------------------
+      // 🧩 Services de base
+      // ----------------------
       Provider<AuthService>(
-        create: (context) => authService ?? AuthService(),
+        create: (_) => authService ?? AuthService(),
       ),
       Provider<UserService>(
-        create: (context) => userService ?? UserService(),
+        create: (_) => userService ?? UserService(),
       ),
       Provider<CatalogService>(
-        create: (context) => catalogService ?? CatalogService(),
+        create: (_) => catalogService ?? CatalogService(),
       ),
       Provider<WeeklyOffersService>(
-        create: (context) => weeklyOffersService ?? WeeklyOffersService(),
+        create: (_) => weeklyOffersService ?? WeeklyOffersService(),
       ),
       Provider<OrderService>(
-        create: (_) => OrderService(),
+        create: (_) => orderService ?? OrderService(),
       ),
+
+      // ----------------------
+      // 🧩 Repositories
+      // ----------------------
       Provider<AccountRepository>(
         create: (context) => AccountRepository(
-          authService: context.read(),
-          userService: context.read(),
+          authService: context.read<AuthService>(),
+          userService: context.read<UserService>(),
         ),
       ),
       Provider<CatalogRepository>(
         create: (context) => CatalogRepository(
-          catalogService: context.read(),
-          ),
+          catalogService: context.read<CatalogService>(),
+        ),
       ),
       Provider<WeeklyOffersRepository>(
         create: (context) => WeeklyOffersRepository(
-          weeklyOffersService: context.read(),
-          ),
+          weeklyOffersService: context.read<WeeklyOffersService>(),
+        ),
       ),
       Provider<OrderRepository>(
-        create: (context) => OrderRepository(service: context.read<OrderService>()),
+        create: (context) => OrderRepository(
+          service: context.read<OrderService>(),
+        ),
       ),
+
+      // ----------------------
+      // 🧩 ViewModels (ChangeNotifier)
+      // ----------------------
       ChangeNotifierProvider<AccountViewModel>(
         create: (context) => AccountViewModel(
-          accountRepository: context.read(),
+          accountRepository: context.read<AccountRepository>(),
         ),
       ),
       ChangeNotifierProvider<CatalogViewModel>(
         create: (context) => CatalogViewModel(
-          catalogRepository: context.read(),
+          catalogRepository: context.read<CatalogRepository>(),
         ),
       ),
       ChangeNotifierProvider<WeeklyOffersViewModel>(
@@ -89,12 +106,23 @@ Widget buildApp({
           repository: context.read<OrderRepository>(),
         ),
       ),
+
+      // ----------------------
+      // 🧩 Nouveau : Panier (CartViewModel)
+      // ----------------------
+      ChangeNotifierProvider<CartViewModel>(
+        create: (context) => CartViewModel(
+          accountViewModel: context.read<AccountViewModel>(),
+          weeklyOffersViewModel: context.read<WeeklyOffersViewModel>(),
+          orderRepository: context.read<OrderRepository>(),
+        ),
+      ),
     ],
     child: const MyApp(),
   );
 }
 
-/// Lance réellement l'application (appel à `runApp`).
+/// Lance réellement l'application
 void runWithDependencies() {
   runApp(buildApp());
 }
@@ -108,18 +136,17 @@ class MyApp extends StatelessWidget {
       title: 'Veggie Harvest',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.greenAccent),
+        useMaterial3: true,
       ),
       localizationsDelegates: const [
-        // Ajoutez ici les délégués de localisation nécessaires
         AppLocalizations.delegate,
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
-      ] ,
+      ],
       supportedLocales: const [
-        Locale('en'), // Anglais
-        Locale('fr'), // Français
-        // Ajoutez d'autres locales si nécessaire
+        Locale('en'),
+        Locale('fr'),
       ],
       home: const MyHomePage(title: 'Mon panier maraîcher'),
     );

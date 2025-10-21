@@ -1,5 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import '../models/delivery_method.dart';
 import '../models/order_model.dart';
+import '../models/vegetable_model.dart';
 
 class OrderService {
   final CollectionReference _ordersRef =
@@ -69,3 +71,44 @@ class OrderService {
         .toList();
   }
 }
+
+extension OrderServiceExtension on OrderService {
+  /// Crée une commande et génère automatiquement orderNumber à partir de l'ID Firestore
+  Future<OrderModel> createOrder({
+  required String customerId,
+  required WeeklyOfferSummary offerSummary,
+  required DeliveryMethod deliveryMethod,
+  OrderStatus status = OrderStatus.pending,
+  String? notes,
+  required List<VegetableModel> items,
+}) async {
+  final newOrderRef = _ordersRef.doc();
+  final orderNumber = _generateOrderNumber(newOrderRef.id);
+  final now = DateTime.now();
+
+  final order = OrderModel(
+    id: newOrderRef.id,
+    orderNumber: orderNumber,
+    customerId: customerId,
+    offerSummary: offerSummary,
+    deliveryMethod: deliveryMethod,
+    status: status,
+    notes: notes,
+    items: items,
+    createdAt: now,
+    updatedAt: now, // initialisé à maintenant
+  );
+
+  await newOrderRef.set(order.toMap());
+
+  return order;
+}
+
+  /// Génération du numéro de commande lisible
+  String _generateOrderNumber(String firestoreId) {
+    final datePart = DateTime.now().toIso8601String().split('T')[0].replaceAll('-', '');
+    final idPart = firestoreId.substring(firestoreId.length - 4).toUpperCase();
+    return 'CMD-$datePart-$idPart';
+  }
+}
+

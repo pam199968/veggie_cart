@@ -133,7 +133,7 @@ class OffersMngtPageContent extends StatelessWidget {
     // 🔹 Prépare un aperçu des légumes (max 3 visibles)
     final veggiePreview = (offer.vegetables.take(3).toList());
     final hasMoreVeggies =
-        offer.vegetables!.length > 3;
+        offer.vegetables.length > 3;
 
     // 🔹 Actions selon le statut
     List<Widget> actionButtons = switch (status) {
@@ -243,7 +243,7 @@ class OffersMngtPageContent extends StatelessWidget {
                   if (hasMoreVeggies)
                     Chip(
                       label: Text(
-                        '+${offer.vegetables!.length - veggiePreview.length}',
+                        '+${offer.vegetables.length - veggiePreview.length}',
                         style: const TextStyle(
                             fontSize: 11, fontWeight: FontWeight.w500),
                       ),
@@ -256,8 +256,8 @@ class OffersMngtPageContent extends StatelessWidget {
             const SizedBox(height: 8),
 
             Text(
-              '${frenchDateFormat.format(offer.startDate!)} → '
-              '${frenchDateFormat.format(offer.endDate!)}',
+              '${frenchDateFormat.format(offer.startDate)} → '
+              '${frenchDateFormat.format(offer.endDate)}',
               style: const TextStyle(fontSize: 12, color: Colors.black54),
             ),
 

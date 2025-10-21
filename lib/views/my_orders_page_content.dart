@@ -66,13 +66,7 @@ class _MyOrdersPageContentState extends State<MyOrdersPageContent> {
                   }
 
                   final order = vm.orders[index];
-                  return Card(
-                    margin: const EdgeInsets.symmetric(vertical: 8),
-                    child: ListTile(
-                      title: Text("Commande du ${order.createdAt.toLocal().toIso8601String().split('T')[0]}"),
-                      subtitle: Text(order.status.label),
-                    ),
-                  );
+                  return OrderCard(order: order);
                 },
               ),
       ),
@@ -96,7 +90,7 @@ class OrderCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Commande n°${order.id}',
+            Text('Commande n°${order.orderNumber}',
                 style: const TextStyle(fontWeight: FontWeight.bold)),
             const SizedBox(height: 4),
             Text('Statut: ${order.status.label}',

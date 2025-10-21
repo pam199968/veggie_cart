@@ -102,6 +102,7 @@ class WeeklyOfferSummary {
 
 class OrderModel {
   final String id;
+  final String orderNumber;
   final String customerId;
   final WeeklyOfferSummary offerSummary;
   final DeliveryMethod deliveryMethod;
@@ -113,6 +114,7 @@ class OrderModel {
 
   OrderModel({
     required this.id,
+    required this.orderNumber,
     required this.customerId,
     required this.offerSummary,
     required this.deliveryMethod,
@@ -127,6 +129,7 @@ class OrderModel {
   final offerMap = Map<String, dynamic>.from(map['offer'] ?? {});
   return OrderModel(
     id: documentId,
+    orderNumber: map['orderNumber'] ?? '', // sera rempli par le service
     customerId: map['customerId'] ?? '',
     offerSummary: WeeklyOfferSummary.fromMap(offerMap, offerMap['id'] ?? ''),
     deliveryMethod: DeliveryMethodExtension.fromString(
@@ -146,6 +149,7 @@ class OrderModel {
 Map<String, dynamic> toMap() {
   return {
     'customerId': customerId,
+    'orderNumber': orderNumber,
     'offer': offerSummary.toMap(), // 🔹 juste le résumé
     'deliveryMethod': deliveryMethod.label,
     'status': status.name,
@@ -159,6 +163,7 @@ Map<String, dynamic> toMap() {
 
   OrderModel copyWith({
     String? id,
+    String? orderNumber,
     String? customerId,
     WeeklyOfferSummary? offerSummary,
     DeliveryMethod? deliveryMethod,
@@ -170,6 +175,7 @@ Map<String, dynamic> toMap() {
   }) {
     return OrderModel(
       id: id ?? this.id,
+      orderNumber: orderNumber ?? this.orderNumber,
       customerId: customerId ?? this.customerId,
       offerSummary: offerSummary ?? this.offerSummary,
       deliveryMethod: deliveryMethod ?? this.deliveryMethod,
