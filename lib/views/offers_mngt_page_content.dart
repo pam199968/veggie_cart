@@ -57,72 +57,95 @@ class OffersMngtPageContent extends StatelessWidget {
     );
   }
 
-  Widget _buildHeader(BuildContext context, WeeklyOffersViewModel vm) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: Row(
-        children: [
-          Expanded(
-            child: Text(
-              'Gestion des offres',
-              style: Theme.of(context).textTheme.headlineSmall,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-          const SizedBox(width: 8),
-          Flexible(
-            child: FittedBox(
-              fit: BoxFit.scaleDown,
-              child: Row(
-                children: [
-                  TextButton.icon(
-                    onPressed: vm.toggleFilter,
-                    icon: Icon(
-                      vm.showPublishedOnly
-                          ? Icons.visibility
-                          : Icons.visibility_off,
-                    ),
-                    label: Text(
-                      vm.showPublishedOnly
-                          ? 'Afficher tous'
-                          : 'Afficher publiés',
-                    ),
+ Widget _buildHeader(BuildContext context, WeeklyOffersViewModel vm) {
+  final isMobile = MediaQuery.of(context).size.width < 600;
+
+  return Padding(
+    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Gestion des offres',
+          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                fontSize: isMobile ? 20 : 24,
+                fontWeight: FontWeight.bold,
+              ),
+          overflow: TextOverflow.ellipsis,
+        ),
+        const SizedBox(height: 8),
+        Wrap(
+          spacing: 8,
+          runSpacing: 4,
+          children: [
+            SizedBox(
+              height: 40,
+              child: ElevatedButton.icon(
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  textStyle: TextStyle(
+                    fontSize: isMobile ? 14 : 16,
+                    fontWeight: FontWeight.w500,
                   ),
-                  const SizedBox(width: 8),
-                  TextButton.icon(
-                    onPressed: vm.toggleShowClosed,
-                    icon: Icon(
-                      vm.showClosedOffers
-                          ? Icons.lock_open
-                          : Icons.lock_outline,
-                    ),
-                    label: Text(
-                      vm.showClosedOffers
-                          ? 'Masquer fermées'
-                          : 'Afficher fermées',
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  ElevatedButton.icon(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => const WeeklyOfferFormPage(),
-                        ),
-                      );
-                    },
-                    icon: const Icon(Icons.add),
-                    label: const Text('Créer une offre'),
-                  ),
-                ],
+                ),
+                onPressed: vm.toggleFilter,
+                icon: Icon(
+                  vm.showPublishedOnly ? Icons.visibility : Icons.visibility_off,
+                  size: isMobile ? 18 : 24,
+                ),
+                label: Text(
+                  vm.showPublishedOnly ? 'Afficher tous' : 'Afficher publiés',
+                ),
               ),
             ),
-          ),
-        ],
-      ),
-    );
-  }
+            SizedBox(
+              height: 40,
+              child: ElevatedButton.icon(
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  textStyle: TextStyle(
+                    fontSize: isMobile ? 14 : 16,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                onPressed: vm.toggleShowClosed,
+                icon: Icon(
+                  vm.showClosedOffers ? Icons.lock_open : Icons.lock_outline,
+                  size: isMobile ? 18 : 24,
+                ),
+                label: Text(
+                  vm.showClosedOffers ? 'Masquer fermées' : 'Afficher fermées',
+                ),
+              ),
+            ),
+            SizedBox(
+              height: 40,
+              child: ElevatedButton.icon(
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(horizontal: 14),
+                  textStyle: TextStyle(
+                    fontSize: isMobile ? 14 : 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const WeeklyOfferFormPage(),
+                    ),
+                  );
+                },
+                icon: const Icon(Icons.add, size: 20),
+                label: const Text('Créer une offre'),
+              ),
+            ),
+          ],
+        ),
+      ],
+    ),
+  );
+}
 
   Widget _buildOfferCard(
     BuildContext context,

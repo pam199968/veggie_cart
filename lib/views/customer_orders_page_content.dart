@@ -23,27 +23,32 @@ class _CustomerOrdersPageContentState extends State<CustomerOrdersPageContent>
 
   late TabController _tabController;
   List<WeeklyOfferSummary> _availableOffers = [];
+
+  late final CustomerOrdersViewModel vm;
   late final VoidCallback _vmListener;
 
   @override
   void initState() {
     super.initState();
-    final vm = context.read<CustomerOrdersViewModel>();
 
-    // 🔹 Initialisation des statuts (par défaut : exclure ready et delivered)
+    // 🔹 Initialisation du ViewModel une seule fois
+    vm = context.read<CustomerOrdersViewModel>();
+
+    // 🔹 Initialisation des statuts
     for (var status in OrderStatus.values) {
       _selectedStatuses[status] =
           !(status == OrderStatus.ready || status == OrderStatus.delivered);
     }
 
-    // applique le filtre initial
+    // 🔹 Appliquer le filtre initial
     vm.setStatusFilter(_getSelectedStatuses());
     vm.initOrders();
 
-    // 🔹 Écoute du ViewModel pour mettre à jour les offres
+    // 🔹 Écoute du ViewModel
     _vmListener = () {
+      if (!mounted) return;
       _updateAvailableOffers();
-      if (mounted) setState(() {});
+      setState(() {});
     };
     vm.addListener(_vmListener);
 
@@ -57,13 +62,16 @@ class _CustomerOrdersPageContentState extends State<CustomerOrdersPageContent>
       }
     });
 
-    // 🔹 Contrôleur des onglets
+    // 🔹 Onglets
     _tabController = TabController(length: 2, vsync: this);
+
+    // 🔹 Charger les offres initiales
+    _updateAvailableOffers();
   }
 
   @override
   void dispose() {
-    context.read<CustomerOrdersViewModel>().removeListener(_vmListener);
+    vm.removeListener(_vmListener);
     _scrollController.dispose();
     _tabController.dispose();
     super.dispose();
@@ -74,13 +82,11 @@ class _CustomerOrdersPageContentState extends State<CustomerOrdersPageContent>
       .map((e) => e.key)
       .toList();
 
-  void _applyFilters(CustomerOrdersViewModel vm) {
+  void _applyFilters() {
     vm.setStatusFilter(_getSelectedStatuses());
-    // 🔹 Ici on pourra étendre pour un filtre par offre si nécessaire
   }
 
   void _updateAvailableOffers() {
-    final vm = context.read<CustomerOrdersViewModel>();
     final orders = vm.orders.map((o) => o.order).toList();
     final Map<String, WeeklyOfferSummary> unique = {};
 
@@ -105,12 +111,11 @@ class _CustomerOrdersPageContentState extends State<CustomerOrdersPageContent>
 
   @override
   Widget build(BuildContext context) {
-    final vm = context.watch<CustomerOrdersViewModel>();
-
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
         title: const Text('Commandes clients'),
+        //automaticallyImplyLeading: false, // suppression du menu redondant
         bottom: TabBar(
           controller: _tabController,
           tabs: const [
@@ -122,18 +127,15 @@ class _CustomerOrdersPageContentState extends State<CustomerOrdersPageContent>
           ],
         ),
       ),
-      endDrawer: _buildFilterDrawer(vm),
+      endDrawer: _buildFilterDrawer(),
       body: TabBarView(
         controller: _tabController,
-        children: [
-          _buildOrdersTab(vm, "Liste des commandes"),
-          PreparationTab(),
-        ],
+        children: [_buildOrdersTab(), const PreparationTab()],
       ),
     );
   }
 
-  Widget _buildOrdersTab(CustomerOrdersViewModel vm, String title) {
+  Widget _buildOrdersTab() {
     return Column(
       children: [
         // 🔹 Bouton Filtres
@@ -142,12 +144,9 @@ class _CustomerOrdersPageContentState extends State<CustomerOrdersPageContent>
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                title,
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
+              const Text(
+                "Liste des commandes",
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               ElevatedButton.icon(
                 icon: const Icon(Icons.filter_list),
@@ -191,8 +190,7 @@ class _CustomerOrdersPageContentState extends State<CustomerOrdersPageContent>
     );
   }
 
-  // 🔹 Drawer de filtres partagé
-  Drawer _buildFilterDrawer(CustomerOrdersViewModel vm) {
+  Drawer _buildFilterDrawer() {
     final allOffersSelected =
         _availableOffers.isNotEmpty &&
         _availableOffers.every((offer) => _selectedOffers[offer.id] == true);
@@ -210,8 +208,6 @@ class _CustomerOrdersPageContentState extends State<CustomerOrdersPageContent>
               ),
             ),
             const Divider(),
-
-            // 🔸 Statuts
             const Padding(
               padding: EdgeInsets.symmetric(horizontal: 16),
               child: Text(
@@ -229,17 +225,14 @@ class _CustomerOrdersPageContentState extends State<CustomerOrdersPageContent>
                     onChanged: (value) {
                       if (value != null) {
                         setState(() => _selectedStatuses[status] = value);
-                        _applyFilters(vm);
+                        _applyFilters();
                       }
                     },
                   );
                 }).toList(),
               ),
             ),
-
             const Divider(),
-
-            // 🔸 Offres
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Row(
@@ -257,7 +250,7 @@ class _CustomerOrdersPageContentState extends State<CustomerOrdersPageContent>
                           _selectedOffers[offer.id] = newValue;
                         }
                       });
-                      _applyFilters(vm);
+                      _applyFilters();
                     },
                     child: Text(
                       allOffersSelected ? 'Tout décocher' : 'Tout cocher',
@@ -283,7 +276,7 @@ class _CustomerOrdersPageContentState extends State<CustomerOrdersPageContent>
                               setState(() {
                                 _selectedOffers[offer.id] = value;
                               });
-                              _applyFilters(vm);
+                              _applyFilters();
                             }
                           },
                         );
