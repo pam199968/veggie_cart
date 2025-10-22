@@ -55,7 +55,11 @@ class _ProfilePageState extends State<ProfilePage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(_isEditing ? context.l10n.profileUpdateLabel : context.l10n.profileTitle),
+        title: Text(
+          _isEditing
+              ? context.l10n.profileUpdateLabel
+              : context.l10n.profileTitle,
+        ),
         backgroundColor: Colors.greenAccent,
         actions: [
           if (!_isEditing)
@@ -85,8 +89,14 @@ class _ProfilePageState extends State<ProfilePage> {
         _buildInfoTile(context.l10n.emailLabel, _editableUser.email),
         _buildInfoTile(context.l10n.phoneLabel, _editableUser.phoneNumber),
         _buildInfoTile(context.l10n.addressLabel, _editableUser.address),
-        _buildInfoTile(context.l10n.deliveryMethodLabel, _editableUser.deliveryMethod.label),
-        _buildInfoTile(context.l10n.pushNotificationLabel, _editableUser.pushNotifications ? "Oui" : "Non"),
+        _buildInfoTile(
+          context.l10n.deliveryMethodLabel,
+          _editableUser.deliveryMethod.label,
+        ),
+        _buildInfoTile(
+          context.l10n.pushNotificationLabel,
+          _editableUser.pushNotifications ? "Oui" : "Non",
+        ),
       ],
     );
   }
@@ -98,7 +108,10 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  Widget _buildEditForm(AccountViewModel homeViewModel, AccountRepository accountRepository) {
+  Widget _buildEditForm(
+    AccountViewModel homeViewModel,
+    AccountRepository accountRepository,
+  ) {
     return ListView(
       padding: const EdgeInsets.symmetric(vertical: 10),
       children: [
@@ -142,19 +155,30 @@ class _ProfilePageState extends State<ProfilePage> {
               border: const OutlineInputBorder(),
             ),
             items: DeliveryMethod.values.map((method) {
-              return DropdownMenuItem(
-                value: method,
-                child: Text(method.label),
-              );
+              return DropdownMenuItem(value: method, child: Text(method.label));
             }).toList(),
             onChanged: (method) {
               if (method != null) {
                 setState(() {
-                  _editableUser = _editableUser.copyWith(deliveryMethod: method);
+                  _editableUser = _editableUser.copyWith(
+                    deliveryMethod: method,
+                  );
                 });
               }
             },
           ),
+        ),
+        // Switch pour les notifications push
+        const SizedBox(height: 16),
+        SwitchListTile(
+          title: Text(context.l10n.pushNotificationLabel),
+          value: _editableUser.pushNotifications,
+          activeThumbColor: Colors.green,
+          onChanged: (value) {
+            setState(() {
+              _editableUser = _editableUser.copyWith(pushNotifications: value);
+            });
+          },
         ),
 
         const SizedBox(height: 20),
@@ -163,7 +187,10 @@ class _ProfilePageState extends State<ProfilePage> {
           children: [
             ElevatedButton.icon(
               icon: _isSaving
-                  ? const CircularProgressIndicator(color: Colors.white, strokeWidth: 2)
+                  ? const CircularProgressIndicator(
+                      color: Colors.white,
+                      strokeWidth: 2,
+                    )
                   : const Icon(Icons.save),
               label: Text(context.l10n.save),
               onPressed: _isSaving
@@ -205,7 +232,6 @@ class _ProfilePageState extends State<ProfilePage> {
       ],
     );
   }
-
 
   Widget _buildEditableField(
     String label,
