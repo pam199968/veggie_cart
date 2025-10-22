@@ -222,12 +222,14 @@ class OfferDetailScreen extends StatelessWidget {
             'Finaliser la commande',
             style: TextStyle(fontSize: 18, color: Colors.white),
           ),
-          onPressed: () {
+          onPressed: cartVm.totalItems > 0
+        ? () {
             Navigator.push(
               context,
               MaterialPageRoute(builder: (_) => const CartScreen()),
             );
-          },
+          }
+        : null, // ← désactivé si panier vide
         ),
       ),
     );
