@@ -241,27 +241,59 @@ class _WeeklyOfferFormPageState extends State<WeeklyOfferFormPage> {
                         children: [
                           IconButton(
                             icon: const Icon(Icons.edit, color: Colors.blue),
-                            tooltip: 'Modifier le prix',
+                            tooltip: 'Modifier le légume',
                             onPressed: () async {
-                              final newPrice = await showDialog<double>(
+                              final result = await showDialog<Map<String, dynamic>>(
                                 context: context,
                                 builder: (context) {
-                                  final controller = TextEditingController(
+                                  final priceController = TextEditingController(
                                     text: veg.price?.toString() ?? '',
                                   );
+                                  final quantityController =
+                                      TextEditingController(
+                                        text:
+                                            veg.standardQuantity?.toString() ??
+                                            '',
+                                      );
+                                  final packagingController =
+                                      TextEditingController(
+                                        text: veg.packaging,
+                                      );
+
                                   return AlertDialog(
-                                    title: Text(
-                                      'Modifier le prix de ${veg.name}',
-                                    ),
-                                    content: TextField(
-                                      controller: controller,
-                                      keyboardType:
-                                          const TextInputType.numberWithOptions(
-                                            decimal: true,
+                                    title: Text('Modifier ${veg.name}'),
+                                    content: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        TextField(
+                                          controller: priceController,
+                                          keyboardType:
+                                              const TextInputType.numberWithOptions(
+                                                decimal: true,
+                                              ),
+                                          decoration: const InputDecoration(
+                                            labelText: 'Prix (€)',
                                           ),
-                                      decoration: const InputDecoration(
-                                        labelText: 'Prix (€)',
-                                      ),
+                                        ),
+                                        const SizedBox(height: 8),
+                                        TextField(
+                                          controller: quantityController,
+                                          keyboardType:
+                                              const TextInputType.numberWithOptions(
+                                                decimal: true,
+                                              ),
+                                          decoration: const InputDecoration(
+                                            labelText: 'Quantité par conditionnement',
+                                          ),
+                                        ),
+                                        const SizedBox(height: 8),
+                                        TextField(
+                                          controller: packagingController,
+                                          decoration: const InputDecoration(
+                                            labelText: 'Unité de conditionnement',
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                     actions: [
                                       TextButton(
@@ -270,17 +302,31 @@ class _WeeklyOfferFormPageState extends State<WeeklyOfferFormPage> {
                                         child: const Text('Annuler'),
                                       ),
                                       ElevatedButton(
-                                        onPressed: () => Navigator.pop(
-                                          context,
-                                          double.tryParse(controller.text),
-                                        ),
+                                        onPressed: () {
+                                          final price = double.tryParse(
+                                            priceController.text,
+                                          );
+                                          final quantity = double.tryParse(
+                                            quantityController.text,
+                                          );
+                                          final packaging = packagingController
+                                              .text
+                                              .trim();
+
+                                          Navigator.pop(context, {
+                                            'price': price,
+                                            'standardQuantity': quantity,
+                                            'packaging': packaging,
+                                          });
+                                        },
                                         child: const Text('OK'),
                                       ),
                                     ],
                                   );
                                 },
                               );
-                              if (newPrice != null) {
+
+                              if (result != null) {
                                 setState(() {
                                   final index = _selectedVegetables.indexOf(
                                     veg,
@@ -289,10 +335,13 @@ class _WeeklyOfferFormPageState extends State<WeeklyOfferFormPage> {
                                     id: veg.id,
                                     name: veg.name,
                                     category: veg.category,
-                                    packaging: veg.packaging,
-                                    price: newPrice,
+                                    price: result['price'] ?? veg.price,
+                                    standardQuantity:
+                                        result['standardQuantity'] ??
+                                        veg.standardQuantity,
+                                    packaging:
+                                        result['packaging'] ?? veg.packaging,
                                     description: veg.description,
-                                    standardQuantity: veg.standardQuantity,
                                     active: veg.active,
                                     image: veg.image,
                                   );
@@ -300,6 +349,7 @@ class _WeeklyOfferFormPageState extends State<WeeklyOfferFormPage> {
                               }
                             },
                           ),
+
                           IconButton(
                             icon: const Icon(Icons.delete, color: Colors.red),
                             tooltip: 'Supprimer ce légume',
@@ -415,7 +465,10 @@ class _VegetableSelectorDialogState extends State<VegetableSelectorDialog> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context, _tempSelection),
-              child: const Text('Valider', style: TextStyle(color: Colors.white)),
+              child: const Text(
+                'Valider',
+                style: TextStyle(color: Colors.white),
+              ),
             ),
           ],
         ),
