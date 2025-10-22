@@ -48,3 +48,6 @@ app.*.map.json
 /android/app/release
 
 android/build/reports/problems/problems-report.html
+firebase.json
+apphosting.yaml
+.firebase/hosting.*.cache
