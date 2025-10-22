@@ -18,6 +18,10 @@ class _CustomerOrdersPageContentState extends State<CustomerOrdersPageContent> {
   final Map<OrderStatus, bool> _selectedStatuses = {};
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
+  String? _selectedOfferId;
+  List<WeeklyOfferSummary> _availableOffers = [];
+  late final VoidCallback _vmListener;
+
   @override
   void initState() {
     super.initState();
@@ -29,7 +33,19 @@ class _CustomerOrdersPageContentState extends State<CustomerOrdersPageContent> {
           !(status == OrderStatus.ready || status == OrderStatus.delivered);
     }
 
+    // applique le filtre initial (cela lance un reload côté ViewModel)
     vm.setStatusFilter(_getSelectedStatuses());
+
+    // écoute le ViewModel pour mettre à jour les offres disponibles
+    _vmListener = () {
+      // lorsque vm.orders change, on met à jour les offres disponibles
+      _updateAvailableOffers();
+      // on remplace l'appel à setState seulement si mounted et si l'UI a besoin d'être rafraîchi
+      if (mounted) setState(() {});
+    };
+    vm.addListener(_vmListener);
+
+    // initialise le chargement (initOrders fera notifyListeners lorsque prêt)
     vm.initOrders();
 
     _scrollController.addListener(() {
@@ -49,13 +65,64 @@ class _CustomerOrdersPageContentState extends State<CustomerOrdersPageContent> {
         .toList();
   }
 
-  void _onStatusChanged(OrderStatus status, bool value) {
-    setState(() => _selectedStatuses[status] = value);
-    context.read<CustomerOrdersViewModel>().setStatusFilter(_getSelectedStatuses());
+  final Map<String, bool> _selectedOffers = {};
+
+  List<WeeklyOfferSummary> _getAvailableOffers(CustomerOrdersViewModel vm) {
+    final offers = vm.orders.map((o) => o.order.offerSummary).toSet().toList()
+      ..sort((a, b) => b.startDate.compareTo(a.startDate));
+    // Synchroniser les nouvelles offres dans la map
+    for (var offer in offers) {
+      _selectedOffers.putIfAbsent(offer.id, () => true);
+    }
+    return offers;
+  }
+
+  void _applyFilters(CustomerOrdersViewModel vm) {
+    final filteredStatuses = _getSelectedStatuses();
+    final selectedOfferIds = _selectedOffers.entries
+        .where((e) => e.value)
+        .map((e) => e.key)
+        .toList();
+
+    vm.setStatusFilter(filteredStatuses);
+    // Tu pourras ensuite étendre ici pour ajouter un setOfferFilter(selectedOfferIds)
+  }
+
+  void _refreshOfferFilter(CustomerOrdersViewModel vm) {
+    setState(() {
+      _selectedOffers.clear();
+      for (var offer in _getAvailableOffers(vm)) {
+        _selectedOffers[offer.id] = true;
+      }
+    });
+  }
+
+  String _formatDate(DateTime date) {
+    return "${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}";
+  }
+
+  void _updateAvailableOffers() {
+    final vm = context.read<CustomerOrdersViewModel>();
+
+    // récupère les offers uniquement depuis les commandes présentes
+    final orders = vm.orders.map((o) => o.order).toList();
+
+    // construit une map id -> WeeklyOfferSummary (ignore id nuls/vide)
+    final Map<String, WeeklyOfferSummary> unique = {};
+    for (var order in orders) {
+      final offer = order.offerSummary;
+      if (offer.id.isNotEmpty) {
+        unique[offer.id] = offer;
+      }
+    }
+
+    _availableOffers = unique.values.toList();
   }
 
   @override
   void dispose() {
+    final vm = context.read<CustomerOrdersViewModel>();
+    vm.removeListener(_vmListener);
     _scrollController.dispose();
     super.dispose();
   }
@@ -67,7 +134,7 @@ class _CustomerOrdersPageContentState extends State<CustomerOrdersPageContent> {
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(title: const Text('Commandes clients')),
-      endDrawer: _buildFilterDrawer(context),
+      endDrawer: _buildFilterDrawer(vm),
       body: Column(
         children: [
           // 🔹 Bouton "Filtres"
@@ -94,13 +161,13 @@ class _CustomerOrdersPageContentState extends State<CustomerOrdersPageContent> {
           Expanded(
             child: vm.orders.isEmpty
                 ? vm.isLoading
-                    ? const Center(child: CircularProgressIndicator())
-                    : const Center(
-                        child: Text(
-                          "Aucune commande trouvée.",
-                          style: TextStyle(fontSize: 16, color: Colors.grey),
-                        ),
-                      )
+                      ? const Center(child: CircularProgressIndicator())
+                      : const Center(
+                          child: Text(
+                            "Aucune commande trouvée.",
+                            style: TextStyle(fontSize: 16, color: Colors.grey),
+                          ),
+                        )
                 : ListView.builder(
                     controller: _scrollController,
                     itemCount: vm.orders.length + (vm.hasMore ? 1 : 0),
@@ -114,7 +181,9 @@ class _CustomerOrdersPageContentState extends State<CustomerOrdersPageContent> {
                       }
 
                       final orderWithCustomer = vm.orders[index];
-                      return CustomerOrderCard(orderWithCustomer: orderWithCustomer);
+                      return CustomerOrderCard(
+                        orderWithCustomer: orderWithCustomer,
+                      );
                     },
                   ),
           ),
@@ -124,45 +193,111 @@ class _CustomerOrdersPageContentState extends State<CustomerOrdersPageContent> {
   }
 
   // 🔹 Drawer latéral avec filtres
-  Widget _buildFilterDrawer(BuildContext context) {
+  Drawer _buildFilterDrawer(CustomerOrdersViewModel vm) {
+    // 🔹 On synchronise les offres disponibles avant tout
+    final availableOffers = _getAvailableOffers(vm);
+
+    // 🔹 Calcul dynamique : est-ce que toutes les offres sont cochées ?
+    final allOffersSelected =
+        availableOffers.isNotEmpty &&
+        availableOffers.every((offer) => _selectedOffers[offer.id] == true);
+
     return Drawer(
       child: SafeArea(
-        child: ListView(
-          padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Filtres',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            const Padding(
+              padding: EdgeInsets.all(16),
+              child: Text(
+                'Filtres',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
             ),
             const Divider(),
-            const SizedBox(height: 8),
 
-            // 🔹 Section "Statuts"
-            const Text(
-              'Statut de la commande',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+            // 🔹 Filtre par statut
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16),
+              child: Text(
+                'Statuts des commandes',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
             ),
-            ...OrderStatus.values.map(
-              (status) => CheckboxListTile(
-                title: Text(status.label),
-                value: _selectedStatuses[status],
-                onChanged: (value) {
-                  if (value != null) _onStatusChanged(status, value);
-                },
+            Expanded(
+              flex: 2,
+              child: ListView(
+                children: OrderStatus.values.map((status) {
+                  return CheckboxListTile(
+                    title: Text(status.label),
+                    value: _selectedStatuses[status],
+                    onChanged: (value) {
+                      if (value != null) {
+                        setState(() {
+                          _selectedStatuses[status] = value;
+                        });
+                        vm.setStatusFilter(_getSelectedStatuses());
+                        _refreshOfferFilter(vm);
+                      }
+                    },
+                  );
+                }).toList(),
               ),
             ),
 
-            const SizedBox(height: 16),
+            const Divider(),
 
-            // 🔹 Placeholder pour futurs filtres
-            const Text(
-              'Autres filtres (à venir)',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+            // 🔹 Filtre par offre
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'Offres rattachées',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      final newValue = !allOffersSelected;
+                      setState(() {
+                        for (var offer in availableOffers) {
+                          _selectedOffers[offer.id] = newValue;
+                        }
+                      });
+                      _applyFilters(vm);
+                    },
+                    child: Text(
+                      allOffersSelected ? 'Tout décocher' : 'Tout cocher',
+                    ),
+                  ),
+                ],
+              ),
             ),
-            const SizedBox(height: 8),
-            const Text(
-              'Exemple : méthode de livraison, date, client, etc.',
-              style: TextStyle(color: Colors.grey),
+
+            Expanded(
+              flex: 3,
+              child: availableOffers.isEmpty
+                  ? const Center(child: Text('Aucune offre disponible'))
+                  : ListView(
+                      children: availableOffers.map((offer) {
+                        final weekRange =
+                            "Semaine du ${_formatDate(offer.startDate)}";
+                        return CheckboxListTile(
+                          title: Text(offer.title),
+                          subtitle: Text(weekRange),
+                          value: _selectedOffers[offer.id] ?? true,
+                          onChanged: (value) {
+                            if (value != null) {
+                              setState(() {
+                                _selectedOffers[offer.id] = value;
+                              });
+                              _applyFilters(vm);
+                            }
+                          },
+                        );
+                      }).toList(),
+                    ),
             ),
           ],
         ),
@@ -222,10 +357,12 @@ class CustomerOrderCard extends StatelessWidget {
                 DropdownButton<OrderStatus>(
                   value: order.status,
                   items: OrderStatus.values
-                      .map((status) => DropdownMenuItem(
-                            value: status,
-                            child: Text(status.label),
-                          ))
+                      .map(
+                        (status) => DropdownMenuItem(
+                          value: status,
+                          child: Text(status.label),
+                        ),
+                      )
                       .toList(),
                   onChanged: (newStatus) async {
                     if (newStatus != null) {
@@ -236,10 +373,17 @@ class CustomerOrderCard extends StatelessWidget {
                 ),
               ],
             ),
+            Text(
+              'Offre : ${order.offerSummary.title} '
+              '(${_formatDate(order.offerSummary.startDate)})',
+            ),
             Text('Méthode de livraison: ${order.deliveryMethod.label}'),
             if (order.notes != null) Text('Notes: ${order.notes}'),
             const SizedBox(height: 8),
-            const Text('Articles:', style: TextStyle(fontWeight: FontWeight.bold)),
+            const Text(
+              'Articles:',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
             ...order.items.map(
               (item) => Padding(
                 padding: const EdgeInsets.only(top: 2),
@@ -254,6 +398,12 @@ class CustomerOrderCard extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  String _formatDate(DateTime date) {
+    final day = date.day.toString().padLeft(2, '0');
+    final month = date.month.toString().padLeft(2, '0');
+    return '$day/$month';
   }
 
   Color _statusColor(OrderStatus status) {

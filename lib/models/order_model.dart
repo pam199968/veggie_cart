@@ -64,19 +64,23 @@ class WeeklyOfferSummary {
   });
 
   factory WeeklyOfferSummary.fromWeeklyOffer(WeeklyOffer offer) {
-    return WeeklyOfferSummary(
-      id: offer.id ?? '',
-      title: offer.title,
-      description: offer.description,
-      startDate: offer.startDate,
-      endDate: offer.endDate,
-      status: offer.status,
-    );
-  }
+  assert(offer.id != null && offer.id!.isNotEmpty,
+      'WeeklyOffer must have a valid id before being used in an order.');
 
-  factory WeeklyOfferSummary.fromMap(Map<String, dynamic> map, String id) {
+  return WeeklyOfferSummary(
+    id: offer.id!,
+    title: offer.title,
+    description: offer.description,
+    startDate: offer.startDate,
+    endDate: offer.endDate,
+    status: offer.status,
+  );
+}
+
+
+  factory WeeklyOfferSummary.fromMap(Map<String, dynamic> map) {
     return WeeklyOfferSummary(
-      id: id,
+      id: map['id'] ?? '',
       title: map['title'] ?? '',
       description: map['description'] ?? '',
       startDate: (map['startDate'] as Timestamp).toDate(),
@@ -87,6 +91,7 @@ class WeeklyOfferSummary {
 
   Map<String, dynamic> toMap() {
     return {
+      'id': id,
       'title': title,
       'description': description,
       'startDate': Timestamp.fromDate(startDate),
@@ -128,7 +133,7 @@ class OrderModel {
     id: documentId,
     orderNumber: map['orderNumber'] ?? '', // sera rempli par le service
     customerId: map['customerId'] ?? '',
-    offerSummary: WeeklyOfferSummary.fromMap(offerMap, offerMap['id'] ?? ''),
+    offerSummary: WeeklyOfferSummary.fromMap(offerMap), 
     deliveryMethod: DeliveryMethodExtension.fromString(
       map['deliveryMethod'] ?? "Retrait à la ferme",
     ),

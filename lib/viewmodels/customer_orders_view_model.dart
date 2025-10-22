@@ -14,8 +14,9 @@ class CustomerOrdersViewModel extends ChangeNotifier {
   bool hasMore = true;
   OrderModel? _lastOrder;
 
-  // 🔹 Filtre des statuts
+  // 🔹 Filtres
   List<OrderStatus>? statusFilter;
+  String? offerFilterId; // 👈 nouveau filtre sur l'offre
 
   CustomerOrdersViewModel({
     required this.orderRepository,
@@ -23,19 +24,28 @@ class CustomerOrdersViewModel extends ChangeNotifier {
     this.statusFilter,
   });
 
-  /// 🔹 Initialise la liste des commandes
+  /// 🔹 Initialise la liste des commandes (avec filtres)
   Future<void> initOrders() async {
     isLoading = true;
-    // ⚠️ on ne notifie pas encore, on attend la première frame
     WidgetsBinding.instance.addPostFrameCallback((_) => notifyListeners());
 
+    // 🔹 Récupération brute
     final fetchedOrders = await orderRepository.fetchAllOrders(
       limit: 20,
       startAfter: _lastOrder,
+      statuses: statusFilter,
     );
 
+    // 🔹 Application du filtre sur l'offre si présent
+    final filteredOrders = offerFilterId == null
+        ? fetchedOrders
+        : fetchedOrders
+            .where((o) => o.offerSummary.id == offerFilterId)
+            .toList();
+
+    // 🔹 Enrichissement avec le client
     final List<OrderModelWithCustomer> enriched = [];
-    for (var order in fetchedOrders) {
+    for (var order in filteredOrders) {
       try {
         final customer = await userService.getUserById(order.customerId);
         enriched.add(OrderModelWithCustomer(order: order, customer: customer));
@@ -48,12 +58,10 @@ class CustomerOrdersViewModel extends ChangeNotifier {
     if (orders.isNotEmpty) _lastOrder = orders.last.order;
     hasMore = fetchedOrders.length >= 20;
     isLoading = false;
-
-    // ⚠️ on notifie après la fin de la frame pour éviter l'erreur
     WidgetsBinding.instance.addPostFrameCallback((_) => notifyListeners());
   }
 
-  /// 🔹 Chargement des pages suivantes
+  /// 🔹 Chargement des pages suivantes (pagination)
   Future<void> loadMore() async {
     if (isLoading || !hasMore) return;
     isLoading = true;
@@ -65,7 +73,14 @@ class CustomerOrdersViewModel extends ChangeNotifier {
       statuses: statusFilter,
     );
 
-    for (var order in fetchedOrders) {
+    // 🔹 Application du filtre sur l'offre
+    final filteredOrders = offerFilterId == null
+        ? fetchedOrders
+        : fetchedOrders
+            .where((o) => o.offerSummary.id == offerFilterId)
+            .toList();
+
+    for (var order in filteredOrders) {
       final customer = await userService.getUserById(order.customerId);
       orders.add(OrderModelWithCustomer(order: order, customer: customer));
     }
@@ -89,9 +104,18 @@ class CustomerOrdersViewModel extends ChangeNotifier {
     }
   }
 
-  /// 🔹 Met à jour le filtre des statuts et recharge les commandes
+  /// 🔹 Met à jour le filtre des statuts
   Future<void> setStatusFilter(List<OrderStatus>? statuses) async {
     statusFilter = statuses;
+    _lastOrder = null;
+    orders.clear();
+    hasMore = true;
+    await initOrders();
+  }
+
+  /// 🔹 Met à jour le filtre sur l'offre
+  Future<void> setOfferFilter(String? offerId) async {
+    offerFilterId = offerId;
     _lastOrder = null;
     orders.clear();
     hasMore = true;

@@ -2,7 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/delivery_method.dart';
 import '../models/order_item.dart';
 import '../models/order_model.dart';
-import '../models/vegetable_model.dart';
+import 'package:flutter/foundation.dart';
+
 
 class OrderService {
   final CollectionReference _ordersRef = FirebaseFirestore.instance.collection(
@@ -144,8 +145,10 @@ class OrderService {
                 OrderModel.fromMap(doc.data() as Map<String, dynamic>, doc.id),
           )
           .toList();
-    } catch (e) {
-      return [];
+    } catch (e, stack) {
+      debugPrint("🔥 Firestore error in getAllOrdersPaginated: $e");
+      debugPrint(stack.toString());
+      rethrow; // 👉 pour propager l’erreur si nécessaire
     }
   }
 
