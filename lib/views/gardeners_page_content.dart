@@ -51,16 +51,40 @@ class GardenersPageContent extends StatelessWidget {
                 child: ListTile(
                   title: Text('${user.givenName} ${user.name}'),
                   subtitle: Text(user.email),
-                  trailing: Checkbox(
-                    value: isGardener,
-                    onChanged: isCurrentUser
-                      ? null
-                      : (value) {
-                          if (value != null) {
-                            accountViewModel.toggleGardenerStatus(context, user, value);
-                          }
-                        },
-                  ),
+                  trailing: isCurrentUser
+                      ? null // 👈 pas de bouton pour l'utilisateur courant
+                      : IconButton(
+                          icon: const Icon(Icons.delete, color: Colors.red),
+                          tooltip: "Désactiver",
+                          onPressed: () async {
+                            try {
+                              await accountViewModel.toggleGardenerStatus(
+                                context,
+                                user,
+                                false,
+                              );
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      '${user.givenName} ${user.name} a été désactivé.',
+                                    ),
+                                  ),
+                                );
+                              }
+                            } catch (e) {
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      'Impossible de désactiver ${user.givenName} ${user.name}.',
+                                    ),
+                                  ),
+                                );
+                              }
+                            }
+                          },
+                        ),
                 ),
               );
             },
@@ -71,7 +95,10 @@ class GardenersPageContent extends StatelessWidget {
   }
 
   Future<void> _showAddGardenerDialog(BuildContext context) async {
-    final accountViewModel = Provider.of<AccountViewModel>(context, listen: false);
+    final accountViewModel = Provider.of<AccountViewModel>(
+      context,
+      listen: false,
+    );
     final TextEditingController searchController = TextEditingController();
     List<UserModel> searchResults = [];
     Timer? debounce;
@@ -85,7 +112,9 @@ class GardenersPageContent extends StatelessWidget {
               if (debounce?.isActive ?? false) debounce!.cancel();
               debounce = Timer(const Duration(milliseconds: 300), () async {
                 if (query.isNotEmpty) {
-                  final results = await accountViewModel.searchCustomers(query.trim());
+                  final results = await accountViewModel.searchCustomers(
+                    query.trim(),
+                  );
                   setState(() {
                     searchResults = results;
                   });
@@ -126,7 +155,10 @@ class GardenersPageContent extends StatelessWidget {
                               title: Text('${user.givenName} ${user.name}'),
                               subtitle: Text(user.email),
                               onTap: () async {
-                                await accountViewModel.promoteToGardener(context, user);
+                                await accountViewModel.promoteToGardener(
+                                  context,
+                                  user,
+                                );
                                 if (context.mounted) Navigator.pop(context);
                               },
                             );
