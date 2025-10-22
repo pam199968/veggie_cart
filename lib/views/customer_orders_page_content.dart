@@ -144,8 +144,8 @@ class _CustomerOrdersPageContentState extends State<CustomerOrdersPageContent>
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                "Liste des commandes",
+               Text(
+                "Liste des commandes (${vm.orders.length})",
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               ElevatedButton.icon(
