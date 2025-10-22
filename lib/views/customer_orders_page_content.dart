@@ -16,20 +16,20 @@ class CustomerOrdersPageContent extends StatefulWidget {
 class _CustomerOrdersPageContentState extends State<CustomerOrdersPageContent> {
   final ScrollController _scrollController = ScrollController();
   final Map<OrderStatus, bool> _selectedStatuses = {};
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
   void initState() {
     super.initState();
     final vm = context.read<CustomerOrdersViewModel>();
 
-    // 🔹 Initialisation des statuts par défaut (exclure ready & delivered)
+    // 🔹 Initialisation : exclure "ready" & "delivered" par défaut
     for (var status in OrderStatus.values) {
       _selectedStatuses[status] =
           !(status == OrderStatus.ready || status == OrderStatus.delivered);
     }
 
     vm.setStatusFilter(_getSelectedStatuses());
-
     vm.initOrders();
 
     _scrollController.addListener(() {
@@ -50,12 +50,8 @@ class _CustomerOrdersPageContentState extends State<CustomerOrdersPageContent> {
   }
 
   void _onStatusChanged(OrderStatus status, bool value) {
-    setState(() {
-      _selectedStatuses[status] = value;
-    });
-
-    final vm = context.read<CustomerOrdersViewModel>();
-    vm.setStatusFilter(_getSelectedStatuses());
+    setState(() => _selectedStatuses[status] = value);
+    context.read<CustomerOrdersViewModel>().setStatusFilter(_getSelectedStatuses());
   }
 
   @override
@@ -69,25 +65,29 @@ class _CustomerOrdersPageContentState extends State<CustomerOrdersPageContent> {
     final vm = context.watch<CustomerOrdersViewModel>();
 
     return Scaffold(
+      key: _scaffoldKey,
       appBar: AppBar(title: const Text('Commandes clients')),
+      endDrawer: _buildFilterDrawer(context),
       body: Column(
         children: [
-          // 🔹 Filtres par statut
-          ExpansionTile(
-            title: const Text('Filtrer par statut'),
-            children: OrderStatus.values
-                .map(
-                  (status) => CheckboxListTile(
-                    title: Text(status.label),
-                    value: _selectedStatuses[status],
-                    onChanged: (value) {
-                      if (value != null) _onStatusChanged(status, value);
-                    },
-                  ),
-                )
-                .toList(),
+          // 🔹 Bouton "Filtres"
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  "Liste des commandes",
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+                ElevatedButton.icon(
+                  icon: const Icon(Icons.filter_list),
+                  label: const Text("Filtres"),
+                  onPressed: () => _scaffoldKey.currentState?.openEndDrawer(),
+                ),
+              ],
+            ),
           ),
-
           const Divider(height: 1),
 
           // 🔹 Liste des commandes
@@ -114,14 +114,7 @@ class _CustomerOrdersPageContentState extends State<CustomerOrdersPageContent> {
                       }
 
                       final orderWithCustomer = vm.orders[index];
-                      return CustomerOrderCard(
-                        orderWithCustomer: orderWithCustomer,
-                        selectedStatuses: _getSelectedStatuses(),
-                        onFilterChanged: () {
-                          // 🔹 Reapplique le filtre après mise à jour du statut
-                          vm.setStatusFilter(_getSelectedStatuses());
-                        },
-                      );
+                      return CustomerOrderCard(orderWithCustomer: orderWithCustomer);
                     },
                   ),
           ),
@@ -129,27 +122,64 @@ class _CustomerOrdersPageContentState extends State<CustomerOrdersPageContent> {
       ),
     );
   }
+
+  // 🔹 Drawer latéral avec filtres
+  Widget _buildFilterDrawer(BuildContext context) {
+    return Drawer(
+      child: SafeArea(
+        child: ListView(
+          padding: const EdgeInsets.all(16),
+          children: [
+            const Text(
+              'Filtres',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            const Divider(),
+            const SizedBox(height: 8),
+
+            // 🔹 Section "Statuts"
+            const Text(
+              'Statut de la commande',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+            ),
+            ...OrderStatus.values.map(
+              (status) => CheckboxListTile(
+                title: Text(status.label),
+                value: _selectedStatuses[status],
+                onChanged: (value) {
+                  if (value != null) _onStatusChanged(status, value);
+                },
+              ),
+            ),
+
+            const SizedBox(height: 16),
+
+            // 🔹 Placeholder pour futurs filtres
+            const Text(
+              'Autres filtres (à venir)',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+            ),
+            const SizedBox(height: 8),
+            const Text(
+              'Exemple : méthode de livraison, date, client, etc.',
+              style: TextStyle(color: Colors.grey),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }
 
 class CustomerOrderCard extends StatelessWidget {
   final OrderModelWithCustomer orderWithCustomer;
-  final List<OrderStatus> selectedStatuses;
-  final VoidCallback onFilterChanged;
 
-  const CustomerOrderCard({
-    super.key,
-    required this.orderWithCustomer,
-    required this.selectedStatuses,
-    required this.onFilterChanged,
-  });
+  const CustomerOrderCard({super.key, required this.orderWithCustomer});
 
   @override
   Widget build(BuildContext context) {
     final order = orderWithCustomer.order;
     final customer = orderWithCustomer.customer;
-
-    // 🔹 Ne pas afficher si le statut n’est pas sélectionné
-    if (!selectedStatuses.contains(order.status)) return const SizedBox.shrink();
 
     return Card(
       elevation: 2,
@@ -160,7 +190,6 @@ class CustomerOrderCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // 🟢 Numéro commande + badge couleur
             Row(
               children: [
                 Text(
@@ -168,7 +197,6 @@ class CustomerOrderCard extends StatelessWidget {
                   style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(width: 8),
-                // 🔹 Badge couleur du statut
                 Container(
                   width: 12,
                   height: 12,
@@ -179,16 +207,12 @@ class CustomerOrderCard extends StatelessWidget {
                 ),
               ],
             ),
-
             if (customer != null)
               Padding(
                 padding: const EdgeInsets.only(top: 4),
                 child: Text('Client: ${customer.givenName} ${customer.name}'),
               ),
-
             const SizedBox(height: 4),
-
-            // 🔹 Statut avec Dropdown pour mise à jour
             Row(
               children: [
                 const Text(
@@ -198,31 +222,24 @@ class CustomerOrderCard extends StatelessWidget {
                 DropdownButton<OrderStatus>(
                   value: order.status,
                   items: OrderStatus.values
-                      .map(
-                        (status) => DropdownMenuItem(
-                          value: status,
-                          child: Text(status.label),
-                        ),
-                      )
+                      .map((status) => DropdownMenuItem(
+                            value: status,
+                            child: Text(status.label),
+                          ))
                       .toList(),
                   onChanged: (newStatus) async {
                     if (newStatus != null) {
                       final vm = context.read<CustomerOrdersViewModel>();
                       await vm.updateOrderStatus(order.id, newStatus);
-                      onFilterChanged();
                     }
                   },
                 ),
               ],
             ),
-
             Text('Méthode de livraison: ${order.deliveryMethod.label}'),
             if (order.notes != null) Text('Notes: ${order.notes}'),
             const SizedBox(height: 8),
-            const Text(
-              'Articles:',
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
+            const Text('Articles:', style: TextStyle(fontWeight: FontWeight.bold)),
             ...order.items.map(
               (item) => Padding(
                 padding: const EdgeInsets.only(top: 2),
