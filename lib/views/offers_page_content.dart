@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/weekly_offer.dart';
 import '../viewmodels/account_view_model.dart';
+import '../viewmodels/my_orders_view_model.dart';
 import '../viewmodels/weekly_offers_view_model.dart';
 import '../viewmodels/cart_view_model.dart';
 
@@ -27,6 +28,7 @@ class _OffersPageContentState extends State<OffersPageContent> {
   @override
   Widget build(BuildContext context) {
     final offersVm = context.watch<WeeklyOffersViewModel>();
+    final orderVm = context.watch<OrderViewModel>(); // 👈 renommé pour clarté
 
     if (offersVm.loading) {
       return const Center(child: CircularProgressIndicator());
@@ -42,28 +44,62 @@ class _OffersPageContentState extends State<OffersPageContent> {
       itemCount: offersVm.offers.length,
       itemBuilder: (context, index) {
         final offer = offersVm.offers[index];
+        final hasOrder = orderVm.hasActiveOrderForOffer(offer.id!);
+
         return Card(
           margin: const EdgeInsets.all(8),
-          child: ListTile(
-            title: Text(
-              offer.title,
-              style: const TextStyle(fontWeight: FontWeight.bold),
-            ),
-            subtitle: Text(offer.description),
-            trailing: const Icon(Icons.arrow_forward_ios),
-            onTap: () {
-              // ⚡️ Associer l'offre courante au panier
-              final cartVm = context.read<CartViewModel>();
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                cartVm.setOffer(offer); // ⚡️ ici seulement, avant de naviguer
-              });
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => OfferDetailScreen(offer: offer),
+          child: Stack(
+            children: [
+              // 🧱 Contenu principal
+              ListTile(
+                title: Text(
+                  offer.title,
+                  style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
-              );
-            },
+                subtitle: Text(offer.description),
+                trailing: const Icon(Icons.arrow_forward_ios),
+                onTap: () {
+                  final cartVm = context.read<CartViewModel>();
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    cartVm.setOffer(offer);
+                  });
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => OfferDetailScreen(offer: offer),
+                    ),
+                  );
+                },
+              ),
+
+              // ✅ Indicateur si une commande existe déjà
+              if (hasOrder)
+                Positioned(
+                  top: 8,
+                  right: 72,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.orange.shade600,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: const Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.receipt_long, color: Colors.white, size: 16),
+                        SizedBox(width: 4),
+                        Text(
+                          "Commande en cours",
+                          style: TextStyle(color: Colors.white, fontSize: 12),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+            ],
           ),
         );
       },

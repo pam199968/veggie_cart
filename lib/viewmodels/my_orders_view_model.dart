@@ -17,10 +17,7 @@ class OrderViewModel extends ChangeNotifier {
   OrderModel? _lastOrder;
   StreamSubscription<List<OrderModel>>? _subscription;
 
-  OrderViewModel({
-    required this.accountViewModel,
-    required this.repository,
-  });
+  OrderViewModel({required this.accountViewModel, required this.repository});
 
   /// 🔹 Initialisation du flux temps réel
   void initOrders() {
@@ -30,11 +27,11 @@ class OrderViewModel extends ChangeNotifier {
     _subscription = repository
         .streamOrdersForCustomer(accountViewModel.currentUser.id!)
         .listen((fetchedOrders) {
-      orders = fetchedOrders;
-      if (orders.isNotEmpty) _lastOrder = orders.last;
-      hasMore = fetchedOrders.length >= pageSize;
-      notifyListeners();
-    });
+          orders = fetchedOrders;
+          if (orders.isNotEmpty) _lastOrder = orders.last;
+          hasMore = fetchedOrders.length >= pageSize;
+          notifyListeners();
+        });
   }
 
   /// 🔹 Pagination au scroll
@@ -58,6 +55,14 @@ class OrderViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// 🔹 Vérifie si une commande (non annulée) existe déjà pour une offre donnée
+  bool hasActiveOrderForOffer(String offerId) {
+    return orders.any((order) {
+      final isSameOffer = order.offerSummary.id == offerId;
+      final isNotCancelled = order.status != OrderStatus.cancelled;
+      return isSameOffer && isNotCancelled;
+    });
+  }
 
   Stream<List<OrderModel>> watchOrders() {
     return repository.streamOrdersForCustomer(accountViewModel.currentUser.id!);
