@@ -218,8 +218,8 @@ class OfferDetailScreen extends StatelessWidget {
             ),
           ),
           icon: const Icon(Icons.check_circle_outline, color: Colors.white),
-          label: const Text(
-            'Finaliser la commande',
+          label: Text(
+            'Finaliser la commande (${cartVm.totalItems.toString()})',
             style: TextStyle(fontSize: 18, color: Colors.white),
           ),
           onPressed: cartVm.totalItems > 0
