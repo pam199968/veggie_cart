@@ -121,8 +121,8 @@ class OfferDetailScreen extends StatelessWidget {
           return Card(
             margin: const EdgeInsets.symmetric(vertical: 6),
             child: ListTile(
-              title: Text(veg.name),
-              subtitle: Text('${veg.price?.toStringAsFixed(2) ?? "-"} € / ${veg.packaging} (cond. par ${veg.standardQuantity} ${veg.packaging})'),
+              title: Text('${veg.name} : ${veg.price?.toStringAsFixed(2) ?? "-"} € / ${veg.packaging}'),
+              subtitle: Text('(cond. par ${veg.standardQuantity} ${veg.packaging})'),
               trailing: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
