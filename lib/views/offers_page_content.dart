@@ -55,7 +55,7 @@ class _OffersPageContentState extends State<OffersPageContent> {
               // ⚡️ Associer l'offre courante au panier
               final cartVm = context.read<CartViewModel>();
               WidgetsBinding.instance.addPostFrameCallback((_) {
-                cartVm.setOffer(offer);// ⚡️ ici seulement, avant de naviguer
+                cartVm.setOffer(offer); // ⚡️ ici seulement, avant de naviguer
               });
               Navigator.push(
                 context,
@@ -70,8 +70,6 @@ class _OffersPageContentState extends State<OffersPageContent> {
     );
   }
 }
-
-
 
 /// 🔹 Écran pour sélectionner les articles et ajouter au panier
 class OfferDetailScreen extends StatelessWidget {
@@ -114,6 +112,8 @@ class OfferDetailScreen extends StatelessWidget {
           ),
         ],
       ),
+
+      // ✅ Contenu principal
       body: ListView(
         padding: const EdgeInsets.all(12),
         children: offer.vegetables.map((veg) {
@@ -121,21 +121,34 @@ class OfferDetailScreen extends StatelessWidget {
           return Card(
             margin: const EdgeInsets.symmetric(vertical: 6),
             child: ListTile(
-              title: Text('${veg.name} : ${veg.price?.toStringAsFixed(2) ?? "-"} € / ${veg.packaging}'),
-              subtitle: Text('(cond. par ${veg.standardQuantity} ${veg.packaging})'),
+              title: Text(
+                '${veg.name} : ${veg.price?.toStringAsFixed(2) ?? "-"} € / ${veg.packaging}',
+              ),
+              subtitle: Text(
+                '(cond. par ${veg.standardQuantity} ${veg.packaging})',
+              ),
               trailing: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   IconButton(
                     icon: const Icon(Icons.remove_circle_outline),
-                    onPressed: qty > 0 ? () => cartVm.updateQuantity(veg, (qty - 1).clamp(0.0, double.infinity)) : null,
+                    onPressed: qty > 0
+                        ? () => cartVm.updateQuantity(
+                            veg,
+                            (qty - 1).clamp(0.0, double.infinity),
+                          )
+                        : null,
                   ),
                   SizedBox(
                     width: 60,
                     child: TextField(
-                      keyboardType: TextInputType.numberWithOptions(decimal: true),
+                      keyboardType: const TextInputType.numberWithOptions(
+                        decimal: true,
+                      ),
                       textAlign: TextAlign.center,
-                      controller: TextEditingController(text: qty.toStringAsFixed(2)),
+                      controller: TextEditingController(
+                        text: qty.toStringAsFixed(2),
+                      ),
                       onSubmitted: (value) {
                         final parsed = double.tryParse(value);
                         if (parsed != null && parsed >= 0) {
@@ -153,6 +166,31 @@ class OfferDetailScreen extends StatelessWidget {
             ),
           );
         }).toList(),
+      ),
+
+      // ✅ Bouton "Finaliser la commande" en bas de l’écran
+      bottomNavigationBar: Padding(
+        padding: const EdgeInsets.all(12),
+        child: ElevatedButton.icon(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.green,
+            padding: const EdgeInsets.symmetric(vertical: 14),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
+          icon: const Icon(Icons.check_circle_outline, color: Colors.white),
+          label: const Text(
+            'Finaliser la commande',
+            style: TextStyle(fontSize: 18, color: Colors.white),
+          ),
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const CartScreen()),
+            );
+          },
+        ),
       ),
     );
   }
@@ -197,10 +235,17 @@ class _CartScreenState extends State<CartScreen> {
                     margin: const EdgeInsets.symmetric(vertical: 6),
                     child: ListTile(
                       leading: veg.image != null
-                          ? Image.network(veg.image!, width: 48, height: 48, fit: BoxFit.cover)
+                          ? Image.network(
+                              veg.image!,
+                              width: 48,
+                              height: 48,
+                              fit: BoxFit.cover,
+                            )
                           : const Icon(Icons.local_florist, size: 40),
                       title: Text(veg.name),
-                      subtitle: Text('${veg.price?.toStringAsFixed(2) ?? "-"} € / ${veg.standardQuantity} ${veg.packaging}'),
+                      subtitle: Text(
+                        '${veg.price?.toStringAsFixed(2) ?? "-"} € / ${veg.standardQuantity} ${veg.packaging}',
+                      ),
                       trailing: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
@@ -212,14 +257,17 @@ class _CartScreenState extends State<CartScreen> {
                           // Diminuer la quantité
                           IconButton(
                             icon: const Icon(Icons.remove_circle_outline),
-                            onPressed: qty > 0 ? () => cartVm.updateQuantity(veg, qty - 1) : null,
+                            onPressed: qty > 0
+                                ? () => cartVm.updateQuantity(veg, qty - 1)
+                                : null,
                           ),
                           // Afficher la quantité
                           Text(qty.toString()),
                           // Augmenter la quantité
                           IconButton(
                             icon: const Icon(Icons.add_circle_outline),
-                            onPressed: () => cartVm.updateQuantity(veg, qty + 1),
+                            onPressed: () =>
+                                cartVm.updateQuantity(veg, qty + 1),
                           ),
                         ],
                       ),
@@ -251,18 +299,23 @@ class _CartScreenState extends State<CartScreen> {
                       child: ElevatedButton(
                         child: const Text('Valider ma commande'),
                         onPressed: () async {
-                          final deliveryMethod = accountVm.currentUser.deliveryMethod;
+                          final deliveryMethod =
+                              accountVm.currentUser.deliveryMethod;
 
                           await cartVm.submitOrder(
                             deliveryMethod: deliveryMethod,
-                            notes: _noteController.text.isNotEmpty ? _noteController.text : null,
+                            notes: _noteController.text.isNotEmpty
+                                ? _noteController.text
+                                : null,
                           );
 
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(content: Text('Commande envoyée !')),
                           );
 
-                          Navigator.pop(context); // retour à la liste des offres
+                          Navigator.pop(
+                            context,
+                          ); // retour à la liste des offres
                         },
                       ),
                     ),
