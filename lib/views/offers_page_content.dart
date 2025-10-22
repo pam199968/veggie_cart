@@ -200,7 +200,7 @@ class _CartScreenState extends State<CartScreen> {
                           ? Image.network(veg.image!, width: 48, height: 48, fit: BoxFit.cover)
                           : const Icon(Icons.local_florist, size: 40),
                       title: Text(veg.name),
-                      subtitle: Text('${veg.price?.toStringAsFixed(2) ?? "-"} € / ${veg.packaging}'),
+                      subtitle: Text('${veg.price?.toStringAsFixed(2) ?? "-"} € / ${veg.standardQuantity} ${veg.packaging}'),
                       trailing: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [

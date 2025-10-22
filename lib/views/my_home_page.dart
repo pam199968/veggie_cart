@@ -48,7 +48,7 @@ class _MyHomePageState extends State<MyHomePage> {
     if (profile == Profile.customer) {
       _currentPage = 'weekly_offers';
     } else if (profile == Profile.gardener) {
-      _currentPage = 'offers_management';
+      _currentPage = 'customer_orders';
     } else {
       _currentPage = '';
     }

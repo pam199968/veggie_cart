@@ -4,6 +4,7 @@ import 'package:veggie_cart/models/delivery_method.dart';
 import '../models/order_model_with_customer.dart';
 import '../viewmodels/customer_orders_view_model.dart';
 import '../models/order_model.dart';
+import 'preparation_tab.dart';
 
 class CustomerOrdersPageContent extends StatefulWidget {
   const CustomerOrdersPageContent({super.key});
@@ -13,12 +14,14 @@ class CustomerOrdersPageContent extends StatefulWidget {
       _CustomerOrdersPageContentState();
 }
 
-class _CustomerOrdersPageContentState extends State<CustomerOrdersPageContent> {
+class _CustomerOrdersPageContentState extends State<CustomerOrdersPageContent>
+    with SingleTickerProviderStateMixin {
   final ScrollController _scrollController = ScrollController();
   final Map<OrderStatus, bool> _selectedStatuses = {};
+  final Map<String, bool> _selectedOffers = {};
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
-  String? _selectedOfferId;
+  late TabController _tabController;
   List<WeeklyOfferSummary> _availableOffers = [];
   late final VoidCallback _vmListener;
 
@@ -27,27 +30,24 @@ class _CustomerOrdersPageContentState extends State<CustomerOrdersPageContent> {
     super.initState();
     final vm = context.read<CustomerOrdersViewModel>();
 
-    // 🔹 Initialisation : exclure "ready" & "delivered" par défaut
+    // 🔹 Initialisation des statuts (par défaut : exclure ready et delivered)
     for (var status in OrderStatus.values) {
       _selectedStatuses[status] =
           !(status == OrderStatus.ready || status == OrderStatus.delivered);
     }
 
-    // applique le filtre initial (cela lance un reload côté ViewModel)
+    // applique le filtre initial
     vm.setStatusFilter(_getSelectedStatuses());
+    vm.initOrders();
 
-    // écoute le ViewModel pour mettre à jour les offres disponibles
+    // 🔹 Écoute du ViewModel pour mettre à jour les offres
     _vmListener = () {
-      // lorsque vm.orders change, on met à jour les offres disponibles
       _updateAvailableOffers();
-      // on remplace l'appel à setState seulement si mounted et si l'UI a besoin d'être rafraîchi
       if (mounted) setState(() {});
     };
     vm.addListener(_vmListener);
 
-    // initialise le chargement (initOrders fera notifyListeners lorsque prêt)
-    vm.initOrders();
-
+    // 🔹 Scroll infini
     _scrollController.addListener(() {
       if (_scrollController.position.pixels >=
               _scrollController.position.maxScrollExtent - 200 &&
@@ -56,59 +56,34 @@ class _CustomerOrdersPageContentState extends State<CustomerOrdersPageContent> {
         vm.loadMore();
       }
     });
+
+    // 🔹 Contrôleur des onglets
+    _tabController = TabController(length: 2, vsync: this);
   }
 
-  List<OrderStatus> _getSelectedStatuses() {
-    return _selectedStatuses.entries
-        .where((e) => e.value)
-        .map((e) => e.key)
-        .toList();
+  @override
+  void dispose() {
+    context.read<CustomerOrdersViewModel>().removeListener(_vmListener);
+    _scrollController.dispose();
+    _tabController.dispose();
+    super.dispose();
   }
 
-  final Map<String, bool> _selectedOffers = {};
-
-  List<WeeklyOfferSummary> _getAvailableOffers(CustomerOrdersViewModel vm) {
-    final offers = vm.orders.map((o) => o.order.offerSummary).toSet().toList()
-      ..sort((a, b) => b.startDate.compareTo(a.startDate));
-    // Synchroniser les nouvelles offres dans la map
-    for (var offer in offers) {
-      _selectedOffers.putIfAbsent(offer.id, () => true);
-    }
-    return offers;
-  }
+  List<OrderStatus> _getSelectedStatuses() => _selectedStatuses.entries
+      .where((e) => e.value)
+      .map((e) => e.key)
+      .toList();
 
   void _applyFilters(CustomerOrdersViewModel vm) {
-    final filteredStatuses = _getSelectedStatuses();
-    final selectedOfferIds = _selectedOffers.entries
-        .where((e) => e.value)
-        .map((e) => e.key)
-        .toList();
-
-    vm.setStatusFilter(filteredStatuses);
-    // Tu pourras ensuite étendre ici pour ajouter un setOfferFilter(selectedOfferIds)
-  }
-
-  void _refreshOfferFilter(CustomerOrdersViewModel vm) {
-    setState(() {
-      _selectedOffers.clear();
-      for (var offer in _getAvailableOffers(vm)) {
-        _selectedOffers[offer.id] = true;
-      }
-    });
-  }
-
-  String _formatDate(DateTime date) {
-    return "${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}";
+    vm.setStatusFilter(_getSelectedStatuses());
+    // 🔹 Ici on pourra étendre pour un filtre par offre si nécessaire
   }
 
   void _updateAvailableOffers() {
     final vm = context.read<CustomerOrdersViewModel>();
-
-    // récupère les offers uniquement depuis les commandes présentes
     final orders = vm.orders.map((o) => o.order).toList();
-
-    // construit une map id -> WeeklyOfferSummary (ignore id nuls/vide)
     final Map<String, WeeklyOfferSummary> unique = {};
+
     for (var order in orders) {
       final offer = order.offerSummary;
       if (offer.id.isNotEmpty) {
@@ -116,16 +91,17 @@ class _CustomerOrdersPageContentState extends State<CustomerOrdersPageContent> {
       }
     }
 
-    _availableOffers = unique.values.toList();
+    _availableOffers = unique.values.toList()
+      ..sort((a, b) => b.startDate.compareTo(a.startDate));
+
+    // initialiser les cases à cocher si nécessaire
+    for (var offer in _availableOffers) {
+      _selectedOffers.putIfAbsent(offer.id, () => true);
+    }
   }
 
-  @override
-  void dispose() {
-    final vm = context.read<CustomerOrdersViewModel>();
-    vm.removeListener(_vmListener);
-    _scrollController.dispose();
-    super.dispose();
-  }
+  String _formatDate(DateTime date) =>
+      "${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}";
 
   @override
   Widget build(BuildContext context) {
@@ -133,74 +109,93 @@ class _CustomerOrdersPageContentState extends State<CustomerOrdersPageContent> {
 
     return Scaffold(
       key: _scaffoldKey,
-      appBar: AppBar(title: const Text('Commandes clients')),
-      endDrawer: _buildFilterDrawer(vm),
-      body: Column(
-        children: [
-          // 🔹 Bouton "Filtres"
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text(
-                  "Liste des commandes",
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-                ElevatedButton.icon(
-                  icon: const Icon(Icons.filter_list),
-                  label: const Text("Filtres"),
-                  onPressed: () => _scaffoldKey.currentState?.openEndDrawer(),
-                ),
-              ],
+      appBar: AppBar(
+        title: const Text('Commandes clients'),
+        bottom: TabBar(
+          controller: _tabController,
+          tabs: const [
+            Tab(text: 'Liste des commandes', icon: Icon(Icons.list_alt)),
+            Tab(
+              text: 'Préparation',
+              icon: Icon(Icons.shopping_basket_outlined),
             ),
-          ),
-          const Divider(height: 1),
-
-          // 🔹 Liste des commandes
-          Expanded(
-            child: vm.orders.isEmpty
-                ? vm.isLoading
-                      ? const Center(child: CircularProgressIndicator())
-                      : const Center(
-                          child: Text(
-                            "Aucune commande trouvée.",
-                            style: TextStyle(fontSize: 16, color: Colors.grey),
-                          ),
-                        )
-                : ListView.builder(
-                    controller: _scrollController,
-                    itemCount: vm.orders.length + (vm.hasMore ? 1 : 0),
-                    itemBuilder: (context, index) {
-                      if (index == vm.orders.length) {
-                        vm.loadMore();
-                        return const Padding(
-                          padding: EdgeInsets.all(8.0),
-                          child: Center(child: CircularProgressIndicator()),
-                        );
-                      }
-
-                      final orderWithCustomer = vm.orders[index];
-                      return CustomerOrderCard(
-                        orderWithCustomer: orderWithCustomer,
-                      );
-                    },
-                  ),
-          ),
+          ],
+        ),
+      ),
+      endDrawer: _buildFilterDrawer(vm),
+      body: TabBarView(
+        controller: _tabController,
+        children: [
+          _buildOrdersTab(vm, "Liste des commandes"),
+          PreparationTab(),
         ],
       ),
     );
   }
 
-  // 🔹 Drawer latéral avec filtres
-  Drawer _buildFilterDrawer(CustomerOrdersViewModel vm) {
-    // 🔹 On synchronise les offres disponibles avant tout
-    final availableOffers = _getAvailableOffers(vm);
+  Widget _buildOrdersTab(CustomerOrdersViewModel vm, String title) {
+    return Column(
+      children: [
+        // 🔹 Bouton Filtres
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              ElevatedButton.icon(
+                icon: const Icon(Icons.filter_list),
+                label: const Text("Filtres"),
+                onPressed: () => _scaffoldKey.currentState?.openEndDrawer(),
+              ),
+            ],
+          ),
+        ),
+        const Divider(height: 1),
+        Expanded(
+          child: vm.orders.isEmpty
+              ? vm.isLoading
+                    ? const Center(child: CircularProgressIndicator())
+                    : const Center(
+                        child: Text(
+                          "Aucune commande trouvée.",
+                          style: TextStyle(fontSize: 16, color: Colors.grey),
+                        ),
+                      )
+              : ListView.builder(
+                  controller: _scrollController,
+                  itemCount: vm.orders.length + (vm.hasMore ? 1 : 0),
+                  itemBuilder: (context, index) {
+                    if (index == vm.orders.length) {
+                      vm.loadMore();
+                      return const Padding(
+                        padding: EdgeInsets.all(8.0),
+                        child: Center(child: CircularProgressIndicator()),
+                      );
+                    }
 
-    // 🔹 Calcul dynamique : est-ce que toutes les offres sont cochées ?
+                    final orderWithCustomer = vm.orders[index];
+                    return CustomerOrderCard(
+                      orderWithCustomer: orderWithCustomer,
+                    );
+                  },
+                ),
+        ),
+      ],
+    );
+  }
+
+  // 🔹 Drawer de filtres partagé
+  Drawer _buildFilterDrawer(CustomerOrdersViewModel vm) {
     final allOffersSelected =
-        availableOffers.isNotEmpty &&
-        availableOffers.every((offer) => _selectedOffers[offer.id] == true);
+        _availableOffers.isNotEmpty &&
+        _availableOffers.every((offer) => _selectedOffers[offer.id] == true);
 
     return Drawer(
       child: SafeArea(
@@ -216,7 +211,7 @@ class _CustomerOrdersPageContentState extends State<CustomerOrdersPageContent> {
             ),
             const Divider(),
 
-            // 🔹 Filtre par statut
+            // 🔸 Statuts
             const Padding(
               padding: EdgeInsets.symmetric(horizontal: 16),
               child: Text(
@@ -233,11 +228,8 @@ class _CustomerOrdersPageContentState extends State<CustomerOrdersPageContent> {
                     value: _selectedStatuses[status],
                     onChanged: (value) {
                       if (value != null) {
-                        setState(() {
-                          _selectedStatuses[status] = value;
-                        });
-                        vm.setStatusFilter(_getSelectedStatuses());
-                        _refreshOfferFilter(vm);
+                        setState(() => _selectedStatuses[status] = value);
+                        _applyFilters(vm);
                       }
                     },
                   );
@@ -247,7 +239,7 @@ class _CustomerOrdersPageContentState extends State<CustomerOrdersPageContent> {
 
             const Divider(),
 
-            // 🔹 Filtre par offre
+            // 🔸 Offres
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Row(
@@ -261,7 +253,7 @@ class _CustomerOrdersPageContentState extends State<CustomerOrdersPageContent> {
                     onPressed: () {
                       final newValue = !allOffersSelected;
                       setState(() {
-                        for (var offer in availableOffers) {
+                        for (var offer in _availableOffers) {
                           _selectedOffers[offer.id] = newValue;
                         }
                       });
@@ -274,13 +266,12 @@ class _CustomerOrdersPageContentState extends State<CustomerOrdersPageContent> {
                 ],
               ),
             ),
-
             Expanded(
               flex: 3,
-              child: availableOffers.isEmpty
+              child: _availableOffers.isEmpty
                   ? const Center(child: Text('Aucune offre disponible'))
                   : ListView(
-                      children: availableOffers.map((offer) {
+                      children: _availableOffers.map((offer) {
                         final weekRange =
                             "Semaine du ${_formatDate(offer.startDate)}";
                         return CheckboxListTile(
@@ -392,21 +383,16 @@ class CustomerOrderCard extends StatelessWidget {
                 ),
               ),
             ),
-            const SizedBox(height: 8),
-            Text('Créée le: ${order.createdAt.toLocal()}'),
           ],
         ),
       ),
     );
   }
 
-  String _formatDate(DateTime date) {
-    final day = date.day.toString().padLeft(2, '0');
-    final month = date.month.toString().padLeft(2, '0');
-    return '$day/$month';
-  }
+  String _formatDate(DateTime date) =>
+      "${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}";
 
-  Color _statusColor(OrderStatus status) {
+  static Color _statusColor(OrderStatus status) {
     switch (status) {
       case OrderStatus.pending:
         return Colors.orange;
