@@ -6,7 +6,7 @@ class WeeklyOffersRepository {
 
   /// Constructeur injectable (mockable pour les tests)
   WeeklyOffersRepository({WeeklyOffersService? weeklyOffersService})
-      : _weeklyOffersService = weeklyOffersService ?? WeeklyOffersService();
+    : _weeklyOffersService = weeklyOffersService ?? WeeklyOffersService();
 
   /// 🔹 CREATE
   Future<String> createWeeklyOffer(WeeklyOffer offer) async {
@@ -18,8 +18,10 @@ class WeeklyOffersRepository {
     return await _weeklyOffersService.getWeeklyOffer(id);
   }
 
-  Future<List<WeeklyOffer>> getAllWeeklyOffers() async {
-    return await _weeklyOffersService.getAllWeeklyOffers();
+  Future<List<WeeklyOffer>> getAllWeeklyOffers({
+    WeeklyOfferStatus? status,
+  }) async {
+    return await _weeklyOffersService.getAllWeeklyOffers(status: status);
   }
 
   /// 🔹 UPDATE

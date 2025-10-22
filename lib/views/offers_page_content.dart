@@ -20,7 +20,9 @@ class _OffersPageContentState extends State<OffersPageContent> {
     // 🔹 Appeler loadOffers après le premier frame
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
-        context.read<WeeklyOffersViewModel>().loadOffers();
+        final vm = context.read<WeeklyOffersViewModel>();
+        vm.setOfferFilter(OfferFilter.published); // <-- on définit le filtre
+        vm.loadOffers(); // recharge les offres avec ce filtre
       }
     });
   }

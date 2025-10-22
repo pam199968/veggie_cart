@@ -5,7 +5,7 @@ class WeeklyOffersService {
   final FirebaseFirestore _firestore;
 
   WeeklyOffersService({FirebaseFirestore? firestore})
-      : _firestore = firestore ?? FirebaseFirestore.instance;
+    : _firestore = firestore ?? FirebaseFirestore.instance;
 
   CollectionReference get _collection => _firestore.collection('weeklyOffers');
 
@@ -23,16 +23,30 @@ class WeeklyOffersService {
   }
 
   /// 🔹 READ (tous)
-  Future<List<WeeklyOffer>> getAllWeeklyOffers() async {
-    final snapshot = await _collection.get();
+  Future<List<WeeklyOffer>> getAllWeeklyOffers({
+    WeeklyOfferStatus? status,
+  }) async {
+    Query query = _collection;
+    if (status != null) {
+      query = query.where(
+        'status',
+        isEqualTo: status.name,
+      ); // ou status.toString() selon le stockage
+    }
+    final snapshot = await query.get();
     return snapshot.docs
-        .map((doc) => WeeklyOffer.fromMap(doc.data() as Map<String, dynamic>, doc.id))
+        .map(
+          (doc) =>
+              WeeklyOffer.fromMap(doc.data() as Map<String, dynamic>, doc.id),
+        )
         .toList();
   }
 
   /// 🔹 UPDATE
   Future<void> updateWeeklyOffer(WeeklyOffer offer) async {
-    if (offer.id == null) throw Exception('Impossible de mettre à jour une offre sans ID.');
+    if (offer.id == null) {
+      throw Exception('Impossible de mettre à jour une offre sans ID.');
+    }
     await _collection.doc(offer.id).update(offer.toMap());
   }
 
@@ -45,7 +59,10 @@ class WeeklyOffersService {
   Stream<List<WeeklyOffer>> streamWeeklyOffers() {
     return _collection.snapshots().map((snapshot) {
       return snapshot.docs
-          .map((doc) => WeeklyOffer.fromMap(doc.data() as Map<String, dynamic>, doc.id))
+          .map(
+            (doc) =>
+                WeeklyOffer.fromMap(doc.data() as Map<String, dynamic>, doc.id),
+          )
           .toList();
     });
   }
