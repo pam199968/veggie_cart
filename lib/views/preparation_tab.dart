@@ -4,6 +4,8 @@ import 'package:veggie_cart/models/delivery_method.dart';
 import '../viewmodels/customer_orders_view_model.dart';
 import '../models/order_model.dart';
 import '../utils/print_util.dart';
+import 'package:veggie_cart/extensions/context_extension.dart';
+
 
 class PreparationTab extends StatefulWidget {
   const PreparationTab({super.key});
@@ -67,9 +69,9 @@ class _PreparationTabState extends State<PreparationTab>
       children: [
         TabBar(
           controller: _subTabController,
-          tabs: const [
-            Tab(text: "Par légume"),
-            Tab(text: "Par client"),
+          tabs:  [
+            Tab(text: context.l10n.byVegetable),
+            Tab(text: context.l10n.byCustomer),
           ],
         ),
         Expanded(
@@ -78,7 +80,7 @@ class _PreparationTabState extends State<PreparationTab>
             children: [
               // 🥬 Onglet "Par légume"
               vegTotals.isEmpty
-                  ? const Center(child: Text("Aucune commande"))
+                  ? Center(child: Text(context.l10n.noOrders))
                   : Column(
                       children: [
                         Padding(
@@ -89,16 +91,16 @@ class _PreparationTabState extends State<PreparationTab>
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              const Text(
-                                "Préparation par légume",
-                                style: TextStyle(
+                              Text(
+                                context.l10n.vegetablePreparation,
+                                style: const TextStyle(
                                   fontSize: 18,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
                               IconButton(
                                 icon: const Icon(Icons.print),
-                                tooltip: "Imprimer",
+                                tooltip: context.l10n.print,
                                 onPressed: () async {
                                   final rows = vegTotals.entries.map((entry) {
                                     final data = entry.value;
@@ -122,10 +124,10 @@ class _PreparationTabState extends State<PreparationTab>
                               child: SingleChildScrollView(
                                 scrollDirection: Axis.horizontal,
                                 child: DataTable(
-                                  columns: const [
-                                    DataColumn(label: Text('Légume')),
-                                    DataColumn(label: Text('Qté totale')),
-                                    DataColumn(label: Text('Cond.')),
+                                  columns: [
+                                    DataColumn(label: Text(context.l10n.vegetable)),
+                                    DataColumn(label: Text(context.l10n.totalQuantity)),
+                                    DataColumn(label: Text(context.l10n.packaging)),
                                   ],
                                   rows: vegTotals.entries.map((entry) {
                                     final data = entry.value;
@@ -151,7 +153,7 @@ class _PreparationTabState extends State<PreparationTab>
 
               // 👤 Onglet "Par client" — affichage direct et imprimable
               ordersByCustomer.isEmpty
-                  ? const Center(child: Text("Aucune commande"))
+                  ? Center(child: Text(context.l10n.noOrders))
                   : Column(
                       children: [
                         Padding(
@@ -162,16 +164,16 @@ class _PreparationTabState extends State<PreparationTab>
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              const Text(
-                                "Préparation par client",
-                                style: TextStyle(
+                              Text(
+                                context.l10n.customerPreparation,
+                                style: const TextStyle(
                                   fontSize: 18,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
                               IconButton(
                                 icon: const Icon(Icons.print),
-                                tooltip: "Imprimer",
+                                tooltip: context.l10n.print,
                                 onPressed: () async {
                                   await printCustomerOrders(ordersByCustomer);
                                 },
@@ -228,7 +230,7 @@ class _PreparationTabState extends State<PreparationTab>
                                               ),
                                             ),
                                             Text(
-                                              "Livraison : $deliveryMethod",
+                                              context.l10n.delivery + deliveryMethod,
                                               style: const TextStyle(
                                                 color: Colors.grey,
                                               ),
@@ -241,15 +243,15 @@ class _PreparationTabState extends State<PreparationTab>
                                           child: SingleChildScrollView(
                                             scrollDirection: Axis.horizontal,
                                             child: DataTable(
-                                              columns: const [
+                                              columns: [
                                                 DataColumn(
-                                                  label: Text('Légume'),
+                                                  label: Text(context.l10n.vegetable),
                                                 ),
                                                 DataColumn(
-                                                  label: Text('Qté'),
+                                                  label: Text(context.l10n.quantity),
                                                 ),
                                                 DataColumn(
-                                                  label: Text('Cond.'),
+                                                  label: Text(context.l10n.packaging),
                                                 ),
                                               ],
                                               rows: vegetables.map((veg) {

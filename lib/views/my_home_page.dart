@@ -113,7 +113,7 @@ class _MyHomePageState extends State<MyHomePage> {
           if (isAuthenticated) ...[
             IconButton(
               icon: const Icon(Icons.account_circle),
-              tooltip: "Voir le profil",
+              tooltip: context.l10n.viewProfile,
               onPressed: () {
                 Navigator.of(context).push(
                   MaterialPageRoute(
@@ -159,13 +159,13 @@ class _MyHomePageState extends State<MyHomePage> {
                   if (accountVM.currentUser.profile == Profile.customer) ...[
                     ListTile(
                       leading: const Icon(Icons.local_offer),
-                      title: const Text('Offres de la semaine'),
+                      title: Text(context.l10n.weeklyOffers),
                       selected: _currentPage == 'weekly_offers',
                       onTap: () => _navigateTo('weekly_offers'),
                     ),
                     ListTile(
                       leading: const Icon(Icons.shopping_bag),
-                      title: const Text('Mes commandes'),
+                      title: Text(context.l10n.myOrders),
                       selected: _currentPage == 'my_orders',
                       onTap: () => _navigateTo('my_orders'),
                     ),
@@ -173,25 +173,25 @@ class _MyHomePageState extends State<MyHomePage> {
                   if (accountVM.currentUser.profile == Profile.gardener) ...[
                     ListTile(
                       leading: const Icon(Icons.local_offer),
-                      title: const Text('Gestion des offres'),
+                      title: Text(context.l10n.offersManagement),
                       selected: _currentPage == 'offers_management',
                       onTap: () => _navigateTo('offers_management'),
                     ),
                     ListTile(
                       leading: const Icon(Icons.receipt_long),
-                      title: const Text('Commandes client'),
+                      title: Text(context.l10n.customerOrders),
                       selected: _currentPage == 'customer_orders',
                       onTap: () => _navigateTo('customer_orders'),
                     ),
                     ListTile(
                       leading: const Icon(Icons.store),
-                      title: const Text('Catalogue'),
+                      title: Text(context.l10n.catalog),
                       selected: _currentPage == 'catalog',
                       onTap: () => _navigateTo('catalog'),
                     ),
                     ListTile(
                       leading: const Icon(Icons.manage_accounts),
-                      title: const Text('Liste des administrateurs'),
+                      title: Text(context.l10n.gardenersList),
                       selected: _currentPage == 'gardeners',
                       onTap: () => _navigateTo('gardeners'),
                     ),

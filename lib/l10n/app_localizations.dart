@@ -98,96 +98,6 @@ abstract class AppLocalizations {
     Locale('fr'),
   ];
 
-  /// No description provided for @weeklyOffersTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Weekly Offers'**
-  String get weeklyOffersTitle;
-
-  /// No description provided for @addWeeklyOfferTooltip.
-  ///
-  /// In en, this message translates to:
-  /// **'Add a weekly offer'**
-  String get addWeeklyOfferTooltip;
-
-  /// No description provided for @noWeeklyOffersFound.
-  ///
-  /// In en, this message translates to:
-  /// **'No weekly offers found'**
-  String get noWeeklyOffersFound;
-
-  /// No description provided for @addWeeklyOfferDialogTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Add a weekly offer'**
-  String get addWeeklyOfferDialogTitle;
-
-  /// No description provided for @searchWeeklyOfferLabel.
-  ///
-  /// In en, this message translates to:
-  /// **'Search for a weekly offer'**
-  String get searchWeeklyOfferLabel;
-
-  /// No description provided for @noResults.
-  ///
-  /// In en, this message translates to:
-  /// **'Aucun résultat'**
-  String get noResults;
-
-  /// No description provided for @cancelButton.
-  ///
-  /// In en, this message translates to:
-  /// **'Cancel'**
-  String get cancelButton;
-
-  /// No description provided for @saveButton.
-  ///
-  /// In en, this message translates to:
-  /// **'Save'**
-  String get saveButton;
-
-  /// No description provided for @deleteButton.
-  ///
-  /// In en, this message translates to:
-  /// **'Delete'**
-  String get deleteButton;
-
-  /// No description provided for @editButton.
-  ///
-  /// In en, this message translates to:
-  /// **'Edit'**
-  String get editButton;
-
-  /// No description provided for @confirmDelete.
-  ///
-  /// In en, this message translates to:
-  /// **'Are you sure you want to delete this offer?'**
-  String get confirmDelete;
-
-  /// No description provided for @delete.
-  ///
-  /// In en, this message translates to:
-  /// **'Delete'**
-  String get delete;
-
-  /// No description provided for @update.
-  ///
-  /// In en, this message translates to:
-  /// **'Update'**
-  String get update;
-
-  /// No description provided for @weeklyOfferDetails.
-  ///
-  /// In en, this message translates to:
-  /// **'Offer details'**
-  String get weeklyOfferDetails;
-
-  /// No description provided for @description.
-  ///
-  /// In en, this message translates to:
-  /// **'Description'**
-  String get description;
-
   /// No description provided for @startDate.
   ///
   /// In en, this message translates to:
@@ -200,17 +110,35 @@ abstract class AppLocalizations {
   /// **'End date'**
   String get endDate;
 
-  /// No description provided for @vegetables.
+  /// No description provided for @offerStatus.
   ///
   /// In en, this message translates to:
-  /// **'Vegetables'**
-  String get vegetables;
+  /// **'Offer status'**
+  String get offerStatus;
 
-  /// No description provided for @addVegetable.
+  /// No description provided for @vegetablesIncluded.
   ///
   /// In en, this message translates to:
-  /// **'Add Vegetable'**
-  String get addVegetable;
+  /// **'Vegetables included'**
+  String get vegetablesIncluded;
+
+  /// No description provided for @editVegetable.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Vegetable'**
+  String get editVegetable;
+
+  /// No description provided for @price.
+  ///
+  /// In en, this message translates to:
+  /// **'Price (optional)'**
+  String get price;
+
+  /// No description provided for @packagingUnit.
+  ///
+  /// In en, this message translates to:
+  /// **'Packaging unit'**
+  String get packagingUnit;
 
   /// No description provided for @removeVegetable.
   ///
@@ -218,53 +146,11 @@ abstract class AppLocalizations {
   /// **'Remove the vegetable'**
   String get removeVegetable;
 
-  /// No description provided for @selectVegetables.
+  /// No description provided for @removeVegetableQuestion.
   ///
   /// In en, this message translates to:
-  /// **'Select vegetables'**
-  String get selectVegetables;
-
-  /// No description provided for @noVegetablesSelected.
-  ///
-  /// In en, this message translates to:
-  /// **'No vegetables selected'**
-  String get noVegetablesSelected;
-
-  /// No description provided for @select.
-  ///
-  /// In en, this message translates to:
-  /// **'Select'**
-  String get select;
-
-  /// No description provided for @weeklyOffer.
-  ///
-  /// In en, this message translates to:
-  /// **'Weekly offer'**
-  String get weeklyOffer;
-
-  /// No description provided for @weeklyOffers.
-  ///
-  /// In en, this message translates to:
-  /// **'Weekly offers'**
-  String get weeklyOffers;
-
-  /// No description provided for @profileUpdateLabel.
-  ///
-  /// In en, this message translates to:
-  /// **'Edit My Profile'**
-  String get profileUpdateLabel;
-
-  /// No description provided for @profileTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'My Profile'**
-  String get profileTitle;
-
-  /// No description provided for @userInfos.
-  ///
-  /// In en, this message translates to:
-  /// **'User Information'**
-  String get userInfos;
+  /// **'Do you really want to remove this vegetable from the offer?'**
+  String get removeVegetableQuestion;
 
   /// No description provided for @cancel.
   ///
@@ -272,11 +158,299 @@ abstract class AppLocalizations {
   /// **'Cancel'**
   String get cancel;
 
+  /// No description provided for @delete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get delete;
+
   /// No description provided for @save.
   ///
   /// In en, this message translates to:
   /// **'Save'**
   String get save;
+
+  /// No description provided for @selectVegetables.
+  ///
+  /// In en, this message translates to:
+  /// **'Select vegetables'**
+  String get selectVegetables;
+
+  /// No description provided for @searchVegetable.
+  ///
+  /// In en, this message translates to:
+  /// **'Search for a vegetable...'**
+  String get searchVegetable;
+
+  /// No description provided for @validate.
+  ///
+  /// In en, this message translates to:
+  /// **'Validate'**
+  String get validate;
+
+  /// No description provided for @orderInProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'Order in progress'**
+  String get orderInProgress;
+
+  /// No description provided for @myCart.
+  ///
+  /// In en, this message translates to:
+  /// **'My cart'**
+  String get myCart;
+
+  /// No description provided for @cartEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Your cart is empty'**
+  String get cartEmpty;
+
+  /// No description provided for @addNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a note'**
+  String get addNote;
+
+  /// No description provided for @backToOffer.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to the offer'**
+  String get backToOffer;
+
+  /// No description provided for @validateOrder.
+  ///
+  /// In en, this message translates to:
+  /// **'Validate my order'**
+  String get validateOrder;
+
+  /// No description provided for @orderSent.
+  ///
+  /// In en, this message translates to:
+  /// **'Order sent!'**
+  String get orderSent;
+
+  /// No description provided for @finalizeOrder.
+  ///
+  /// In en, this message translates to:
+  /// **'Finalize the order'**
+  String get finalizeOrder;
+
+  /// No description provided for @editOffer.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit offer'**
+  String get editOffer;
+
+  /// No description provided for @newOffer.
+  ///
+  /// In en, this message translates to:
+  /// **'New offer'**
+  String get newOffer;
+
+  /// No description provided for @completeAllFields.
+  ///
+  /// In en, this message translates to:
+  /// **'Please complete all fields.'**
+  String get completeAllFields;
+
+  /// No description provided for @noOffersAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'No offers available'**
+  String get noOffersAvailable;
+
+  /// No description provided for @noOrders.
+  ///
+  /// In en, this message translates to:
+  /// **'No orders'**
+  String get noOrders;
+
+  /// No description provided for @byVegetable.
+  ///
+  /// In en, this message translates to:
+  /// **'By vegetable'**
+  String get byVegetable;
+
+  /// No description provided for @byCustomer.
+  ///
+  /// In en, this message translates to:
+  /// **'By customer'**
+  String get byCustomer;
+
+  /// No description provided for @customerPreparation.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer preparation'**
+  String get customerPreparation;
+
+  /// No description provided for @delivery.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivery: '**
+  String get delivery;
+
+  /// No description provided for @draft.
+  ///
+  /// In en, this message translates to:
+  /// **'Draft'**
+  String get draft;
+
+  /// No description provided for @published.
+  ///
+  /// In en, this message translates to:
+  /// **'Published'**
+  String get published;
+
+  /// No description provided for @closed.
+  ///
+  /// In en, this message translates to:
+  /// **'Closed'**
+  String get closed;
+
+  /// No description provided for @all.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get all;
+
+  /// No description provided for @offerCreation.
+  ///
+  /// In en, this message translates to:
+  /// **'Create an offer'**
+  String get offerCreation;
+
+  /// No description provided for @edit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get edit;
+
+  /// No description provided for @copy.
+  ///
+  /// In en, this message translates to:
+  /// **'Duplicate'**
+  String get copy;
+
+  /// No description provided for @publish.
+  ///
+  /// In en, this message translates to:
+  /// **'Publish'**
+  String get publish;
+
+  /// No description provided for @close.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get close;
+
+  /// No description provided for @reopen.
+  ///
+  /// In en, this message translates to:
+  /// **'Reopen'**
+  String get reopen;
+
+  /// No description provided for @weekOf.
+  ///
+  /// In en, this message translates to:
+  /// **'Week of'**
+  String get weekOf;
+
+  /// No description provided for @myOrders.
+  ///
+  /// In en, this message translates to:
+  /// **'My orders'**
+  String get myOrders;
+
+  /// No description provided for @vegetablePreparation.
+  ///
+  /// In en, this message translates to:
+  /// **'Vegetable preparation'**
+  String get vegetablePreparation;
+
+  /// No description provided for @print.
+  ///
+  /// In en, this message translates to:
+  /// **'Print'**
+  String get print;
+
+  /// No description provided for @totalQuantity.
+  ///
+  /// In en, this message translates to:
+  /// **'Total quantity'**
+  String get totalQuantity;
+
+  /// No description provided for @packaging.
+  ///
+  /// In en, this message translates to:
+  /// **'Packaging'**
+  String get packaging;
+
+  /// No description provided for @vegetable.
+  ///
+  /// In en, this message translates to:
+  /// **'Vegetable'**
+  String get vegetable;
+
+  /// No description provided for @quantity.
+  ///
+  /// In en, this message translates to:
+  /// **'Quantity'**
+  String get quantity;
+
+  /// No description provided for @youHaveNoOrders.
+  ///
+  /// In en, this message translates to:
+  /// **'You have no orders.'**
+  String get youHaveNoOrders;
+
+  /// No description provided for @order.
+  ///
+  /// In en, this message translates to:
+  /// **'Order n°'**
+  String get order;
+
+  /// No description provided for @status.
+  ///
+  /// In en, this message translates to:
+  /// **'Status: '**
+  String get status;
+
+  /// No description provided for @deliveryMethod.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivery Method: '**
+  String get deliveryMethod;
+
+  /// No description provided for @notes.
+  ///
+  /// In en, this message translates to:
+  /// **'Notes: '**
+  String get notes;
+
+  /// No description provided for @items.
+  ///
+  /// In en, this message translates to:
+  /// **'Items:'**
+  String get items;
+
+  /// No description provided for @createdAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Created at: '**
+  String get createdAt;
+
+  /// No description provided for @userHasBeenDeactivated.
+  ///
+  /// In en, this message translates to:
+  /// **'has been deactivated.'**
+  String get userHasBeenDeactivated;
+
+  /// No description provided for @unableToDeactivateUser.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to deactivate.'**
+  String get unableToDeactivateUser;
 
   /// No description provided for @gardenersListTitle.
   ///
@@ -308,17 +482,269 @@ abstract class AppLocalizations {
   /// **'Rechercher un utilisateur'**
   String get searchUserLabel;
 
-  /// No description provided for @appTitle.
+  /// No description provided for @noResults.
   ///
   /// In en, this message translates to:
-  /// **'My Vegetable Basket'**
-  String get appTitle;
+  /// **'Aucun résultat'**
+  String get noResults;
 
   /// No description provided for @logoutTooltip.
   ///
   /// In en, this message translates to:
   /// **'Logout'**
   String get logoutTooltip;
+
+  /// No description provided for @weeklyOffers.
+  ///
+  /// In en, this message translates to:
+  /// **'Weekly offers'**
+  String get weeklyOffers;
+
+  /// No description provided for @offersManagement.
+  ///
+  /// In en, this message translates to:
+  /// **'Offers management'**
+  String get offersManagement;
+
+  /// No description provided for @customerOrders.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer orders'**
+  String get customerOrders;
+
+  /// No description provided for @catalog.
+  ///
+  /// In en, this message translates to:
+  /// **'Catalog'**
+  String get catalog;
+
+  /// No description provided for @gardenersList.
+  ///
+  /// In en, this message translates to:
+  /// **'List of administrators'**
+  String get gardenersList;
+
+  /// No description provided for @customerOrdersTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer Orders'**
+  String get customerOrdersTitle;
+
+  /// No description provided for @ordersListTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Orders List'**
+  String get ordersListTitle;
+
+  /// No description provided for @preparationTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Preparation'**
+  String get preparationTitle;
+
+  /// No description provided for @noOrdersFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No orders found.'**
+  String get noOrdersFound;
+
+  /// No description provided for @filtersTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Filters'**
+  String get filtersTitle;
+
+  /// No description provided for @orderStatusTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Order Status'**
+  String get orderStatusTitle;
+
+  /// No description provided for @attachedOffersTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Attached Offers'**
+  String get attachedOffersTitle;
+
+  /// No description provided for @selectAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Select All'**
+  String get selectAll;
+
+  /// No description provided for @deselectAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Deselect All'**
+  String get deselectAll;
+
+  /// No description provided for @orderNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Order n°'**
+  String get orderNumber;
+
+  /// No description provided for @customer.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer: '**
+  String get customer;
+
+  /// No description provided for @orderDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Order n°'**
+  String get orderDetails;
+
+  /// No description provided for @weekRange.
+  ///
+  /// In en, this message translates to:
+  /// **'Week of '**
+  String get weekRange;
+
+  /// No description provided for @weeklyOffersTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Weekly Offers'**
+  String get weeklyOffersTitle;
+
+  /// No description provided for @addWeeklyOfferTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a weekly offer'**
+  String get addWeeklyOfferTooltip;
+
+  /// No description provided for @noWeeklyOffersFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No weekly offers found'**
+  String get noWeeklyOffersFound;
+
+  /// No description provided for @addWeeklyOfferDialogTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a weekly offer'**
+  String get addWeeklyOfferDialogTitle;
+
+  /// No description provided for @searchWeeklyOfferLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Search for a weekly offer'**
+  String get searchWeeklyOfferLabel;
+
+  /// No description provided for @cancelButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get cancelButton;
+
+  /// No description provided for @saveButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get saveButton;
+
+  /// No description provided for @deleteButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get deleteButton;
+
+  /// No description provided for @editButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get editButton;
+
+  /// No description provided for @confirmDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to delete this offer?'**
+  String get confirmDelete;
+
+  /// No description provided for @update.
+  ///
+  /// In en, this message translates to:
+  /// **'Update'**
+  String get update;
+
+  /// No description provided for @weeklyOfferDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Offer details'**
+  String get weeklyOfferDetails;
+
+  /// No description provided for @offer.
+  ///
+  /// In en, this message translates to:
+  /// **'Offer'**
+  String get offer;
+
+  /// No description provided for @description.
+  ///
+  /// In en, this message translates to:
+  /// **'Description'**
+  String get description;
+
+  /// No description provided for @vegetables.
+  ///
+  /// In en, this message translates to:
+  /// **'Vegetables'**
+  String get vegetables;
+
+  /// No description provided for @addVegetable.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Vegetable'**
+  String get addVegetable;
+
+  /// No description provided for @noVegetablesSelected.
+  ///
+  /// In en, this message translates to:
+  /// **'No vegetables selected'**
+  String get noVegetablesSelected;
+
+  /// No description provided for @select.
+  ///
+  /// In en, this message translates to:
+  /// **'Select'**
+  String get select;
+
+  /// No description provided for @weeklyOffer.
+  ///
+  /// In en, this message translates to:
+  /// **'Weekly offer'**
+  String get weeklyOffer;
+
+  /// No description provided for @profileUpdateLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit My Profile'**
+  String get profileUpdateLabel;
+
+  /// No description provided for @profileTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'My Profile'**
+  String get profileTitle;
+
+  /// No description provided for @viewProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'Consult my profile'**
+  String get viewProfile;
+
+  /// No description provided for @userInfos.
+  ///
+  /// In en, this message translates to:
+  /// **'User Information'**
+  String get userInfos;
+
+  /// No description provided for @appTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'My Vegetable Basket'**
+  String get appTitle;
 
   /// No description provided for @nameLabel.
   ///
@@ -434,12 +860,6 @@ abstract class AppLocalizations {
   /// **'Connected as'**
   String get connectedAs;
 
-  /// No description provided for @editVegetable.
-  ///
-  /// In en, this message translates to:
-  /// **'Edit Vegetable'**
-  String get editVegetable;
-
   /// No description provided for @add.
   ///
   /// In en, this message translates to:
@@ -458,23 +878,11 @@ abstract class AppLocalizations {
   /// **'Category'**
   String get category;
 
-  /// No description provided for @packaging.
-  ///
-  /// In en, this message translates to:
-  /// **'Packaging'**
-  String get packaging;
-
   /// No description provided for @standardQuantity.
   ///
   /// In en, this message translates to:
   /// **'Standard Quantity (optional)'**
   String get standardQuantity;
-
-  /// No description provided for @price.
-  ///
-  /// In en, this message translates to:
-  /// **'Price (optional)'**
-  String get price;
 
   /// No description provided for @active.
   ///
@@ -482,23 +890,11 @@ abstract class AppLocalizations {
   /// **'Active'**
   String get active;
 
-  /// No description provided for @searchVegetable.
-  ///
-  /// In en, this message translates to:
-  /// **'Search for a vegetable...'**
-  String get searchVegetable;
-
   /// No description provided for @allCategories.
   ///
   /// In en, this message translates to:
   /// **'All Categories'**
   String get allCategories;
-
-  /// No description provided for @edit.
-  ///
-  /// In en, this message translates to:
-  /// **'Edit'**
-  String get edit;
 
   /// No description provided for @currencySymbol.
   ///

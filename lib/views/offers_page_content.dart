@@ -5,6 +5,7 @@ import '../viewmodels/account_view_model.dart';
 import '../viewmodels/my_orders_view_model.dart';
 import '../viewmodels/weekly_offers_view_model.dart';
 import '../viewmodels/cart_view_model.dart';
+import 'package:veggie_cart/extensions/context_extension.dart';
 
 class OffersPageContent extends StatefulWidget {
   const OffersPageContent({super.key});
@@ -37,8 +38,8 @@ class _OffersPageContentState extends State<OffersPageContent> {
     }
 
     if (offersVm.offers.isEmpty) {
-      return const Center(
-        child: Text("Aucune offre disponible pour le moment."),
+      return Center(
+        child: Text(context.l10n.noOffersAvailable),
       );
     }
 
@@ -88,13 +89,13 @@ class _OffersPageContentState extends State<OffersPageContent> {
                       color: Colors.orange.shade600,
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    child: const Row(
+                    child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Icon(Icons.receipt_long, color: Colors.white, size: 16),
                         SizedBox(width: 4),
                         Text(
-                          "Commande en cours",
+                          context.l10n.orderInProgress,
                           style: TextStyle(color: Colors.white, fontSize: 12),
                         ),
                       ],
@@ -219,7 +220,7 @@ class OfferDetailScreen extends StatelessWidget {
           ),
           icon: const Icon(Icons.check_circle_outline, color: Colors.white),
           label: Text(
-            'Finaliser la commande (${cartVm.totalItems.toString()})',
+            '${context.l10n.finalizeOrder} (${cartVm.totalItems.toString()})',
             style: TextStyle(fontSize: 18, color: Colors.white),
           ),
           onPressed: cartVm.totalItems > 0
@@ -260,9 +261,9 @@ class _CartScreenState extends State<CartScreen> {
     final accountVm = context.read<AccountViewModel>();
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Mon panier')),
+      appBar: AppBar(title: Text(context.l10n.myCart)),
       body: cartVm.items.isEmpty
-          ? const Center(child: Text('Votre panier est vide'))
+          ? Center(child: Text(context.l10n.cartEmpty))
           : ListView(
               padding: const EdgeInsets.all(12),
               children: [
@@ -319,9 +320,9 @@ class _CartScreenState extends State<CartScreen> {
                 TextField(
                   controller: _noteController,
                   maxLines: 3,
-                  decoration: const InputDecoration(
-                    labelText: 'Ajouter une note',
-                    border: OutlineInputBorder(),
+                  decoration: InputDecoration(
+                    labelText: context.l10n.addNote,
+                    border: const OutlineInputBorder(),
                   ),
                 ),
                 const SizedBox(height: 16),
@@ -330,14 +331,14 @@ class _CartScreenState extends State<CartScreen> {
                   children: [
                     Expanded(
                       child: ElevatedButton(
-                        child: const Text('Retour à l\'offre'),
+                        child: Text(context.l10n.backToOffer),
                         onPressed: () => Navigator.pop(context),
                       ),
                     ),
                     const SizedBox(width: 12),
                     Expanded(
                       child: ElevatedButton(
-                        child: const Text('Valider ma commande'),
+                        child: Text(context.l10n.validateOrder),
                         onPressed: () async {
                           final deliveryMethod =
                               accountVm.currentUser.deliveryMethod;
@@ -353,7 +354,7 @@ class _CartScreenState extends State<CartScreen> {
                           if (!context.mounted) return;
 
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Commande envoyée !')),
+                            SnackBar(content: Text(context.l10n.orderSent)),
                           );
 
                           Navigator.pop(

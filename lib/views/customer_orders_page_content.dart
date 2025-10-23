@@ -5,6 +5,7 @@ import '../models/order_model_with_customer.dart';
 import '../viewmodels/customer_orders_view_model.dart';
 import '../models/order_model.dart';
 import 'preparation_tab.dart';
+import 'package:veggie_cart/extensions/context_extension.dart';
 
 class CustomerOrdersPageContent extends StatefulWidget {
   const CustomerOrdersPageContent({super.key});
@@ -114,15 +115,15 @@ class _CustomerOrdersPageContentState extends State<CustomerOrdersPageContent>
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
-        title: const Text('Commandes clients'),
+        title: Text(context.l10n.customerOrdersTitle),
         //automaticallyImplyLeading: false, // suppression du menu redondant
         bottom: TabBar(
           controller: _tabController,
-          tabs: const [
-            Tab(text: 'Liste des commandes', icon: Icon(Icons.list_alt)),
+          tabs: [
+            Tab(text: context.l10n.ordersListTitle, icon: const Icon(Icons.list_alt)),
             Tab(
-              text: 'Préparation',
-              icon: Icon(Icons.shopping_basket_outlined),
+              text: context.l10n.preparationTitle,
+              icon: const Icon(Icons.shopping_basket_outlined),
             ),
           ],
         ),
@@ -145,12 +146,12 @@ class _CustomerOrdersPageContentState extends State<CustomerOrdersPageContent>
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
                Text(
-                "Liste des commandes (${vm.orders.length})",
+                "${context.l10n.ordersListTitle} (${vm.orders.length})",
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               ElevatedButton.icon(
                 icon: const Icon(Icons.filter_list),
-                label: const Text("Filtres"),
+                label: Text(context.l10n.filtersTitle),
                 onPressed: () => _scaffoldKey.currentState?.openEndDrawer(),
               ),
             ],
@@ -161,9 +162,9 @@ class _CustomerOrdersPageContentState extends State<CustomerOrdersPageContent>
           child: vm.orders.isEmpty
               ? vm.isLoading
                     ? const Center(child: CircularProgressIndicator())
-                    : const Center(
+                    : Center(
                         child: Text(
-                          "Aucune commande trouvée.",
+                          context.l10n.noOrdersFound,
                           style: TextStyle(fontSize: 16, color: Colors.grey),
                         ),
                       )
@@ -253,7 +254,7 @@ class _CustomerOrdersPageContentState extends State<CustomerOrdersPageContent>
                       _applyFilters();
                     },
                     child: Text(
-                      allOffersSelected ? 'Tout décocher' : 'Tout cocher',
+                      allOffersSelected ? context.l10n.deselectAll : context.l10n.selectAll,
                     ),
                   ),
                 ],
@@ -266,7 +267,7 @@ class _CustomerOrdersPageContentState extends State<CustomerOrdersPageContent>
                   : ListView(
                       children: _availableOffers.map((offer) {
                         final weekRange =
-                            "Semaine du ${_formatDate(offer.startDate)}";
+                            "${context.l10n.weekRange} ${_formatDate(offer.startDate)}";
                         return CheckboxListTile(
                           title: Text(offer.title),
                           subtitle: Text(weekRange),
@@ -312,7 +313,7 @@ class CustomerOrderCard extends StatelessWidget {
             Row(
               children: [
                 Text(
-                  'Commande n°${order.orderNumber}',
+                  '${context.l10n.orderDetails}${order.orderNumber}',
                   style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(width: 8),
@@ -329,14 +330,14 @@ class CustomerOrderCard extends StatelessWidget {
             if (customer != null)
               Padding(
                 padding: const EdgeInsets.only(top: 4),
-                child: Text('Client: ${customer.givenName} ${customer.name}'),
+                child: Text('${context.l10n.customer}${customer.givenName} ${customer.name}'),
               ),
             const SizedBox(height: 4),
             Row(
               children: [
-                const Text(
-                  'Statut: ',
-                  style: TextStyle(fontWeight: FontWeight.bold),
+                Text(
+                  '${context.l10n.status} ',
+                  style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
                 DropdownButton<OrderStatus>(
                   value: order.status,
@@ -358,15 +359,15 @@ class CustomerOrderCard extends StatelessWidget {
               ],
             ),
             Text(
-              'Offre : ${order.offerSummary.title} '
+              '${context.l10n.offer} ${order.offerSummary.title} '
               '(${_formatDate(order.offerSummary.startDate)})',
             ),
-            Text('Méthode de livraison: ${order.deliveryMethod.label}'),
-            if (order.notes != null) Text('Notes: ${order.notes}'),
+            Text('${context.l10n.deliveryMethod}${order.deliveryMethod.label}'),
+            if (order.notes != null) Text('${context.l10n.notes}${order.notes}'),
             const SizedBox(height: 8),
-            const Text(
-              'Articles:',
-              style: TextStyle(fontWeight: FontWeight.bold),
+            Text(
+              context.l10n.items,
+              style: const TextStyle(fontWeight: FontWeight.bold),
             ),
             ...order.items.map(
               (item) => Padding(

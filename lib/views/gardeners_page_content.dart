@@ -65,7 +65,7 @@ class GardenersPageContent extends StatelessWidget {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
                                     content: Text(
-                                      '${user.givenName} ${user.name} a été désactivé.',
+                                      '${user.givenName} ${user.name} ${context.l10n.userHasBeenDeactivated}.',
                                     ),
                                   ),
                                 );
@@ -75,7 +75,7 @@ class GardenersPageContent extends StatelessWidget {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
                                     content: Text(
-                                      'Impossible de désactiver ${user.givenName} ${user.name}.',
+                                      '${context.l10n.unableToDeactivateUser} ${user.givenName} ${user.name}',
                                     ),
                                   ),
                                 );

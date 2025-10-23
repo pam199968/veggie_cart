@@ -5,6 +5,8 @@ import 'package:intl/intl.dart';
 import 'package:veggie_cart/views/weekly_offer_form_page.dart';
 import '../viewmodels/weekly_offers_view_model.dart';
 import '../models/weekly_offer.dart';
+import 'package:veggie_cart/extensions/context_extension.dart';
+
 
 class OffersMngtPageContent extends StatelessWidget {
   const OffersMngtPageContent({super.key});
@@ -23,7 +25,7 @@ class OffersMngtPageContent extends StatelessWidget {
             const SizedBox(height: 16),
             Expanded(
               child: vm.offers.isEmpty
-                  ? const Center(child: Text('Aucune offre disponible'))
+                  ? Center(child: Text(context.l10n.noOffersAvailable))
                   : LayoutBuilder(
                       builder: (context, constraints) {
                         int crossAxisCount = 1;
@@ -66,7 +68,7 @@ class OffersMngtPageContent extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Gestion des offres',
+            context.l10n.offersManagement,
             style: Theme.of(context).textTheme.headlineSmall?.copyWith(
               fontSize: isMobile ? 20 : 24,
               fontWeight: FontWeight.bold,
@@ -85,22 +87,22 @@ class OffersMngtPageContent extends StatelessWidget {
                   onChanged: (value) {
                     if (value != null) vm.setOfferFilter(value);
                   },
-                  items: const [
+                  items:  [
                     DropdownMenuItem(
                       value: OfferFilter.draft,
-                      child: Text('Brouillon'),
+                      child: Text(context.l10n.draft),
                     ),
                     DropdownMenuItem(
                       value: OfferFilter.published,
-                      child: Text('Publiées'),
+                      child: Text(context.l10n.published),
                     ),
                     DropdownMenuItem(
                       value: OfferFilter.closed,
-                      child: Text('Fermées'),
+                      child: Text(context.l10n.closed),
                     ),
                     DropdownMenuItem(
                       value: OfferFilter.all,
-                      child: Text('Toutes'),
+                      child: Text(context.l10n.all),
                     ),
                   ],
                 ),
@@ -119,7 +121,7 @@ class OffersMngtPageContent extends StatelessWidget {
                     );
                   },
                   icon: const Icon(Icons.add, size: 20),
-                  label: const Text('Créer une offre'),
+                  label: Text(context.l10n.offerCreation),
                 ),
               ),
             ],
@@ -144,26 +146,26 @@ class OffersMngtPageContent extends StatelessWidget {
         IconButton(
           onPressed: () async => await vm.publishOffer(offer),
           icon: const Icon(Icons.send),
-          tooltip: 'Publier',
+          tooltip: context.l10n.publish,
         ),
         IconButton(
           onPressed: () async => await vm.closeOffer(offer),
           icon: const Icon(Icons.lock),
-          tooltip: 'Fermer',
+          tooltip: context.l10n.close,
         ),
       ],
       WeeklyOfferStatus.published => [
         IconButton(
           onPressed: () async => await vm.closeOffer(offer),
           icon: const Icon(Icons.lock),
-          tooltip: 'Fermer',
+          tooltip: context.l10n.close,
         ),
       ],
       WeeklyOfferStatus.closed => [
         IconButton(
           onPressed: () async => await vm.reopenOffer(offer),
           icon: const Icon(Icons.refresh),
-          tooltip: 'Réouvrir',
+          tooltip: context.l10n.reopen,
         ),
       ],
     };
@@ -187,7 +189,7 @@ class OffersMngtPageContent extends StatelessWidget {
                     runSpacing: 4,
                     children: [
                       IconButton(
-                        tooltip: 'Modifier',
+                        tooltip: context.l10n.edit,
                         onPressed: () {
                           Navigator.push(
                             context,
@@ -200,7 +202,7 @@ class OffersMngtPageContent extends StatelessWidget {
                         icon: const Icon(Icons.edit),
                       ),
                       IconButton(
-                        tooltip: 'Dupliquer',
+                        tooltip: context.l10n.copy,
                         onPressed: () async {
                           final newStart = offer.startDate.add(
                             const Duration(days: 7),
@@ -226,7 +228,7 @@ class OffersMngtPageContent extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    'Semaine du ${offer.startDate.day}/${offer.startDate.month}',
+                    '${context.l10n.weekRange} ${offer.startDate.day}/${offer.startDate.month}',
                     style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
                   Chip(

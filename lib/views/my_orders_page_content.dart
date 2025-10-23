@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:veggie_cart/models/delivery_method.dart';
 import '../viewmodels/my_orders_view_model.dart';
 import '../models/order_model.dart';
+import 'package:veggie_cart/l10n/app_localizations.dart';
 
 class MyOrdersPageContent extends StatefulWidget {
   const MyOrdersPageContent({super.key});
@@ -41,7 +42,7 @@ class _MyOrdersPageContentState extends State<MyOrdersPageContent> {
     final vm = context.watch<OrderViewModel>();
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Mes commandes')),
+      appBar: AppBar(title: Text(AppLocalizations.of(context)!.myOrders)),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: vm.orders.isEmpty
@@ -49,7 +50,7 @@ class _MyOrdersPageContentState extends State<MyOrdersPageContent> {
                 ? const Center(child: CircularProgressIndicator())
                 : Center(
                     child: Text(
-                      "Vous n'avez aucune commande.",
+                      AppLocalizations.of(context)!.youHaveNoOrders,
                       style: const TextStyle(fontSize: 16, color: Colors.grey),
                     ),
                   )
@@ -90,23 +91,23 @@ class OrderCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Commande n°${order.orderNumber}',
+            Text(AppLocalizations.of(context)!.order + order.orderNumber.toString(),
                 style: const TextStyle(fontWeight: FontWeight.bold)),
             const SizedBox(height: 4),
-            Text('Statut: ${order.status.label}',
+            Text(AppLocalizations.of(context)!.status + order.status.label,
                 style: TextStyle(
                     color: _statusColor(order.status),
                     fontWeight: FontWeight.w500)),
-            Text('Méthode de livraison: ${order.deliveryMethod.label}'),
-            if (order.notes != null) Text('Notes: ${order.notes}'),
+            Text(AppLocalizations.of(context)!.deliveryMethod + order.deliveryMethod.label),
+            if (order.notes != null) Text('${AppLocalizations.of(context)!.notes} ${order.notes}'),
             const SizedBox(height: 8),
-            const Text('Articles:', style: TextStyle(fontWeight: FontWeight.bold)),
+            Text(AppLocalizations.of(context)!.items, style: const TextStyle(fontWeight: FontWeight.bold)),
             ...order.items.map((item) => Padding(
                   padding: const EdgeInsets.only(top: 2),
                   child: Text('- ${item.vegetable.name} (${item.vegetable.packaging}) - Qté : ${item.quantity}'),
                 )),
             const SizedBox(height: 8),
-            Text('Créée le: ${order.createdAt.toLocal()}'),
+            Text(AppLocalizations.of(context)!.createdAt + order.createdAt.toLocal().toString()),
           ],
         ),
       ),

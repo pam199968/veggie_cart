@@ -5,6 +5,7 @@ import '../models/weekly_offer.dart';
 import '../models/vegetable_model.dart';
 import '../viewmodels/weekly_offers_view_model.dart';
 import '../repositories/catalog_repository.dart';
+import 'package:veggie_cart/extensions/context_extension.dart';
 
 class WeeklyOfferFormPage extends StatefulWidget {
   final WeeklyOffer? existingOffer;
@@ -87,7 +88,7 @@ class _WeeklyOfferFormPageState extends State<WeeklyOfferFormPage> {
         _startDate == null ||
         _endDate == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Veuillez compléter tous les champs.')),
+        SnackBar(content: Text(context.l10n.completeAllFields)),
       );
       return;
     }
@@ -119,7 +120,7 @@ class _WeeklyOfferFormPageState extends State<WeeklyOfferFormPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(isEditing ? 'Modifier l’offre' : 'Nouvelle offre'),
+        title: Text(isEditing ? context.l10n.editOffer : context.l10n.newOffer),
       ),
       body: Center(
         child: ConstrainedBox(
@@ -155,7 +156,7 @@ class _WeeklyOfferFormPageState extends State<WeeklyOfferFormPage> {
                               child: ListTile(
                                 title: Text(
                                   _startDate == null
-                                      ? 'Date de début'
+                                      ? context.l10n.startDate
                                       : 'Début : ${_frenchDateFormat.format(_startDate!)}',
                                   overflow: TextOverflow.ellipsis,
                                 ),
@@ -167,7 +168,7 @@ class _WeeklyOfferFormPageState extends State<WeeklyOfferFormPage> {
                               child: ListTile(
                                 title: Text(
                                   _endDate == null
-                                      ? 'Date de fin'
+                                      ? context.l10n.endDate
                                       : 'Fin : ${_frenchDateFormat.format(_endDate!)}',
                                   overflow: TextOverflow.ellipsis,
                                 ),
@@ -183,7 +184,7 @@ class _WeeklyOfferFormPageState extends State<WeeklyOfferFormPage> {
                             ListTile(
                               title: Text(
                                 _startDate == null
-                                    ? 'Date de début'
+                                    ? context.l10n.startDate
                                     : 'Début : ${_frenchDateFormat.format(_startDate!)}',
                               ),
                               trailing: const Icon(Icons.calendar_today),
@@ -192,7 +193,7 @@ class _WeeklyOfferFormPageState extends State<WeeklyOfferFormPage> {
                             ListTile(
                               title: Text(
                                 _endDate == null
-                                    ? 'Date de fin'
+                                    ? context.l10n.endDate
                                     : 'Fin : ${_frenchDateFormat.format(_endDate!)}',
                               ),
                               trailing: const Icon(Icons.calendar_today),
@@ -207,8 +208,8 @@ class _WeeklyOfferFormPageState extends State<WeeklyOfferFormPage> {
                     const SizedBox(height: 12),
                     DropdownButtonFormField<WeeklyOfferStatus>(
                       initialValue: _status,
-                      decoration: const InputDecoration(
-                        labelText: 'Statut de l’offre',
+                      decoration: InputDecoration(
+                        labelText: context.l10n.offerStatus,
                       ),
                       onChanged: (v) {
                         if (v != null) setState(() => _status = v);
@@ -231,7 +232,7 @@ class _WeeklyOfferFormPageState extends State<WeeklyOfferFormPage> {
                   ],
                   const Divider(),
                   ListTile(
-                    title: const Text('Légumes inclus'),
+                    title: Text(context.l10n.vegetablesIncluded),
                     trailing: IconButton(
                       icon: const Icon(Icons.add),
                       onPressed: _openVegetableSelector,
@@ -248,7 +249,7 @@ class _WeeklyOfferFormPageState extends State<WeeklyOfferFormPage> {
                         children: [
                           IconButton(
                             icon: const Icon(Icons.edit, color: Colors.blue),
-                            tooltip: 'Modifier le légume',
+                            tooltip: context.l10n.editVegetable,
                             onPressed: () async {
                               final result = await showDialog<Map<String, dynamic>>(
                                 context: context,
@@ -268,7 +269,7 @@ class _WeeklyOfferFormPageState extends State<WeeklyOfferFormPage> {
                                       );
 
                                   return AlertDialog(
-                                    title: Text('Modifier ${veg.name}'),
+                                    title: Text('${context.l10n.editVegetable} ${veg.name}'),
                                     content: Column(
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
@@ -278,8 +279,8 @@ class _WeeklyOfferFormPageState extends State<WeeklyOfferFormPage> {
                                               const TextInputType.numberWithOptions(
                                                 decimal: true,
                                               ),
-                                          decoration: const InputDecoration(
-                                            labelText: 'Prix (€)',
+                                          decoration: InputDecoration(
+                                            labelText: '${context.l10n.price} (${context.l10n.currencySymbol})',
                                           ),
                                         ),
                                         const SizedBox(height: 8),
@@ -297,9 +298,9 @@ class _WeeklyOfferFormPageState extends State<WeeklyOfferFormPage> {
                                         const SizedBox(height: 8),
                                         TextField(
                                           controller: packagingController,
-                                          decoration: const InputDecoration(
+                                          decoration: InputDecoration(
                                             labelText:
-                                                'Unité de conditionnement',
+                                                context.l10n.packagingUnit,
                                           ),
                                         ),
                                       ],
@@ -308,7 +309,7 @@ class _WeeklyOfferFormPageState extends State<WeeklyOfferFormPage> {
                                       TextButton(
                                         onPressed: () =>
                                             Navigator.pop(context, null),
-                                        child: const Text('Annuler'),
+                                        child: Text(context.l10n.cancel),
                                       ),
                                       ElevatedButton(
                                         onPressed: () {
@@ -361,19 +362,19 @@ class _WeeklyOfferFormPageState extends State<WeeklyOfferFormPage> {
 
                           IconButton(
                             icon: const Icon(Icons.delete, color: Colors.red),
-                            tooltip: 'Supprimer ce légume',
+                            tooltip: context.l10n.removeVegetable,
                             onPressed: () {
                               showDialog(
                                 context: context,
                                 builder: (context) => AlertDialog(
-                                  title: Text('Supprimer ${veg.name} ?'),
-                                  content: const Text(
-                                    'Voulez-vous vraiment retirer ce légume de l’offre ?',
+                                  title: Text('${context.l10n.removeVegetable} ${veg.name} ?'),
+                                  content: Text(
+                                    context.l10n.removeVegetableQuestion,
                                   ),
                                   actions: [
                                     TextButton(
                                       onPressed: () => Navigator.pop(context),
-                                      child: const Text('Annuler'),
+                                      child: Text(context.l10n.cancel),
                                     ),
                                     ElevatedButton(
                                       onPressed: () {
@@ -385,7 +386,7 @@ class _WeeklyOfferFormPageState extends State<WeeklyOfferFormPage> {
                                       style: ElevatedButton.styleFrom(
                                         backgroundColor: Colors.redAccent,
                                       ),
-                                      child: const Text('Supprimer'),
+                                      child: Text(context.l10n.delete),
                                     ),
                                   ],
                                 ),
@@ -400,7 +401,7 @@ class _WeeklyOfferFormPageState extends State<WeeklyOfferFormPage> {
                   ElevatedButton.icon(
                     onPressed: _saveOffer,
                     icon: const Icon(Icons.save),
-                    label: const Text('Enregistrer'),
+                    label: Text(context.l10n.save),
                   ),
                 ],
               ),
@@ -470,12 +471,12 @@ class _VegetableSelectorDialogState extends State<VegetableSelectorDialog> {
       // ✅ Version mobile : plein écran
       return Scaffold(
         appBar: AppBar(
-          title: const Text('Sélectionner des légumes'),
+          title:  Text(context.l10n.selectVegetables),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context, _tempSelection),
-              child: const Text(
-                'Valider',
+              child:  Text(
+                context.l10n.validate,
                 style: TextStyle(color: Colors.white),
               ),
             ),
@@ -487,7 +488,7 @@ class _VegetableSelectorDialogState extends State<VegetableSelectorDialog> {
 
     // ✅ Version desktop : boîte de dialogue centrée et scrollable
     return AlertDialog(
-      title: const Text('Sélectionner des légumes'),
+      title: Text(context.l10n.selectVegetables),
       content: SizedBox(
         width: MediaQuery.of(context).size.width * 0.33, // 1/3 de l’écran
         height: 500,
@@ -496,11 +497,11 @@ class _VegetableSelectorDialogState extends State<VegetableSelectorDialog> {
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text('Annuler'),
+          child: Text(context.l10n.cancel),
         ),
         ElevatedButton(
           onPressed: () => Navigator.pop(context, _tempSelection),
-          child: const Text('Valider'),
+          child: Text(context.l10n.validate),
         ),
       ],
     );
@@ -516,9 +517,9 @@ class _VegetableSelectorDialogState extends State<VegetableSelectorDialog> {
           padding: const EdgeInsets.only(bottom: 8.0),
           child: TextField(
             controller: _searchController,
-            decoration: const InputDecoration(
+            decoration: InputDecoration(
               prefixIcon: Icon(Icons.search),
-              labelText: 'Rechercher un légume',
+              labelText: context.l10n.searchVegetable,
               border: OutlineInputBorder(),
             ),
           ),
