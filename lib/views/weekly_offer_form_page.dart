@@ -62,8 +62,13 @@ class _WeeklyOfferFormPageState extends State<WeeklyOfferFormPage> {
   }
 
   Future<void> _openVegetableSelector() async {
+    // 🔹 Récupérer le repository AVANT l'opération async
     final catalog = context.read<CatalogRepository>();
     final vegetables = await catalog.getAllActiveVegetables();
+
+    // 🔹 Vérifier mounted APRÈS l'opération async
+    if (!mounted) return;
+
     final result = await showDialog<List<VegetableModel>>(
       context: context,
       builder: (context) => VegetableSelectorDialog(
@@ -71,6 +76,7 @@ class _WeeklyOfferFormPageState extends State<WeeklyOfferFormPage> {
         selectedVegetables: _selectedVegetables,
       ),
     );
+
     if (result != null) {
       setState(() => _selectedVegetables = result);
     }
@@ -103,7 +109,8 @@ class _WeeklyOfferFormPageState extends State<WeeklyOfferFormPage> {
       await vm.updateOffer(newOffer);
     }
 
-    if (context.mounted) Navigator.pop(context);
+    if (!mounted) return;
+    Navigator.pop(context);
   }
 
   @override
@@ -199,7 +206,7 @@ class _WeeklyOfferFormPageState extends State<WeeklyOfferFormPage> {
                   if (isEditing) ...[
                     const SizedBox(height: 12),
                     DropdownButtonFormField<WeeklyOfferStatus>(
-                      value: _status,
+                      initialValue: _status,
                       decoration: const InputDecoration(
                         labelText: 'Statut de l’offre',
                       ),
@@ -283,14 +290,16 @@ class _WeeklyOfferFormPageState extends State<WeeklyOfferFormPage> {
                                                 decimal: true,
                                               ),
                                           decoration: const InputDecoration(
-                                            labelText: 'Quantité par conditionnement',
+                                            labelText:
+                                                'Quantité par conditionnement',
                                           ),
                                         ),
                                         const SizedBox(height: 8),
                                         TextField(
                                           controller: packagingController,
                                           decoration: const InputDecoration(
-                                            labelText: 'Unité de conditionnement',
+                                            labelText:
+                                                'Unité de conditionnement',
                                           ),
                                         ),
                                       ],

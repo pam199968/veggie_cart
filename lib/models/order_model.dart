@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/weekly_offer.dart';
 import '../models/delivery_method.dart';
-import '../models/vegetable_model.dart';
 import 'order_item.dart';
 
 enum OrderStatus {

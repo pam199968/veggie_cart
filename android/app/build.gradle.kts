@@ -9,7 +9,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.veggie_cart"
+    namespace = "fr.pam.veggie_cart"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 

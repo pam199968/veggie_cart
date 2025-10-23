@@ -149,7 +149,7 @@ class _ProfilePageState extends State<ProfilePage> {
         Padding(
           padding: const EdgeInsets.symmetric(vertical: 6),
           child: DropdownButtonFormField<DeliveryMethod>(
-            value: _editableUser.deliveryMethod,
+            initialValue: _editableUser.deliveryMethod,
             decoration: InputDecoration(
               labelText: context.l10n.deliveryMethodLabel,
               border: const OutlineInputBorder(),

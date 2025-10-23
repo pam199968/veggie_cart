@@ -40,7 +40,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
     setState(() {
       _isLoading = false;
-      _setInitialPage(accountVM.currentUser?.profile);
+      _setInitialPage(accountVM.currentUser.profile);
     });
   }
 

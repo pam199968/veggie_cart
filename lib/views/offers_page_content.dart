@@ -223,13 +223,13 @@ class OfferDetailScreen extends StatelessWidget {
             style: TextStyle(fontSize: 18, color: Colors.white),
           ),
           onPressed: cartVm.totalItems > 0
-        ? () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const CartScreen()),
-            );
-          }
-        : null, // ← désactivé si panier vide
+              ? () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const CartScreen()),
+                  );
+                }
+              : null, // ← désactivé si panier vide
         ),
       ),
     );
@@ -348,6 +348,9 @@ class _CartScreenState extends State<CartScreen> {
                                 ? _noteController.text
                                 : null,
                           );
+
+                          // 🔹 Vérifier mounted APRÈS l'opération async
+                          if (!context.mounted) return;
 
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(content: Text('Commande envoyée !')),

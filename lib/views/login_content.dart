@@ -60,26 +60,32 @@ class _LoginContentState extends State<LoginContent> {
   }
 
   Widget _buildSignUpForm(
-      BuildContext context, AccountViewModel homeViewModel) {
+    BuildContext context,
+    AccountViewModel homeViewModel,
+  ) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Image.asset('img/logo.jpeg', height: 100, width: 100),
         const SizedBox(height: 20),
         _buildTextField(_nameController, context.l10n.nameLabel, (v) {
-          homeViewModel.currentUser =
-              homeViewModel.currentUser.copyWith(name: v.trim());
+          homeViewModel.currentUser = homeViewModel.currentUser.copyWith(
+            name: v.trim(),
+          );
         }),
         _buildTextField(_givenNameController, context.l10n.givenNameLabel, (v) {
-          homeViewModel.currentUser =
-              homeViewModel.currentUser.copyWith(givenName: v.trim());
+          homeViewModel.currentUser = homeViewModel.currentUser.copyWith(
+            givenName: v.trim(),
+          );
         }),
         _buildTextField(_emailController, context.l10n.emailLabel, (v) {
-          homeViewModel.currentUser =
-              homeViewModel.currentUser.copyWith(email: v.trim());
+          homeViewModel.currentUser = homeViewModel.currentUser.copyWith(
+            email: v.trim(),
+          );
         }),
-        _buildPasswordField(_passwordController, context.l10n.passwordLabel,
-            (v) {
+        _buildPasswordField(_passwordController, context.l10n.passwordLabel, (
+          v,
+        ) {
           homeViewModel.password = v.trim();
         }),
         const SizedBox(height: 5),
@@ -93,32 +99,39 @@ class _LoginContentState extends State<LoginContent> {
         ),
         const SizedBox(height: 10),
         _buildPasswordField(
-            _confirmPasswordController, context.l10n.confirmPasswordLabel, (v) {
-          homeViewModel.confirmPassword = v.trim();
-        }),
+          _confirmPasswordController,
+          context.l10n.confirmPasswordLabel,
+          (v) {
+            homeViewModel.confirmPassword = v.trim();
+          },
+        ),
         _buildTextField(_phoneController, context.l10n.phoneLabel, (v) {
-          homeViewModel.currentUser =
-              homeViewModel.currentUser.copyWith(phoneNumber: v.trim());
+          homeViewModel.currentUser = homeViewModel.currentUser.copyWith(
+            phoneNumber: v.trim(),
+          );
         }),
         _buildTextField(_addressController, context.l10n.addressLabel, (v) {
-          homeViewModel.currentUser =
-              homeViewModel.currentUser.copyWith(address: v.trim());
+          homeViewModel.currentUser = homeViewModel.currentUser.copyWith(
+            address: v.trim(),
+          );
         }, maxLines: 4),
         const SizedBox(height: 10),
         DeliveryMethodDropdown(
           notifier: ValueNotifier<DeliveryMethod>(_selectedDeliveryMethod),
           onChanged: (v) {
             _selectedDeliveryMethod = v;
-            homeViewModel.currentUser =
-                homeViewModel.currentUser.copyWith(deliveryMethod: v);
+            homeViewModel.currentUser = homeViewModel.currentUser.copyWith(
+              deliveryMethod: v,
+            );
           },
         ),
         PushNotificationSwitch(
           notifier: ValueNotifier<bool>(_pushNotifications),
           onChanged: (v) {
             _pushNotifications = v;
-            homeViewModel.currentUser =
-                homeViewModel.currentUser.copyWith(pushNotifications: v);
+            homeViewModel.currentUser = homeViewModel.currentUser.copyWith(
+              pushNotifications: v,
+            );
           },
         ),
         const SizedBox(height: 10),
@@ -127,7 +140,9 @@ class _LoginContentState extends State<LoginContent> {
           children: [
             ElevatedButton(
               onPressed: () async {
-                if (!homeViewModel.isEmailValid(homeViewModel.currentUser.email)) {
+                if (!homeViewModel.isEmailValid(
+                  homeViewModel.currentUser.email,
+                )) {
                   _showError(context, context.l10n.emailError);
                   return;
                 }
@@ -160,18 +175,23 @@ class _LoginContentState extends State<LoginContent> {
     );
   }
 
-  Widget _buildSignInForm(BuildContext context, AccountViewModel homeViewModel) {
+  Widget _buildSignInForm(
+    BuildContext context,
+    AccountViewModel homeViewModel,
+  ) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Image.asset('img/logo.jpeg', height: 100, width: 100),
         const SizedBox(height: 20),
         _buildTextField(_emailController, context.l10n.emailLabel, (v) {
-          homeViewModel.currentUser =
-              homeViewModel.currentUser.copyWith(email: v.trim());
+          homeViewModel.currentUser = homeViewModel.currentUser.copyWith(
+            email: v.trim(),
+          );
         }),
-        _buildPasswordField(_passwordController, context.l10n.passwordLabel,
-            (v) {
+        _buildPasswordField(_passwordController, context.l10n.passwordLabel, (
+          v,
+        ) {
           homeViewModel.password = v.trim();
         }),
         const SizedBox(height: 10),
@@ -179,9 +199,16 @@ class _LoginContentState extends State<LoginContent> {
           onPressed: () async {
             try {
               await homeViewModel.signIn(context);
+
+              // 🔹 Vérifier mounted APRÈS l'opération async
+              if (!context.mounted) return;
+
               // 🔹 Redirige vers la page correcte après login réussi
               if (widget.onLoginSuccess != null) widget.onLoginSuccess!();
             } catch (e) {
+              // 🔹 Vérifier mounted avant d'afficher le SnackBar
+              if (!context.mounted) return;
+
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(content: Text("Erreur de connexion : $e")),
               );
@@ -199,23 +226,33 @@ class _LoginContentState extends State<LoginContent> {
                 if (email.isEmpty) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
-                        content: Text(
-                            "Veuillez entrer votre email pour réinitialiser le mot de passe.")),
+                      content: Text(
+                        "Veuillez entrer votre email pour réinitialiser le mot de passe.",
+                      ),
+                    ),
                   );
                   return;
                 }
-
                 try {
                   await homeViewModel.sendPasswordResetEmail(email);
+
+                  // 🔹 Vérifier mounted APRÈS l'opération async
+                  if (!context.mounted) return;
+
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
-                        content: Text(
-                            "Email de réinitialisation envoyé ✅, pensez à vérifier vos spams")),
+                      content: Text(
+                        "Email de réinitialisation envoyé ✅, pensez à vérifier vos spams",
+                      ),
+                    ),
                   );
                 } catch (e) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text("Erreur : $e")),
-                  );
+                  // 🔹 Vérifier mounted avant d'afficher le SnackBar
+                  if (!context.mounted) return;
+
+                  ScaffoldMessenger.of(
+                    context,
+                  ).showSnackBar(SnackBar(content: Text("Erreur : $e")));
                 }
               },
               child: const Text(
@@ -244,8 +281,11 @@ class _LoginContentState extends State<LoginContent> {
   }
 
   Widget _buildTextField(
-      TextEditingController controller, String label, Function(String) onChanged,
-      {int maxLines = 1}) {
+    TextEditingController controller,
+    String label,
+    Function(String) onChanged, {
+    int maxLines = 1,
+  }) {
     return SizedBox(
       width: 300,
       child: TextField(
@@ -258,7 +298,10 @@ class _LoginContentState extends State<LoginContent> {
   }
 
   Widget _buildPasswordField(
-      TextEditingController controller, String label, Function(String) onChanged) {
+    TextEditingController controller,
+    String label,
+    Function(String) onChanged,
+  ) {
     return SizedBox(
       width: 300,
       child: TextField(
@@ -272,7 +315,9 @@ class _LoginContentState extends State<LoginContent> {
   }
 
   void _showError(BuildContext context, String message) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message)));
   }
 }
 
@@ -300,10 +345,7 @@ class DeliveryMethodDropdown extends StatelessWidget {
             isExpanded: true,
             initialValue: value,
             items: DeliveryMethod.values
-                .map((m) => DropdownMenuItem(
-                      value: m,
-                      child: Text(m.label),
-                    ))
+                .map((m) => DropdownMenuItem(value: m, child: Text(m.label)))
                 .toList(),
             onChanged: (v) {
               if (v != null) {
@@ -311,8 +353,9 @@ class DeliveryMethodDropdown extends StatelessWidget {
                 onChanged(v);
               }
             },
-            decoration:
-                InputDecoration(labelText: context.l10n.deliveryMethodLabel),
+            decoration: InputDecoration(
+              labelText: context.l10n.deliveryMethodLabel,
+            ),
           ),
         );
       },
