@@ -16,6 +16,7 @@ class WeeklyOffersViewModel extends ChangeNotifier {
 
   List<WeeklyOffer> _offers = [];
   bool _loading = false;
+  bool isPublishing = false;
   bool get loading => _loading;
   List<WeeklyOffer> get offers => _offers;
 
@@ -93,9 +94,12 @@ class WeeklyOffersViewModel extends ChangeNotifier {
     await loadOffers();
   }
 
-  /// 🔹 Publication
   /// 🔹 Publication d'une offre (avec envoi de notification)
-  Future<void> publishOffer(WeeklyOffer offer) async {
+  Future<void> publishOffer(WeeklyOffer offer, BuildContext context) async {
+    if (isPublishing) return; // évite double clic)
+    isPublishing = true;
+    notifyListeners();
+
     final updatedOffer = offer.copyWith(status: WeeklyOfferStatus.published);
     await _repository.updateWeeklyOffer(updatedOffer);
 
@@ -129,6 +133,18 @@ class WeeklyOffersViewModel extends ChangeNotifier {
       });
     } catch (e) {
       debugPrint('Erreur lors de l\'envoi de la notification : $e');
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Notification non envoyée. veuillez réessayer plus tard',
+            ),
+          ),
+        );
+      }
+    } finally {
+      isPublishing = false;
+      notifyListeners();
     }
 
     await loadOffers();

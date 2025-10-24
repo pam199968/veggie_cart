@@ -128,10 +128,19 @@ class OffersMngtPageContent extends StatelessWidget {
     List<Widget> actionButtons = switch (status) {
       WeeklyOfferStatus.draft => [
         IconButton(
-          onPressed: () async => await vm.publishOffer(offer),
-          icon: const Icon(Icons.send),
           tooltip: context.l10n.publish,
+          onPressed: vm.isPublishing
+              ? null
+              : () async => await vm.publishOffer(offer, context),
+          icon: vm.isPublishing
+              ? const SizedBox(
+                  width: 24,
+                  height: 24,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                )
+              : const Icon(Icons.send),
         ),
+
         IconButton(
           onPressed: () async => await vm.closeOffer(offer),
           icon: const Icon(Icons.lock),
