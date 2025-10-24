@@ -14,14 +14,13 @@ class LoginContent extends StatefulWidget {
 }
 
 class _LoginContentState extends State<LoginContent> {
-  final TextEditingController _nameController = TextEditingController();
-  final TextEditingController _givenNameController = TextEditingController();
-  final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _confirmPasswordController =
-      TextEditingController();
-  final TextEditingController _phoneController = TextEditingController();
-  final TextEditingController _addressController = TextEditingController();
+  final _nameController = TextEditingController();
+  final _givenNameController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
+  final _phoneController = TextEditingController();
+  final _addressController = TextEditingController();
 
   DeliveryMethod _selectedDeliveryMethod = DeliveryMethod.farmPickup;
   bool _pushNotifications = true;
@@ -52,19 +51,33 @@ class _LoginContentState extends State<LoginContent> {
   Widget build(BuildContext context) {
     final homeViewModel = context.watch<AccountViewModel>();
 
-    return SingleChildScrollView(
-      child: !homeViewModel.showSignUpForm
-          ? _buildSignInForm(context, homeViewModel)
-          : _buildSignUpForm(context, homeViewModel),
+    return SafeArea(
+      child: SingleChildScrollView(
+        padding: EdgeInsets.only(
+          left: 16,
+          right: 16,
+          top: 16,
+          bottom: MediaQuery.of(context).viewInsets.bottom + 16,
+        ),
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 400),
+            child: homeViewModel.showSignUpForm
+                ? _buildSignUpForm(context, homeViewModel)
+                : _buildSignInForm(context, homeViewModel),
+          ),
+        ),
+      ),
     );
   }
 
+  // 🔹 FORMULAIRE INSCRIPTION
   Widget _buildSignUpForm(
     BuildContext context,
     AccountViewModel homeViewModel,
   ) {
     return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Image.asset('img/logo.jpeg', height: 100, width: 100),
         const SizedBox(height: 20),
@@ -83,17 +96,17 @@ class _LoginContentState extends State<LoginContent> {
             email: v.trim(),
           );
         }),
-        _buildPasswordField(_passwordController, context.l10n.passwordLabel, (
-          v,
-        ) {
-          homeViewModel.password = v.trim();
-        }),
+        _buildPasswordField(
+          _passwordController,
+          context.l10n.passwordLabel,
+          (v) => homeViewModel.password = v.trim(),
+        ),
         const SizedBox(height: 5),
         SizedBox(
           width: 300,
           child: Text(
             context.l10n.passwordHint,
-            style: TextStyle(fontSize: 12, color: Colors.grey),
+            style: const TextStyle(fontSize: 12, color: Colors.grey),
             textAlign: TextAlign.start,
           ),
         ),
@@ -101,9 +114,7 @@ class _LoginContentState extends State<LoginContent> {
         _buildPasswordField(
           _confirmPasswordController,
           context.l10n.confirmPasswordLabel,
-          (v) {
-            homeViewModel.confirmPassword = v.trim();
-          },
+          (v) => homeViewModel.confirmPassword = v.trim(),
         ),
         _buildTextField(_phoneController, context.l10n.phoneLabel, (v) {
           homeViewModel.currentUser = homeViewModel.currentUser.copyWith(
@@ -134,7 +145,7 @@ class _LoginContentState extends State<LoginContent> {
             );
           },
         ),
-        const SizedBox(height: 10),
+        const SizedBox(height: 20),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -158,9 +169,7 @@ class _LoginContentState extends State<LoginContent> {
                 await homeViewModel.signUp(context);
                 clearControllers();
                 if (mounted) homeViewModel.toggleSignUpForm();
-
-                // 🔹 Après un signup réussi, on redirige
-                if (widget.onLoginSuccess != null) widget.onLoginSuccess!();
+                widget.onLoginSuccess?.call();
               },
               child: Text(context.l10n.createAccountButton),
             ),
@@ -175,6 +184,7 @@ class _LoginContentState extends State<LoginContent> {
     );
   }
 
+  // 🔹 FORMULAIRE CONNEXION
   Widget _buildSignInForm(
     BuildContext context,
     AccountViewModel homeViewModel,
@@ -189,26 +199,20 @@ class _LoginContentState extends State<LoginContent> {
             email: v.trim(),
           );
         }),
-        _buildPasswordField(_passwordController, context.l10n.passwordLabel, (
-          v,
-        ) {
-          homeViewModel.password = v.trim();
-        }),
+        _buildPasswordField(
+          _passwordController,
+          context.l10n.passwordLabel,
+          (v) => homeViewModel.password = v.trim(),
+        ),
         const SizedBox(height: 10),
         ElevatedButton(
           onPressed: () async {
             try {
               await homeViewModel.signIn(context);
-
-              // 🔹 Vérifier mounted APRÈS l'opération async
               if (!context.mounted) return;
-
-              // 🔹 Redirige vers la page correcte après login réussi
-              if (widget.onLoginSuccess != null) widget.onLoginSuccess!();
+              widget.onLoginSuccess?.call();
             } catch (e) {
-              // 🔹 Vérifier mounted avant d'afficher le SnackBar
               if (!context.mounted) return;
-
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(content: Text("Erreur de connexion : $e")),
               );
@@ -235,21 +239,14 @@ class _LoginContentState extends State<LoginContent> {
                 }
                 try {
                   await homeViewModel.sendPasswordResetEmail(email);
-
-                  // 🔹 Vérifier mounted APRÈS l'opération async
                   if (!context.mounted) return;
-
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
-                      content: Text(
-                        "Email de réinitialisation envoyé ✅, pensez à vérifier vos spams",
-                      ),
+                      content: Text("Email de réinitialisation envoyé ✅, pensez à vérifier vos spams"),
                     ),
                   );
                 } catch (e) {
-                  // 🔹 Vérifier mounted avant d'afficher le SnackBar
                   if (!context.mounted) return;
-
                   ScaffoldMessenger.of(
                     context,
                   ).showSnackBar(SnackBar(content: Text("Erreur : $e")));
@@ -308,7 +305,6 @@ class _LoginContentState extends State<LoginContent> {
         controller: controller,
         obscureText: true,
         decoration: InputDecoration(labelText: label),
-        maxLines: 1,
         onChanged: onChanged,
       ),
     );

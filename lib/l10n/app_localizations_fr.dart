@@ -33,6 +33,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get removeVegetable => 'Retirer le légume';
 
   @override
+  String get moreVegetables => 'Voir plus de légumes';
+
+  @override
   String get removeVegetableQuestion =>
       'Voulez-vous vraiment retirer ce légume de l’offre ?';
 
@@ -151,7 +154,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get totalQuantity => 'Qté totale';
 
   @override
-  String get packaging => 'Conditionnement';
+  String get packaging => 'Cond.';
 
   @override
   String get vegetable => 'Légume';

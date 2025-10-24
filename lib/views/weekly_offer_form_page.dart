@@ -75,6 +75,7 @@ class _WeeklyOfferFormPageState extends State<WeeklyOfferFormPage> {
       builder: (context) => VegetableSelectorDialog(
         allVegetables: vegetables,
         selectedVegetables: _selectedVegetables,
+        alreadySelectedVegetables: _selectedVegetables,
       ),
     );
 
@@ -87,9 +88,9 @@ class _WeeklyOfferFormPageState extends State<WeeklyOfferFormPage> {
     if (!_formKey.currentState!.validate() ||
         _startDate == null ||
         _endDate == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(context.l10n.completeAllFields)),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(context.l10n.completeAllFields)));
       return;
     }
 
@@ -269,7 +270,9 @@ class _WeeklyOfferFormPageState extends State<WeeklyOfferFormPage> {
                                       );
 
                                   return AlertDialog(
-                                    title: Text('${context.l10n.editVegetable} ${veg.name}'),
+                                    title: Text(
+                                      '${context.l10n.editVegetable} ${veg.name}',
+                                    ),
                                     content: Column(
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
@@ -280,7 +283,8 @@ class _WeeklyOfferFormPageState extends State<WeeklyOfferFormPage> {
                                                 decimal: true,
                                               ),
                                           decoration: InputDecoration(
-                                            labelText: '${context.l10n.price} (${context.l10n.currencySymbol})',
+                                            labelText:
+                                                '${context.l10n.price} (${context.l10n.currencySymbol})',
                                           ),
                                         ),
                                         const SizedBox(height: 8),
@@ -367,7 +371,9 @@ class _WeeklyOfferFormPageState extends State<WeeklyOfferFormPage> {
                               showDialog(
                                 context: context,
                                 builder: (context) => AlertDialog(
-                                  title: Text('${context.l10n.removeVegetable} ${veg.name} ?'),
+                                  title: Text(
+                                    '${context.l10n.removeVegetable} ${veg.name} ?',
+                                  ),
                                   content: Text(
                                     context.l10n.removeVegetableQuestion,
                                   ),
@@ -418,11 +424,13 @@ class _WeeklyOfferFormPageState extends State<WeeklyOfferFormPage> {
 class VegetableSelectorDialog extends StatefulWidget {
   final List<VegetableModel> allVegetables;
   final List<VegetableModel> selectedVegetables;
+  final List<VegetableModel> alreadySelectedVegetables;
 
   const VegetableSelectorDialog({
     super.key,
     required this.allVegetables,
     required this.selectedVegetables,
+    required this.alreadySelectedVegetables,
   });
 
   @override
@@ -438,6 +446,7 @@ class _VegetableSelectorDialogState extends State<VegetableSelectorDialog> {
   @override
   void initState() {
     super.initState();
+    // ✅ Copie des légumes déjà sélectionnés dans le dialogue
     _tempSelection = [...widget.selectedVegetables];
     _filteredVegetables = [...widget.allVegetables];
 
@@ -468,17 +477,17 @@ class _VegetableSelectorDialogState extends State<VegetableSelectorDialog> {
     final isMobile = MediaQuery.of(context).size.width < 600;
 
     if (isMobile) {
-      // ✅ Version mobile : plein écran
       return Scaffold(
         appBar: AppBar(
-          title:  Text(context.l10n.selectVegetables),
+          title: Text(context.l10n.selectVegetables),
           actions: [
-            TextButton(
+            IconButton(
+              icon: const Icon(
+                Icons.check_rounded,
+                color: Colors.green,
+              ), // ✅ visible sur fond clair
+              tooltip: context.l10n.validate,
               onPressed: () => Navigator.pop(context, _tempSelection),
-              child:  Text(
-                context.l10n.validate,
-                style: TextStyle(color: Colors.white),
-              ),
             ),
           ],
         ),
@@ -486,11 +495,10 @@ class _VegetableSelectorDialogState extends State<VegetableSelectorDialog> {
       );
     }
 
-    // ✅ Version desktop : boîte de dialogue centrée et scrollable
     return AlertDialog(
       title: Text(context.l10n.selectVegetables),
       content: SizedBox(
-        width: MediaQuery.of(context).size.width * 0.33, // 1/3 de l’écran
+        width: MediaQuery.of(context).size.width * 0.33,
         height: 500,
         child: _buildScrollableList(),
       ),
@@ -507,7 +515,6 @@ class _VegetableSelectorDialogState extends State<VegetableSelectorDialog> {
     );
   }
 
-  /// 🔹 Liste scrollable avec champ de recherche
   Widget _buildScrollableList() {
     final scrollController = ScrollController();
 
@@ -518,9 +525,9 @@ class _VegetableSelectorDialogState extends State<VegetableSelectorDialog> {
           child: TextField(
             controller: _searchController,
             decoration: InputDecoration(
-              prefixIcon: Icon(Icons.search),
+              prefixIcon: const Icon(Icons.search),
               labelText: context.l10n.searchVegetable,
-              border: OutlineInputBorder(),
+              border: const OutlineInputBorder(),
             ),
           ),
         ),
@@ -533,20 +540,28 @@ class _VegetableSelectorDialogState extends State<VegetableSelectorDialog> {
               itemCount: _filteredVegetables.length,
               itemBuilder: (context, index) {
                 final veg = _filteredVegetables[index];
-                final selected = _tempSelection.contains(veg);
+                final alreadyInOffer = widget.alreadySelectedVegetables.any(
+                  (v) => v.id == veg.id,
+                );
+                // la case doit être cochée si soit dans la sélection temporaire, soit déjà dans l'offre
+                final isChecked =
+                    _tempSelection.any((v) => v.id == veg.id) || alreadyInOffer;
+
                 return CheckboxListTile(
                   title: Text(veg.name),
                   subtitle: Text(veg.packaging),
-                  value: selected,
-                  onChanged: (v) {
-                    setState(() {
-                      if (v == true) {
-                        _tempSelection.add(veg);
-                      } else {
-                        _tempSelection.remove(veg);
-                      }
-                    });
-                  },
+                  value: isChecked,
+                  onChanged: alreadyInOffer
+                      ? null // ✅ désactive la case si déjà dans l'offre
+                      : (v) {
+                          setState(() {
+                            if (v == true) {
+                              _tempSelection.add(veg);
+                            } else {
+                              _tempSelection.removeWhere((e) => e.id == veg.id);
+                            }
+                          });
+                        },
                 );
               },
             ),

@@ -146,6 +146,12 @@ abstract class AppLocalizations {
   /// **'Remove the vegetable'**
   String get removeVegetable;
 
+  /// No description provided for @moreVegetables.
+  ///
+  /// In en, this message translates to:
+  /// **'See more vegetables'**
+  String get moreVegetables;
+
   /// No description provided for @removeVegetableQuestion.
   ///
   /// In en, this message translates to:

@@ -7,7 +7,6 @@ import '../viewmodels/weekly_offers_view_model.dart';
 import '../models/weekly_offer.dart';
 import 'package:veggie_cart/extensions/context_extension.dart';
 
-
 class OffersMngtPageContent extends StatelessWidget {
   const OffersMngtPageContent({super.key});
 
@@ -28,22 +27,8 @@ class OffersMngtPageContent extends StatelessWidget {
                   ? Center(child: Text(context.l10n.noOffersAvailable))
                   : LayoutBuilder(
                       builder: (context, constraints) {
-                        int crossAxisCount = 1;
-                        if (constraints.maxWidth >= 900) {
-                          crossAxisCount = 3;
-                        } else if (constraints.maxWidth >= 600) {
-                          crossAxisCount = 2;
-                        }
-
-                        return GridView.builder(
+                        return ListView.builder(
                           padding: const EdgeInsets.all(12),
-                          gridDelegate:
-                              SliverGridDelegateWithFixedCrossAxisCount(
-                                crossAxisCount: crossAxisCount,
-                                mainAxisSpacing: 12,
-                                crossAxisSpacing: 12,
-                                childAspectRatio: 1.2,
-                              ),
                           itemCount: vm.offers.length,
                           itemBuilder: (context, index) {
                             final offer = vm.offers[index];
@@ -87,7 +72,7 @@ class OffersMngtPageContent extends StatelessWidget {
                   onChanged: (value) {
                     if (value != null) vm.setOfferFilter(value);
                   },
-                  items:  [
+                  items: [
                     DropdownMenuItem(
                       value: OfferFilter.draft,
                       child: Text(context.l10n.draft),
@@ -140,7 +125,6 @@ class OffersMngtPageContent extends StatelessWidget {
     final style = _statusStyle(status);
     final DateFormat frenchDateFormat = DateFormat('dd/MM/yyyy', 'fr_FR');
 
-    // 🔹 Actions selon le statut
     List<Widget> actionButtons = switch (status) {
       WeeklyOfferStatus.draft => [
         IconButton(
@@ -175,127 +159,138 @@ class OffersMngtPageContent extends StatelessWidget {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
         padding: const EdgeInsets.all(12),
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // 🔹 Ligne 1 : tous les boutons (icônes + actions dynamiques)
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  // Sous-wrap pour les boutons d'édition et duplication
-                  Wrap(
-                    spacing: 8,
-                    runSpacing: 4,
-                    children: [
-                      IconButton(
-                        tooltip: context.l10n.edit,
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) =>
-                                  WeeklyOfferFormPage(existingOffer: offer),
-                            ),
-                          );
-                        },
-                        icon: const Icon(Icons.edit),
-                      ),
-                      IconButton(
-                        tooltip: context.l10n.copy,
-                        onPressed: () async {
-                          final newStart = offer.startDate.add(
-                            const Duration(days: 7),
-                          );
-                          final newEnd = offer.endDate.add(
-                            const Duration(days: 7),
-                          );
-                          await vm.duplicateOffer(offer, newStart, newEnd);
-                        },
-                        icon: const Icon(Icons.copy),
-                      ),
-                      // On ajoute ici les boutons d’action dynamiques
-                      ...actionButtons,
-                    ],
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: 8),
-
-              // 🔹 Ligne 2 : semaine + statut
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    '${context.l10n.weekRange} ${offer.startDate.day}/${offer.startDate.month}',
-                    style: const TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  Chip(
-                    avatar: Icon(
-                      style['icon'] as IconData,
-                      color: Colors.white,
-                      size: 14,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Ligne des boutons
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 4,
+                  children: [
+                    IconButton(
+                      tooltip: context.l10n.edit,
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) =>
+                                WeeklyOfferFormPage(existingOffer: offer),
+                          ),
+                        );
+                      },
+                      icon: const Icon(Icons.edit),
                     ),
-                    label: Text(
-                      style['label'] as String,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w500,
-                        fontSize: 10,
-                      ),
+                    IconButton(
+                      tooltip: context.l10n.copy,
+                      onPressed: () async {
+                        final newStart = offer.startDate.add(
+                          const Duration(days: 7),
+                        );
+                        final newEnd = offer.endDate.add(
+                          const Duration(days: 7),
+                        );
+                        await vm.duplicateOffer(offer, newStart, newEnd);
+                      },
+                      icon: const Icon(Icons.copy),
                     ),
-                    backgroundColor: style['color'] as Color?,
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: 6),
-
-              // 🔹 Titre
-              Text(
-                offer.title,
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-
-              if (offer.description.isNotEmpty) ...[
-                const SizedBox(height: 4),
-                Text(
-                  offer.description,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(color: Colors.grey[700], fontSize: 13),
+                    ...actionButtons,
+                  ],
                 ),
               ],
+            ),
 
-              const SizedBox(height: 8),
+            const SizedBox(height: 8),
 
-              // 🔹 Légumes
-              Wrap(
-                spacing: 6,
-                runSpacing: 4,
-                children: [
-                  for (var veg in offer.vegetables.take(3))
-                    Chip(label: Text(veg.toString())),
-                  if (offer.vegetables.length > 3)
-                    Chip(label: Text('+${offer.vegetables.length - 3}')),
-                ],
-              ),
+            // Semaine + statut
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  '${context.l10n.weekRange} ${offer.startDate.day}/${offer.startDate.month}',
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+                Chip(
+                  avatar: Icon(
+                    style['icon'] as IconData,
+                    color: Colors.white,
+                    size: 14,
+                  ),
+                  label: Text(
+                    style['label'] as String,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w500,
+                      fontSize: 10,
+                    ),
+                  ),
+                  backgroundColor: style['color'] as Color?,
+                ),
+              ],
+            ),
 
-              const SizedBox(height: 8),
+            const SizedBox(height: 6),
 
-              // 🔹 Dates
+            // Titre et description
+            Text(
+              offer.title,
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+            if (offer.description.isNotEmpty) ...[
+              const SizedBox(height: 4),
               Text(
-                '${frenchDateFormat.format(offer.startDate)} → ${frenchDateFormat.format(offer.endDate)}',
-                style: const TextStyle(fontSize: 12, color: Colors.black54),
+                offer.description,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(color: Colors.grey[700], fontSize: 13),
               ),
             ],
-          ),
+
+            const SizedBox(height: 8),
+
+            // Légumes : jusqu'à 3 en Chips + liste scrollable dépliable
+            ExpansionTile(
+              title: Text(
+                context.l10n.moreVegetables,
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
+              children: [
+                ConstrainedBox(
+                  constraints: const BoxConstraints(
+                    maxHeight: 200, // hauteur max pour scroll interne
+                  ),
+                  child: ListView.builder(
+                    shrinkWrap: true, // ✅ indispensable
+                    physics:
+                        const ClampingScrollPhysics(), // scroll interne limité
+                    itemCount: offer.vegetables.length,
+                    itemBuilder: (context, index) {
+                      final veg = offer.vegetables[index];
+                      return ListTile(
+                        dense: true,
+                        title: Text(veg.name),
+                        subtitle: Text(
+                          'Prix : ${veg.price ?? '-'} € / ${veg.packaging}',
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 8),
+
+            // Dates
+            Text(
+              '${frenchDateFormat.format(offer.startDate)} → ${frenchDateFormat.format(offer.endDate)}',
+              style: const TextStyle(fontSize: 12, color: Colors.black54),
+            ),
+          ],
         ),
       ),
     );

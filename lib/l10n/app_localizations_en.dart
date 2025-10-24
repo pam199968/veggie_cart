@@ -33,6 +33,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get removeVegetable => 'Remove the vegetable';
 
   @override
+  String get moreVegetables => 'See more vegetables';
+
+  @override
   String get removeVegetableQuestion =>
       'Do you really want to remove this vegetable from the offer?';
 

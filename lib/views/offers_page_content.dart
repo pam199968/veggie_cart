@@ -38,9 +38,7 @@ class _OffersPageContentState extends State<OffersPageContent> {
     }
 
     if (offersVm.offers.isEmpty) {
-      return Center(
-        child: Text(context.l10n.noOffersAvailable),
-      );
+      return Center(child: Text(context.l10n.noOffersAvailable));
     }
 
     return ListView.builder(
@@ -208,8 +206,8 @@ class OfferDetailScreen extends StatelessWidget {
       ),
 
       // ✅ Bouton "Finaliser la commande" en bas de l’écran
-      bottomNavigationBar: Padding(
-        padding: const EdgeInsets.all(12),
+      bottomNavigationBar: SafeArea(
+        minimum: const EdgeInsets.all(12), // marge autour du bouton
         child: ElevatedButton.icon(
           style: ElevatedButton.styleFrom(
             backgroundColor: Colors.green,
@@ -221,7 +219,7 @@ class OfferDetailScreen extends StatelessWidget {
           icon: const Icon(Icons.check_circle_outline, color: Colors.white),
           label: Text(
             '${context.l10n.finalizeOrder} (${cartVm.totalItems.toString()})',
-            style: TextStyle(fontSize: 18, color: Colors.white),
+            style: const TextStyle(fontSize: 18, color: Colors.white),
           ),
           onPressed: cartVm.totalItems > 0
               ? () {
@@ -230,7 +228,7 @@ class OfferDetailScreen extends StatelessWidget {
                     MaterialPageRoute(builder: (_) => const CartScreen()),
                   );
                 }
-              : null, // ← désactivé si panier vide
+              : null,
         ),
       ),
     );
@@ -357,8 +355,8 @@ class _CartScreenState extends State<CartScreen> {
                             SnackBar(content: Text(context.l10n.orderSent)),
                           );
 
-                          Navigator.pop(
-                            context,
+                          Navigator.of(context).popUntil(
+                            (route) => route.isFirst,
                           ); // retour à la liste des offres
                         },
                       ),

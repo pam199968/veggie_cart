@@ -10,14 +10,16 @@ class WeeklyOffersViewModel extends ChangeNotifier {
   final WeeklyOffersRepository _repository;
 
   WeeklyOffersViewModel({required WeeklyOffersRepository repository})
-    : _repository = repository;
+    : _repository = repository {
+    loadOffers();
+  }
 
   List<WeeklyOffer> _offers = [];
   bool _loading = false;
   bool get loading => _loading;
   List<WeeklyOffer> get offers => _offers;
 
-  OfferFilter _offerFilter = OfferFilter.all;
+  OfferFilter _offerFilter = OfferFilter.draft;
   OfferFilter get offerFilter => _offerFilter;
   bool _disposed = false;
 

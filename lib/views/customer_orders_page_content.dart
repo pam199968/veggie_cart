@@ -120,13 +120,27 @@ class _CustomerOrdersPageContentState extends State<CustomerOrdersPageContent>
         bottom: TabBar(
           controller: _tabController,
           tabs: [
-            Tab(text: context.l10n.ordersListTitle, icon: const Icon(Icons.list_alt)),
+            Tab(
+              text: context.l10n.ordersListTitle,
+              icon: const Icon(Icons.list_alt),
+            ),
             Tab(
               text: context.l10n.preparationTitle,
               icon: const Icon(Icons.shopping_basket_outlined),
             ),
           ],
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(
+              Icons.filter_alt_outlined,
+            ), // 👈 ton icône personnalisée
+            tooltip: context.l10n.filtersTitle, // texte d’aide
+            onPressed: () {
+              _scaffoldKey.currentState?.openEndDrawer(); // 👈 ouvre le drawer
+            },
+          ),
+        ],
       ),
       endDrawer: _buildFilterDrawer(),
       body: TabBarView(
@@ -145,15 +159,15 @@ class _CustomerOrdersPageContentState extends State<CustomerOrdersPageContent>
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-               Text(
+              Text(
                 "${context.l10n.ordersListTitle} (${vm.orders.length})",
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
-              ElevatedButton.icon(
-                icon: const Icon(Icons.filter_list),
-                label: Text(context.l10n.filtersTitle),
-                onPressed: () => _scaffoldKey.currentState?.openEndDrawer(),
-              ),
+              // ElevatedButton.icon(
+              //   icon: const Icon(Icons.filter_list),
+              //   label: Text(context.l10n.filtersTitle),
+              //   onPressed: () => _scaffoldKey.currentState?.openEndDrawer(),
+              // ),
             ],
           ),
         ),
@@ -254,7 +268,9 @@ class _CustomerOrdersPageContentState extends State<CustomerOrdersPageContent>
                       _applyFilters();
                     },
                     child: Text(
-                      allOffersSelected ? context.l10n.deselectAll : context.l10n.selectAll,
+                      allOffersSelected
+                          ? context.l10n.deselectAll
+                          : context.l10n.selectAll,
                     ),
                   ),
                 ],
@@ -330,7 +346,9 @@ class CustomerOrderCard extends StatelessWidget {
             if (customer != null)
               Padding(
                 padding: const EdgeInsets.only(top: 4),
-                child: Text('${context.l10n.customer}${customer.givenName} ${customer.name}'),
+                child: Text(
+                  '${context.l10n.customer}${customer.givenName} ${customer.name}',
+                ),
               ),
             const SizedBox(height: 4),
             Row(
@@ -363,7 +381,8 @@ class CustomerOrderCard extends StatelessWidget {
               '(${_formatDate(order.offerSummary.startDate)})',
             ),
             Text('${context.l10n.deliveryMethod}${order.deliveryMethod.label}'),
-            if (order.notes != null) Text('${context.l10n.notes}${order.notes}'),
+            if (order.notes != null)
+              Text('${context.l10n.notes}${order.notes}'),
             const SizedBox(height: 8),
             Text(
               context.l10n.items,
