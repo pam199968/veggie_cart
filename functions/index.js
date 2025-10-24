@@ -79,7 +79,7 @@ exports.sendWeeklyOfferEmail = onCall(
           `${offer.description}\n\n` +
           `${vegetablesText}` +
           `À très bientôt !\n\n` +
-          `— L’équipe VeggieCart 🌱`,
+          `— L’équipe du Bi'O jardin 🌱`,
           };
 
           sendEmailPromises.push(mailTransport.sendMail(mailOptions));
