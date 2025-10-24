@@ -58,7 +58,7 @@ exports.sendWeeklyOfferEmail = onCall(
             veg.standardQuantity !== null ?
               veg.standardQuantity: "—";
             return `• ${veg.name} — ${price} / ` +
-            `${packaging} (Qté standard : ${qty})`;
+            `${packaging} (Conditionnement : ${qty} ${packaging})`;
           }).join("\n");
           vegetablesText += "\n\n";
         }
