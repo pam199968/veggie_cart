@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../models/delivery_method.dart';
 import '../models/weekly_offer.dart';
 import '../viewmodels/account_view_model.dart';
 import '../viewmodels/my_orders_view_model.dart';
@@ -246,6 +247,14 @@ class CartScreen extends StatefulWidget {
 
 class _CartScreenState extends State<CartScreen> {
   final TextEditingController _noteController = TextEditingController();
+  late DeliveryMethod _selectedDeliveryMethod;
+
+  @override
+  void initState() {
+    super.initState();
+    final accountVm = context.read<AccountViewModel>();
+    _selectedDeliveryMethod = accountVm.currentUser.deliveryMethod;
+  }
 
   @override
   void dispose() {
@@ -256,7 +265,6 @@ class _CartScreenState extends State<CartScreen> {
   @override
   Widget build(BuildContext context) {
     final cartVm = context.watch<CartViewModel>();
-    final accountVm = context.read<AccountViewModel>();
 
     return Scaffold(
       appBar: AppBar(title: Text(context.l10n.myCart)),
@@ -324,6 +332,29 @@ class _CartScreenState extends State<CartScreen> {
                   ),
                 ),
                 const SizedBox(height: 16),
+
+                // 🚚 Sélection de la méthode de livraison
+                DropdownButtonFormField<DeliveryMethod>(
+                  initialValue: _selectedDeliveryMethod,
+                  decoration: InputDecoration(
+                    labelText: context.l10n.deliveryMethod,
+                    border: const OutlineInputBorder(),
+                  ),
+                  items: DeliveryMethod.values.map((method) {
+                    return DropdownMenuItem<DeliveryMethod>(
+                      value: method,
+                      child: Text(method.label),
+                    );
+                  }).toList(),
+                  onChanged: (value) {
+                    if (value != null) {
+                      setState(() {
+                        _selectedDeliveryMethod = value;
+                      });
+                    }
+                  },
+                ),
+                const SizedBox(height: 16),
                 // Boutons retour et valider
                 Row(
                   children: [
@@ -338,8 +369,7 @@ class _CartScreenState extends State<CartScreen> {
                       child: ElevatedButton(
                         child: Text(context.l10n.validateOrder),
                         onPressed: () async {
-                          final deliveryMethod =
-                              accountVm.currentUser.deliveryMethod;
+                          final deliveryMethod = _selectedDeliveryMethod;
 
                           await cartVm.submitOrder(
                             deliveryMethod: deliveryMethod,
