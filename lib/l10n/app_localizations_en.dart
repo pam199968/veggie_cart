@@ -9,6 +9,18 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
+  String get searchCustomer => 'Search for a customer...';
+
+  @override
+  String get accountDeactivated => 'Account deactivated';
+
+  @override
+  String get disableAccount => 'Disable this account';
+
+  @override
+  String get reactivateAccount => 'Reactivate this account';
+
+  @override
   String get startDate => 'Start date';
 
   @override

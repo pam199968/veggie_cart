@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:veggie_cart/extensions/context_extension.dart';
+import 'package:veggie_cart/l10n/app_localizations.dart';
 import 'package:veggie_cart/models/delivery_method.dart';
 import '../models/user_model.dart';
 import '../viewmodels/account_view_model.dart';
@@ -27,7 +28,7 @@ class _CustomersPageContentState extends State<CustomersPageContent> {
           child: TextField(
             decoration: InputDecoration(
               prefixIcon: const Icon(Icons.search),
-              hintText: 'Rechercher un client...',
+              hintText: AppLocalizations.of(context)!.searchCustomer,
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
@@ -44,7 +45,6 @@ class _CustomersPageContentState extends State<CustomersPageContent> {
           ),
         ),
 
-        // 🧾 Liste d'origine (inchangée à part le filtre)
         Expanded(
           child: StreamBuilder<List<UserModel>>(
             stream: accountVM.customersStream,
@@ -72,7 +72,7 @@ class _CustomersPageContentState extends State<CustomersPageContent> {
               }
 
               if (customers.isEmpty) {
-                return Center(child: Text(context.l10n.noCustomersFound));
+                return Center(child: Text(AppLocalizations.of(context)!.noCustomersFound));
               }
 
               return ListView.builder(
@@ -111,9 +111,9 @@ class _CustomersPageContentState extends State<CustomersPageContent> {
                           if (customer.address.isNotEmpty)
                             Text('🏠 ${customer.address}'),
                           if (!isActive)
-                            const Text(
-                              'Compte désactivé',
-                              style: TextStyle(
+                            Text(
+                              AppLocalizations.of(context)!.accountDeactivated,
+                              style: const TextStyle(
                                 color: Colors.redAccent,
                                 fontStyle: FontStyle.italic,
                               ),
@@ -136,8 +136,8 @@ class _CustomersPageContentState extends State<CustomersPageContent> {
                               color: isActive ? Colors.red : Colors.green,
                             ),
                             tooltip: isActive
-                                ? 'Désactiver ce compte'
-                                : 'Réactiver ce compte',
+                                ? AppLocalizations.of(context)!.disableAccount
+                                : AppLocalizations.of(context)!.reactivateAccount,
                             onPressed: () async {
                               if (context.mounted) {
                                 if (isActive) {

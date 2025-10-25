@@ -98,6 +98,30 @@ abstract class AppLocalizations {
     Locale('fr'),
   ];
 
+  /// No description provided for @searchCustomer.
+  ///
+  /// In en, this message translates to:
+  /// **'Search for a customer...'**
+  String get searchCustomer;
+
+  /// No description provided for @accountDeactivated.
+  ///
+  /// In en, this message translates to:
+  /// **'Account deactivated'**
+  String get accountDeactivated;
+
+  /// No description provided for @disableAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Disable this account'**
+  String get disableAccount;
+
+  /// No description provided for @reactivateAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Reactivate this account'**
+  String get reactivateAccount;
+
   /// No description provided for @startDate.
   ///
   /// In en, this message translates to:

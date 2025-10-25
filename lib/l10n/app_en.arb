@@ -1,4 +1,8 @@
 {
+  "searchCustomer": "Search for a customer...",
+  "accountDeactivated": "Account deactivated",
+  "disableAccount": "Disable this account",
+  "reactivateAccount": "Reactivate this account",
   "startDate": "Start date",
   "endDate": "End date",
   "offerStatus": "Offer status",
@@ -135,6 +139,6 @@
   "allCategories": "All Categories",
   "currencySymbol": "£",
   "customersList": "Customers list",
-  "noCustomersFound" : "No Customers Found",
+  "noCustomersFound": "No Customers Found",
   "errorLoadingData": "Error Loading Data"
 }

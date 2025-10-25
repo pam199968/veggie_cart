@@ -1,4 +1,8 @@
 {
+  "searchCustomer": "Rechercher un client...",
+  "accountDeactivated": "Compte désactivé",
+  "disableAccount": "Désactiver ce compte",
+  "reactivateAccount": "Réactiver ce compte",
   "startDate": "Date de début",
   "endDate": "Date de fin",
   "offerStatus": "Statut de l’offre",
@@ -135,6 +139,6 @@
   "allCategories": "Toutes Categories",
   "currencySymbol": "€",
   "customersList": "Liste des clients",
-  "noCustomersFound" : "Aucun client enregistré.",
+  "noCustomersFound": "Aucun client enregistré.",
   "errorLoadingData": "Erreur lors du chargement des clients"
 }
