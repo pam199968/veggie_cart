@@ -5,6 +5,7 @@ import '../models/profile.dart';
 import '../viewmodels/account_view_model.dart';
 import '../viewmodels/catalog_view_model.dart';
 import '../viewmodels/my_orders_view_model.dart';
+import 'customers_page_content.dart';
 import 'profile_page.dart';
 import 'login_content.dart';
 import 'catalog_page_content.dart';
@@ -100,6 +101,8 @@ class _MyHomePageState extends State<MyHomePage> {
         case 'gardeners':
           bodyContent = const GardenersPageContent();
           break;
+        case 'customers':
+          bodyContent = const CustomersPageContent();
         default:
           bodyContent = const LoginContent();
       }
@@ -194,6 +197,12 @@ class _MyHomePageState extends State<MyHomePage> {
                       title: Text(context.l10n.gardenersList),
                       selected: _currentPage == 'gardeners',
                       onTap: () => _navigateTo('gardeners'),
+                    ),
+                    ListTile(
+                      leading: const Icon(Icons.people),
+                      title: Text(context.l10n.customersList),
+                      selected: _currentPage == 'customers',
+                      onTap: () => _navigateTo('customers'),
                     ),
                   ],
                 ],

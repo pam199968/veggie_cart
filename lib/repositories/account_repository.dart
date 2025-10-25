@@ -6,7 +6,6 @@ import '../models/user_model.dart';
 import '../models/profile.dart';
 import '../exceptions/auth_error_mapper.dart';
 
-
 class AccountRepository {
   final AuthService authService;
   final UserService userService;
@@ -15,8 +14,8 @@ class AccountRepository {
   AccountRepository({
     required AuthService authService,
     required UserService userService,
-  })  : authService = authService,
-        userService = userService;
+  }) : authService = authService,
+       userService = userService;
 
   /// 🔗 Crée un compte à partir d’un [UserModel]
   Future<UserModel?> signUp({
@@ -55,30 +54,31 @@ class AccountRepository {
 
       // 5️⃣ Retourne le nouvel utilisateur si tout s’est bien passé
       return newUser;
-
     } on FirebaseAuthException catch (e) {
-        final authError = mapFirebaseAuthException(e);
+      final authError = mapFirebaseAuthException(e);
 
-        if (context.mounted) showErrorSnack(context, authError.message);
-        return null;
-      } catch (e) {
+      if (context.mounted) showErrorSnack(context, authError.message);
+      return null;
+    } catch (e) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erreur inconnue : $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Erreur inconnue : $e')));
       }
       return null;
     }
   }
 
-    /// 🔄 Met à jour un profil utilisateur existant
+  /// 🔄 Met à jour un profil utilisateur existant
   Future<bool> updateUserProfile({
     required BuildContext context,
     required UserModel user,
   }) async {
     try {
       if (user.id == null) {
-        throw Exception("Impossible de mettre à jour : l'utilisateur n'a pas d'ID.");
+        throw Exception(
+          "Impossible de mettre à jour : l'utilisateur n'a pas d'ID.",
+        );
       }
 
       await userService.updateUser(user);
@@ -100,7 +100,6 @@ class AccountRepository {
     }
   }
 
-
   /// 🔐 Connexion à un compte existant
   Future<UserModel?> signInExistingAccount({
     required BuildContext context,
@@ -109,7 +108,10 @@ class AccountRepository {
   }) async {
     try {
       // 1️⃣ Connexion via Firebase Auth
-      final userCredential = await authService.signInWithExistingAccount(email, password);
+      final userCredential = await authService.signInWithExistingAccount(
+        email,
+        password,
+      );
       final firebaseUser = userCredential.user;
 
       if (firebaseUser == null) {
@@ -125,34 +127,34 @@ class AccountRepository {
       if (userModel == null) {
         throw FirebaseAuthException(
           code: 'user-not-found-in-firestore',
-          message: 'Aucun profil utilisateur trouvé dans Firestore pour cet UID.',
+          message:
+              'Aucun profil utilisateur trouvé dans Firestore pour cet UID.',
         );
       }
 
       // 3️⃣ Notification visuelle
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Connexion réussie ✅')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Connexion réussie ✅')));
       }
 
       // 4️⃣ Retourne l’objet UserModel
       return userModel;
-
     } on FirebaseAuthException catch (e) {
-        final authError = mapFirebaseAuthException(e);
+      final authError = mapFirebaseAuthException(e);
 
-        if (context.mounted) showErrorSnack(context, authError.message);
-        return null;
-      } catch (e) {
+      if (context.mounted) showErrorSnack(context, authError.message);
+      return null;
+    } catch (e) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erreur inconnue : $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Erreur inconnue : $e')));
       }
       return null;
     }
-    }
+  }
 
   /// 🚪 Déconnexion
   Future<void> signOut(BuildContext context) async {
@@ -180,7 +182,7 @@ class AccountRepository {
     try {
       // 1️⃣ Vérifie si l’utilisateur Firebase est toujours connecté
       final currentUser = authService.getCurrentFirebaseUser();
-      
+
       if (currentUser == null) {
         // Aucun utilisateur Firebase actif
         return null;
@@ -206,14 +208,19 @@ class AccountRepository {
     });
   }
 
+  Stream<List<UserModel>> getCustomersStream() {
+    return userService.getUsersStream().map((users) {
+      return users.where((user) => user.profile != Profile.gardener).toList();
+    });
+  }
+
   Future<List<UserModel>> searchCustomersByName(String name) {
     return userService.searchCustomersByName(name);
   }
 
   void showErrorSnack(BuildContext context, String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message)),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message)));
   }
-
 }

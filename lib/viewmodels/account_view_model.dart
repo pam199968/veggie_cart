@@ -5,7 +5,6 @@ import '../models/delivery_method.dart';
 import '../models/user_model.dart';
 import '../models/profile.dart';
 
-
 class AccountViewModel extends ChangeNotifier {
   final AccountRepository accountRepository;
 
@@ -30,7 +29,6 @@ class AccountViewModel extends ChangeNotifier {
 
   AccountViewModel({required this.accountRepository});
 
-
   void toggleSignInForm() {
     showSignInForm = !showSignInForm;
     notifyListeners();
@@ -42,7 +40,7 @@ class AccountViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-// ============================================================
+  // ============================================================
   // 🧠 PERSISTENCE DE SESSION
   // ============================================================
 
@@ -69,7 +67,6 @@ class AccountViewModel extends ChangeNotifier {
     final savedEmail = prefs.getString('userEmail');
 
     if (savedLogin && savedEmail != null) {
-
       // Recharge depuis le repo si besoin (profil complet)
       final userFromDb = await accountRepository.fetchUserProfile(savedEmail);
       if (userFromDb != null) {
@@ -79,7 +76,6 @@ class AccountViewModel extends ChangeNotifier {
       }
     }
   }
-
 
   Future<void> signOut(BuildContext context) async {
     await accountRepository.signOut(context);
@@ -108,8 +104,7 @@ class AccountViewModel extends ChangeNotifier {
     confirmPassword = "";
   }
 
-bool get isAuthenticated => currentUser.id != null;
-
+  bool get isAuthenticated => currentUser.id != null;
 
   Future<void> signIn(BuildContext context) async {
     final connectedUser = await accountRepository.signInExistingAccount(
@@ -125,7 +120,6 @@ bool get isAuthenticated => currentUser.id != null;
 
     notifyListeners();
   }
-
 
   Future<void> signUp(BuildContext context) async {
     final createdUser = await accountRepository.signUp(
@@ -152,11 +146,22 @@ bool get isAuthenticated => currentUser.id != null;
     return accountRepository.getGardenersStream();
   }
 
-  Future<void> toggleGardenerStatus(BuildContext context, UserModel user, bool isGardener) async {
+  Stream<List<UserModel>> get customersStream {
+    return accountRepository.getCustomersStream();
+  }
+
+  Future<void> toggleGardenerStatus(
+    BuildContext context,
+    UserModel user,
+    bool isGardener,
+  ) async {
     final updatedUser = user.copyWith(
       profile: isGardener ? Profile.gardener : Profile.customer,
     );
-    await accountRepository.updateUserProfile(context: context, user: updatedUser);
+    await accountRepository.updateUserProfile(
+      context: context,
+      user: updatedUser,
+    );
   }
 
   Future<List<UserModel>> searchCustomers(String name) async {
@@ -165,11 +170,17 @@ bool get isAuthenticated => currentUser.id != null;
 
   Future<void> promoteToGardener(BuildContext context, UserModel user) async {
     final updatedUser = user.copyWith(profile: Profile.gardener);
-    await accountRepository.updateUserProfile(context: context, user: updatedUser);
+    await accountRepository.updateUserProfile(
+      context: context,
+      user: updatedUser,
+    );
   }
 
   /// 🔹 Met à jour le profil utilisateur via UserService
-  Future<bool> updateUserProfile(BuildContext context, UserModel updatedUser) async {
+  Future<bool> updateUserProfile(
+    BuildContext context,
+    UserModel updatedUser,
+  ) async {
     final success = await accountRepository.updateUserProfile(
       context: context,
       user: updatedUser,
@@ -198,7 +209,9 @@ bool get isAuthenticated => currentUser.id != null;
   }
 
   bool isEmailValid(String email) {
-    final emailRegex = RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}');
+    final emailRegex = RegExp(
+      r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}',
+    );
     return emailRegex.hasMatch(email);
   }
 }

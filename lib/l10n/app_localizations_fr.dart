@@ -416,4 +416,13 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get currencySymbol => '€';
+
+  @override
+  String get customersList => 'Liste des clients';
+
+  @override
+  String get noCustomersFound => 'Aucun client enregistré.';
+
+  @override
+  String get errorLoadingData => 'Erreur lors du chargement des clients';
 }

@@ -415,4 +415,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get currencySymbol => '£';
+
+  @override
+  String get customersList => 'Customers list';
+
+  @override
+  String get noCustomersFound => 'No Customers Found';
+
+  @override
+  String get errorLoadingData => 'Error Loading Data';
 }

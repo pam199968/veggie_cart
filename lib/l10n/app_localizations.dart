@@ -907,6 +907,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'£'**
   String get currencySymbol;
+
+  /// No description provided for @customersList.
+  ///
+  /// In en, this message translates to:
+  /// **'Customers list'**
+  String get customersList;
+
+  /// No description provided for @noCustomersFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No Customers Found'**
+  String get noCustomersFound;
+
+  /// No description provided for @errorLoadingData.
+  ///
+  /// In en, this message translates to:
+  /// **'Error Loading Data'**
+  String get errorLoadingData;
 }
 
 class _AppLocalizationsDelegate

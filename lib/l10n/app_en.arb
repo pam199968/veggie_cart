@@ -133,5 +133,8 @@
   "standardQuantity": "Standard Quantity (optional)",
   "active": "Active",
   "allCategories": "All Categories",
-  "currencySymbol": "£"
+  "currencySymbol": "£",
+  "customersList": "Customers list",
+  "noCustomersFound" : "No Customers Found",
+  "errorLoadingData": "Error Loading Data"
 }

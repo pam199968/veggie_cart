@@ -133,5 +133,8 @@
   "standardQuantity": "Quantité standard (optionnelle)",
   "active": "Actif",
   "allCategories": "Toutes Categories",
-  "currencySymbol": "€"
+  "currencySymbol": "€",
+  "customersList": "Liste des clients",
+  "noCustomersFound" : "Aucun client enregistré.",
+  "errorLoadingData": "Erreur lors du chargement des clients"
 }
