@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:cloud_functions/cloud_functions.dart';
@@ -8,43 +9,45 @@ enum OfferFilter { all, draft, published, closed }
 
 class WeeklyOffersViewModel extends ChangeNotifier {
   final WeeklyOffersRepository _repository;
+  StreamSubscription<List<WeeklyOffer>>? _subscription;
 
   WeeklyOffersViewModel({required WeeklyOffersRepository repository})
     : _repository = repository {
-    loadOffers();
+    _subscribeToOffers(); // 🔹 écoute en temps réel dès l’instanciation
   }
 
   List<WeeklyOffer> _offers = [];
-  bool _loading = false;
+  bool _loading = true;
   bool isPublishing = false;
   bool get loading => _loading;
   List<WeeklyOffer> get offers => _offers;
 
-  OfferFilter _offerFilter = OfferFilter.draft;
+  OfferFilter _offerFilter = OfferFilter.published; // 🔹 filtre par défaut
   OfferFilter get offerFilter => _offerFilter;
+
   bool _disposed = false;
 
   @override
   void dispose() {
     _disposed = true;
+    _subscription?.cancel(); // 🔹 on arrête le stream proprement
     super.dispose();
   }
 
   void safeNotifyListeners() {
-    if (!_disposed) {
-      notifyListeners();
-    }
+    if (!_disposed) notifyListeners();
   }
 
+  /// 🔹 Changement du filtre (rafraîchit le stream)
   void setOfferFilter(OfferFilter filter) {
     _offerFilter = filter;
-    loadOffers(); // recharge directement depuis le repository avec filtre
+    _subscribeToOffers(); // 🔹 recharge le flux Firestore avec le nouveau filtre
+    safeNotifyListeners();
   }
 
-  //// 🔹 Chargement des offres depuis Firestore
-  Future<void> loadOffers() async {
-    _loading = true;
-    safeNotifyListeners();
+  /// 🔹 Écoute en temps réel via Firestore Stream
+  void _subscribeToOffers() {
+    _subscription?.cancel(); // annule l’ancien abonnement s’il existe
 
     WeeklyOfferStatus? status;
     switch (_offerFilter) {
@@ -62,22 +65,28 @@ class WeeklyOffersViewModel extends ChangeNotifier {
         break;
     }
 
-    _offers = await _repository.getAllWeeklyOffers(status: status);
-    _loading = false;
+    _loading = true;
     safeNotifyListeners();
+
+    // 🔹 on écoute les changements Firestore en temps réel
+    _subscription = _repository.streamWeeklyOffers(status: status).listen((
+      snapshot,
+    ) {
+      _offers = snapshot;
+      _loading = false;
+      safeNotifyListeners();
+    });
   }
 
   /// 🔹 Création d'une nouvelle offre
   Future<void> createOffer(WeeklyOffer offer) async {
     final newOffer = offer.copyWith(status: WeeklyOfferStatus.draft);
     await _repository.createWeeklyOffer(newOffer);
-    await loadOffers();
   }
 
   /// 🔹 Mise à jour
   Future<void> updateOffer(WeeklyOffer offer) async {
     await _repository.updateWeeklyOffer(offer);
-    await loadOffers();
   }
 
   /// 🔹 Duplication
@@ -91,14 +100,13 @@ class WeeklyOffersViewModel extends ChangeNotifier {
       newStartDate: start,
       newEndDate: end,
     );
-    await loadOffers();
   }
 
-  /// 🔹 Publication d'une offre (avec envoi de notification)
+  /// 🔹 Publication d'une offre (avec envoi d’email via Cloud Functions)
   Future<void> publishOffer(WeeklyOffer offer, BuildContext context) async {
-    if (isPublishing) return; // évite double clic)
+    if (isPublishing) return;
     isPublishing = true;
-    notifyListeners();
+    safeNotifyListeners();
 
     final updatedOffer = offer.copyWith(status: WeeklyOfferStatus.published);
     await _repository.updateWeeklyOffer(updatedOffer);
@@ -109,7 +117,6 @@ class WeeklyOffersViewModel extends ChangeNotifier {
     );
 
     try {
-      // 🔸 Préparation de la liste des légumes (format simple et clair)
       final List<Map<String, dynamic>> vegetableList = offer.vegetables.map((
         veg,
       ) {
@@ -121,7 +128,6 @@ class WeeklyOffersViewModel extends ChangeNotifier {
         };
       }).toList();
 
-      // 🔸 Appel de la fonction Firebase avec les données complètes
       await callable.call({
         'offer': {
           'title': offer.title,
@@ -135,31 +141,23 @@ class WeeklyOffersViewModel extends ChangeNotifier {
       debugPrint('Erreur lors de l\'envoi de la notification : $e');
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              'Notification non envoyée. veuillez réessayer plus tard',
-            ),
-          ),
+          const SnackBar(content: Text('Notification non envoyée.')),
         );
       }
     } finally {
       isPublishing = false;
-      notifyListeners();
+      safeNotifyListeners();
     }
-
-    await loadOffers();
   }
 
   /// 🔹 Clôturer / Réouvrir
   Future<void> closeOffer(WeeklyOffer offer) async {
     final updatedOffer = offer.copyWith(status: WeeklyOfferStatus.closed);
     await _repository.updateWeeklyOffer(updatedOffer);
-    await loadOffers();
   }
 
   Future<void> reopenOffer(WeeklyOffer offer) async {
     final updatedOffer = offer.copyWith(status: WeeklyOfferStatus.draft);
     await _repository.updateWeeklyOffer(updatedOffer);
-    await loadOffers();
   }
 }

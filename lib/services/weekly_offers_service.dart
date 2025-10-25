@@ -42,6 +42,22 @@ class WeeklyOffersService {
         .toList();
   }
 
+  /// 🔹 STREAM temps réel — optionnellement filtré par statut
+  Stream<List<WeeklyOffer>> streamWeeklyOffers({WeeklyOfferStatus? status}) {
+    Query query = _collection;
+    if (status != null) {
+      query = query.where('status', isEqualTo: status.name);
+    }
+    return query.snapshots().map((snapshot) {
+      return snapshot.docs
+          .map(
+            (doc) =>
+                WeeklyOffer.fromMap(doc.data() as Map<String, dynamic>, doc.id),
+          )
+          .toList();
+    });
+  }
+
   /// 🔹 UPDATE
   Future<void> updateWeeklyOffer(WeeklyOffer offer) async {
     if (offer.id == null) {
@@ -53,17 +69,5 @@ class WeeklyOffersService {
   /// 🔹 DELETE
   Future<void> deleteWeeklyOffer(String id) async {
     await _collection.doc(id).delete();
-  }
-
-  /// 🔹 STREAM temps réel
-  Stream<List<WeeklyOffer>> streamWeeklyOffers() {
-    return _collection.snapshots().map((snapshot) {
-      return snapshot.docs
-          .map(
-            (doc) =>
-                WeeklyOffer.fromMap(doc.data() as Map<String, dynamic>, doc.id),
-          )
-          .toList();
-    });
   }
 }

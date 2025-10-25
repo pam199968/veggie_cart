@@ -24,7 +24,6 @@ class _OffersPageContentState extends State<OffersPageContent> {
       if (mounted) {
         final vm = context.read<WeeklyOffersViewModel>();
         vm.setOfferFilter(OfferFilter.published); // <-- on définit le filtre
-        vm.loadOffers(); // recharge les offres avec ce filtre
       }
     });
   }
@@ -32,7 +31,7 @@ class _OffersPageContentState extends State<OffersPageContent> {
   @override
   Widget build(BuildContext context) {
     final offersVm = context.watch<WeeklyOffersViewModel>();
-    final orderVm = context.watch<OrderViewModel>(); // 👈 renommé pour clarté
+    final orderVm = context.watch<OrderViewModel>();
 
     if (offersVm.loading) {
       return const Center(child: CircularProgressIndicator());

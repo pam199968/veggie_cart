@@ -61,6 +61,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get save => 'Enregistrer';
 
   @override
+  String get saving => 'Enregistrement en cours';
+
+  @override
   String get selectVegetables => 'Sélectionner des légumes';
 
   @override

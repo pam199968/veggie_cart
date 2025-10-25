@@ -61,6 +61,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get save => 'Save';
 
   @override
+  String get saving => 'Saving';
+
+  @override
   String get selectVegetables => 'Select vegetables';
 
   @override

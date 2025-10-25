@@ -34,9 +34,9 @@ class WeeklyOffersRepository {
     await _weeklyOffersService.deleteWeeklyOffer(id);
   }
 
-  /// 🔹 STREAM
-  Stream<List<WeeklyOffer>> watchAllWeeklyOffers() {
-    return _weeklyOffersService.streamWeeklyOffers();
+  /// 🔹 Stream temps réel
+  Stream<List<WeeklyOffer>> streamWeeklyOffers({WeeklyOfferStatus? status}) {
+    return _weeklyOffersService.streamWeeklyOffers(status: status);
   }
 
   // ----------------------------------------------------------------

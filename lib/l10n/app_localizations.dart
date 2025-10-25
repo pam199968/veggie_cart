@@ -200,6 +200,12 @@ abstract class AppLocalizations {
   /// **'Save'**
   String get save;
 
+  /// No description provided for @saving.
+  ///
+  /// In en, this message translates to:
+  /// **'Saving'**
+  String get saving;
+
   /// No description provided for @selectVegetables.
   ///
   /// In en, this message translates to:

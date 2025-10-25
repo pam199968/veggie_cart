@@ -25,6 +25,7 @@ class _WeeklyOfferFormPageState extends State<WeeklyOfferFormPage> {
   DateTime? _endDate;
   late WeeklyOfferStatus _status;
   List<VegetableModel> _selectedVegetables = [];
+  bool _isSaving = false;
 
   @override
   void initState() {
@@ -93,29 +94,40 @@ class _WeeklyOfferFormPageState extends State<WeeklyOfferFormPage> {
       ).showSnackBar(SnackBar(content: Text(context.l10n.completeAllFields)));
       return;
     }
+    setState(() => _isSaving = true);
+    try {
+      final newOffer = WeeklyOffer(
+        id: widget.existingOffer?.id ?? '',
+        title: _titleController.text,
+        description: _descriptionController.text,
+        startDate: _startDate!,
+        endDate: _endDate!,
+        status: _status,
+        vegetables: _selectedVegetables,
+      );
 
-    final newOffer = WeeklyOffer(
-      id: widget.existingOffer?.id ?? '',
-      title: _titleController.text,
-      description: _descriptionController.text,
-      startDate: _startDate!,
-      endDate: _endDate!,
-      status: _status,
-      vegetables: _selectedVegetables,
-    );
+      final vm = context.read<WeeklyOffersViewModel>();
+      if (widget.existingOffer == null) {
+        await vm.createOffer(newOffer);
+      } else {
+        await vm.updateOffer(newOffer);
+      }
+      if (newOffer.status == WeeklyOfferStatus.published) {
+        if (!mounted) return;
+        await vm.publishOffer(newOffer, context);
+      }
 
-    final vm = context.read<WeeklyOffersViewModel>();
-    if (widget.existingOffer == null) {
-      await vm.createOffer(newOffer);
-    } else {
-      await vm.updateOffer(newOffer);
+      if (!mounted) return;
+      Navigator.pop(context);
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Erreur : ${e.toString()}')));
+      }
+    } finally {
+      if (mounted) setState(() => _isSaving = false);
     }
-    if (_status == WeeklyOfferStatus.published) {
-      () async => await vm.publishOffer(newOffer, context);
-    }
-
-    if (!mounted) return;
-    Navigator.pop(context);
   }
 
   @override
@@ -408,9 +420,22 @@ class _WeeklyOfferFormPageState extends State<WeeklyOfferFormPage> {
                   ),
                   const SizedBox(height: 24),
                   ElevatedButton.icon(
-                    onPressed: _saveOffer,
-                    icon: const Icon(Icons.save),
-                    label: Text(context.l10n.save),
+                    onPressed: _isSaving
+                        ? null
+                        : _saveOffer, // ✅ Désactivé pendant le chargement
+                    icon: _isSaving
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
+                          )
+                        : const Icon(Icons.save),
+                    label: Text(
+                      _isSaving ? context.l10n.saving : context.l10n.save,
+                    ),
                   ),
                 ],
               ),
