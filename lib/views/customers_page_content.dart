@@ -138,8 +138,8 @@ class _CustomersPageContentState extends State<CustomersPageContent> {
                             ),
                             trailing: IconButton(
                               icon: Icon(
-                                isActive ? Icons.block : Icons.lock_open,
-                                color: isActive ? Colors.red : Colors.green,
+                                isActive ? Icons.lock : Icons.lock_open,
+                                color: isActive ? Colors.redAccent : Colors.greenAccent,
                               ),
                               tooltip: isActive
                                   ? AppLocalizations.of(context)!.disableAccount
