@@ -110,6 +110,9 @@ class _WeeklyOfferFormPageState extends State<WeeklyOfferFormPage> {
     } else {
       await vm.updateOffer(newOffer);
     }
+    if (_status == WeeklyOfferStatus.published) {
+      () async => await vm.publishOffer(newOffer, context);
+    }
 
     if (!mounted) return;
     Navigator.pop(context);
