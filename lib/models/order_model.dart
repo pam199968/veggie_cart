@@ -134,7 +134,7 @@ class OrderModel {
     customerId: map['customerId'] ?? '',
     offerSummary: WeeklyOfferSummary.fromMap(offerMap), 
     deliveryMethod: DeliveryMethodExtension.fromString(
-      map['deliveryMethod'] ?? "Retrait à la ferme",
+      map['deliveryMethod'] ?? 'farmPickup',
     ),
     status: OrderStatusExtension.fromString(map['status'] ?? 'pending'),
     notes: map['notes'],
@@ -152,7 +152,7 @@ Map<String, dynamic> toMap() {
     'customerId': customerId,
     'orderNumber': orderNumber,
     'offer': offerSummary.toMap(), // 🔹 juste le résumé
-    'deliveryMethod': deliveryMethod.label,
+    'deliveryMethod': deliveryMethod.name,
     'status': status.name,
     'notes': notes,
     'items': items.map((i) => i.toMap()).toList(),

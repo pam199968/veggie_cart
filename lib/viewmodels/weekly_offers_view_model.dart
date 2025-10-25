@@ -34,6 +34,12 @@ class WeeklyOffersViewModel extends ChangeNotifier {
     super.dispose();
   }
 
+  /// 🔹 Annulation des streams lors de la déconnexion
+  void cancelSubscriptions() {
+    _subscription?.cancel();
+    _subscription = null;
+  }
+
   void safeNotifyListeners() {
     if (!_disposed) notifyListeners();
   }

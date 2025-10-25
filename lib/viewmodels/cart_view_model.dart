@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../models/delivery_method.dart';
 import '../models/order_item.dart';
 import '../models/order_model.dart';
+import '../models/user_model.dart';
 import '../models/vegetable_model.dart';
 import '../models/weekly_offer.dart';
 import '../repositories/order_repository.dart';
@@ -78,12 +79,15 @@ class CartViewModel extends ChangeNotifier {
 
   /// ✅ Créer la commande
   Future<void> submitOrder({
+    UserModel? user,
     required DeliveryMethod deliveryMethod,
     String? notes,
   }) async {
     if (_offer == null || _items.isEmpty) return;
 
-    final customerId = accountViewModel.currentUser.id!;
+  final customerId = user == null
+        ? accountViewModel.currentUser.id!
+        : user.id!;
     final offerSummary = WeeklyOfferSummary.fromWeeklyOffer(_offer!);
 
     // Création de la commande via le repository

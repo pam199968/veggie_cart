@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:veggie_cart/models/profile.dart';
 import '../models/delivery_method.dart';
+import '../models/user_model.dart';
 import '../models/weekly_offer.dart';
 import '../viewmodels/account_view_model.dart';
 import '../viewmodels/my_orders_view_model.dart';
@@ -8,8 +10,12 @@ import '../viewmodels/weekly_offers_view_model.dart';
 import '../viewmodels/cart_view_model.dart';
 import 'package:veggie_cart/extensions/context_extension.dart';
 
+import 'customers_page_content.dart';
+
 class OffersPageContent extends StatefulWidget {
-  const OffersPageContent({super.key});
+  final UserModel? user;
+  final VoidCallback? onOrderComplete;
+  const OffersPageContent({super.key, this.user, this.onOrderComplete});
 
   @override
   State<OffersPageContent> createState() => _OffersPageContentState();
@@ -67,7 +73,8 @@ class _OffersPageContentState extends State<OffersPageContent> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (_) => OfferDetailScreen(offer: offer),
+                      builder: (_) =>
+                          OfferDetailScreen(offer: offer, user: widget.user),
                     ),
                   );
                 },
@@ -111,7 +118,8 @@ class _OffersPageContentState extends State<OffersPageContent> {
 /// 🔹 Écran pour sélectionner les articles et ajouter au panier
 class OfferDetailScreen extends StatelessWidget {
   final WeeklyOffer offer;
-  const OfferDetailScreen({required this.offer, super.key});
+  final UserModel? user;
+  const OfferDetailScreen({required this.offer, this.user, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -128,7 +136,7 @@ class OfferDetailScreen extends StatelessWidget {
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (_) => const CartScreen()),
+                    MaterialPageRoute(builder: (_) => CartScreen(user: user)),
                   );
                 },
               ),
@@ -225,7 +233,7 @@ class OfferDetailScreen extends StatelessWidget {
               ? () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (_) => const CartScreen()),
+                    MaterialPageRoute(builder: (_) => CartScreen(user: user)),
                   );
                 }
               : null,
@@ -238,7 +246,8 @@ class OfferDetailScreen extends StatelessWidget {
 /// 🔹 Écran du panier : modifier quantités, supprimer articles, ajouter note et valider
 
 class CartScreen extends StatefulWidget {
-  const CartScreen({super.key});
+  final UserModel? user;
+  const CartScreen({super.key, this.user});
 
   @override
   State<CartScreen> createState() => _CartScreenState();
@@ -252,7 +261,11 @@ class _CartScreenState extends State<CartScreen> {
   void initState() {
     super.initState();
     final accountVm = context.read<AccountViewModel>();
-    _selectedDeliveryMethod = accountVm.currentUser.deliveryMethod;
+    if (widget.user != null) {
+      _selectedDeliveryMethod = widget.user!.deliveryMethod;
+    } else {
+      _selectedDeliveryMethod = accountVm.currentUser.deliveryMethod;
+    }
   }
 
   @override
@@ -371,6 +384,7 @@ class _CartScreenState extends State<CartScreen> {
                           final deliveryMethod = _selectedDeliveryMethod;
 
                           await cartVm.submitOrder(
+                            user: widget.user,
                             deliveryMethod: deliveryMethod,
                             notes: _noteController.text.isNotEmpty
                                 ? _noteController.text
@@ -383,10 +397,11 @@ class _CartScreenState extends State<CartScreen> {
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(content: Text(context.l10n.orderSent)),
                           );
+                          Navigator.of(
+                            context,
+                          ).popUntil((route) => route.isFirst);
 
-                          Navigator.of(context).popUntil(
-                            (route) => route.isFirst,
-                          ); // retour à la liste des offres
+                          // retour à la liste des offres
                         },
                       ),
                     ),

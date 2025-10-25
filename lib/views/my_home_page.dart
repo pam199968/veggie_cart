@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:veggie_cart/models/weekly_offer.dart';
 import 'package:veggie_cart/views/offers_mngt_page_content.dart';
 import '../models/profile.dart';
+import '../models/user_model.dart';
 import '../viewmodels/account_view_model.dart';
 import '../viewmodels/catalog_view_model.dart';
 import '../viewmodels/my_orders_view_model.dart';
+import '../viewmodels/weekly_offers_view_model.dart';
 import 'customers_page_content.dart';
 import 'profile_page.dart';
 import 'login_content.dart';
@@ -84,7 +87,7 @@ class _MyHomePageState extends State<MyHomePage> {
     } else {
       switch (_currentPage) {
         case 'weekly_offers':
-          bodyContent = const OffersPageContent();
+          bodyContent = OffersPageContent();
           break;
         case 'offers_management':
           bodyContent = const OffersMngtPageContent();
@@ -102,7 +105,10 @@ class _MyHomePageState extends State<MyHomePage> {
           bodyContent = const GardenersPageContent();
           break;
         case 'customers':
-          bodyContent = const CustomersPageContent();
+          bodyContent = CustomersPageContent();
+
+          break;
+
         default:
           bodyContent = const LoginContent();
       }
@@ -134,6 +140,10 @@ class _MyHomePageState extends State<MyHomePage> {
 
                 final orderVM = context.read<OrderViewModel>();
                 orderVM.cancelSubscriptions();
+
+                final WeeklyOffersViewModel offerVM = context
+                    .read<WeeklyOffersViewModel>();
+                offerVM.cancelSubscriptions();
 
                 await accountVM.signOut(context);
 
