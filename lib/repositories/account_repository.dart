@@ -131,6 +131,16 @@ class AccountRepository {
               'Aucun profil utilisateur trouvé dans Firestore pour cet UID.',
         );
       }
+      // Vérification si le compte est toujours actif
+      if (!userModel.isActive) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Ce compte a été désactivé.')),
+          );
+        }
+        await authService.signOut();
+        return null;
+      }
 
       // 3️⃣ Notification visuelle
       if (context.mounted) {
@@ -222,5 +232,52 @@ class AccountRepository {
     ScaffoldMessenger.of(
       context,
     ).showSnackBar(SnackBar(content: Text(message)));
+  }
+
+  Future<void> disableUserAccount(BuildContext context, UserModel user) async {
+    try {
+      if (user.id == null) throw Exception('Utilisateur sans ID');
+
+      // Désactive dans Firestore
+      final updatedUser = user.copyWith(isActive: false);
+      await userService.updateUser(updatedUser);
+
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Le compte de ${user.givenName} a été désactivé.'),
+          ),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Erreur lors de la désactivation : $e')),
+        );
+      }
+    }
+  }
+
+  Future<void> enableUserAccount(BuildContext context, UserModel user) async {
+    try {
+      if (user.id == null) throw Exception('Utilisateur sans ID');
+
+      final updatedUser = user.copyWith(isActive: true);
+      await userService.updateUser(updatedUser);
+
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Le compte de ${user.givenName} a été réactivé ✅'),
+          ),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Erreur lors de la réactivation : $e')),
+        );
+      }
+    }
   }
 }

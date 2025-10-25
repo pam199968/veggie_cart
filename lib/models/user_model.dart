@@ -12,6 +12,7 @@ class UserModel {
   final String address;
   final DeliveryMethod deliveryMethod;
   final bool pushNotifications;
+  final bool isActive;
 
   UserModel({
     this.id,
@@ -23,6 +24,7 @@ class UserModel {
     required this.address,
     this.deliveryMethod = DeliveryMethod.farmPickup,
     this.pushNotifications = true,
+    this.isActive = true
   });
 
   /// 🧩 Crée une copie du modèle avec certaines valeurs modifiées
@@ -36,6 +38,7 @@ class UserModel {
     String? address,
     DeliveryMethod? deliveryMethod,
     bool? pushNotifications,
+    bool? isActive,
   }) {
     return UserModel(
       id: id ?? this.id,
@@ -47,6 +50,7 @@ class UserModel {
       address: address ?? this.address,
       deliveryMethod: deliveryMethod ?? this.deliveryMethod,
       pushNotifications: pushNotifications ?? this.pushNotifications,
+      isActive: isActive ?? this.isActive,
     );
   }
 
@@ -64,6 +68,7 @@ class UserModel {
       // 🔽 Ajout pour recherche insensible à la casse
       'nameLower': name.toLowerCase(),
       'givenNameLower': givenName.toLowerCase(),
+      'isActive': isActive,
     };
   }
 
@@ -82,6 +87,7 @@ class UserModel {
         map['deliveryMethod'] ?? 'farmPickup',
       ),
       pushNotifications: map['pushNotifications'] ?? true,
+      isActive: map['isActive'] ?? true,
     );
   }
 
@@ -97,6 +103,7 @@ class UserModel {
       address: '',
       deliveryMethod: DeliveryMethod.farmPickup,
       pushNotifications: true,
+      isActive: true,
     );
   }
 
@@ -112,7 +119,8 @@ class UserModel {
         'profile: ${profile.label}, '
         'address: $address, '
         'deliveryMethod: ${deliveryMethod.label}, '
-        'pushNotifications: $pushNotifications'
+        'pushNotifications: $pushNotifications, '
+        'isActive: $isActive'
         ')';
   }
 }

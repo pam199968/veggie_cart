@@ -202,6 +202,22 @@ class AccountViewModel extends ChangeNotifier {
     }
   }
 
+  Future<void> disableCustomerAccount(
+    BuildContext context,
+    UserModel user,
+  ) async {
+    await accountRepository.disableUserAccount(context, user);
+    notifyListeners();
+  }
+
+  Future<void> enableCustomerAccount(
+    BuildContext context,
+    UserModel user,
+  ) async {
+    await accountRepository.enableUserAccount(context, user);
+    notifyListeners();
+  }
+
   /// ✅ Validation des champs
   bool isPasswordValid(String password) {
     final passwordRegex = RegExp(r'^(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}');
