@@ -330,127 +330,213 @@ class _CartScreenState extends State<CartScreen> {
 
     return Scaffold(
       appBar: AppBar(title: Text(context.l10n.myCart)),
-      body: cartVm.items.isEmpty
-          ? Center(child: Text(context.l10n.cartEmpty))
-          : ListView(
-              padding: const EdgeInsets.all(12),
-              children: [
-                // Liste des articles dans le panier
-                ...cartVm.items.entries.map((entry) {
-                  final veg = entry.key;
-                  final qty = entry.value;
+      body: SafeArea(
+        child: cartVm.items.isEmpty
+            ? Center(child: Text(context.l10n.cartEmpty))
+            : ListView(
+                padding: const EdgeInsets.all(12),
+                children: [
+                  // Liste des articles dans le panier
+                  ...cartVm.items.entries.map((entry) {
+                    final veg = entry.key;
+                    final qty = entry.value;
 
-                  return Card(
-                    margin: const EdgeInsets.symmetric(vertical: 6),
-                    child: ListTile(
-                      leading: veg.image != null
-                          ? Image.network(
-                              veg.image!,
-                              width: 48,
-                              height: 48,
-                              fit: BoxFit.cover,
-                            )
-                          : const Icon(Icons.local_florist, size: 40),
-                      title: Text(veg.name),
-                      subtitle: Text(
-                        '${veg.price?.toStringAsFixed(2) ?? "-"} € / ${veg.standardQuantity} ${veg.packaging}',
-                      ),
-                      trailing: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          IconButton(
-                            icon: const Icon(Icons.delete_outline),
-                            onPressed: () => cartVm.updateQuantity(veg, 0),
-                          ),
-                          IconButton(
-                            icon: const Icon(Icons.remove_circle_outline),
-                            onPressed: qty > 0
-                                ? () => cartVm.updateQuantity(veg, qty - 1)
-                                : null,
-                          ),
-                          Text(qty.toString()),
-                          IconButton(
-                            icon: const Icon(Icons.add_circle_outline),
-                            onPressed: () =>
-                                cartVm.updateQuantity(veg, qty + 1),
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                }),
-                const SizedBox(height: 12),
-                // Note
-                TextField(
-                  controller: _noteController,
-                  maxLines: 3,
-                  decoration: InputDecoration(
-                    labelText: context.l10n.addNote,
-                    border: const OutlineInputBorder(),
-                  ),
-                ),
-                const SizedBox(height: 16),
+                    return Card(
+                      margin: const EdgeInsets.symmetric(vertical: 6),
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // 🥬 Image du légume
+                            if (veg.image != null && veg.image!.isNotEmpty)
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(8),
+                                child: Image.network(
+                                  veg.image!,
+                                  width: 64,
+                                  height: 64,
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (context, error, stackTrace) =>
+                                      Container(
+                                        width: 64,
+                                        height: 64,
+                                        color: Colors.grey.shade200,
+                                      ),
+                                ),
+                              )
+                            else
+                              const Icon(Icons.local_florist, size: 48),
+                            const SizedBox(width: 12),
 
-                // 🚚 Sélection de la méthode de livraison
-                if (deliveryMethodVM.loading)
-                  const Center(child: CircularProgressIndicator())
-                else if (deliveryMethodVM.error != null)
-                  Text("Erreur: ${deliveryMethodVM.error}")
-                else
-                  DeliveryMethodDropdown(
-                    notifier: ValueNotifier<DeliveryMethodConfig>(
-                      _selectedDeliveryMethod!,
-                    ),
-                    methods: deliveryMethodVM.activeMethods,
-                    onChanged: (v) => setState(() {
-                      _selectedDeliveryMethod = v;
-                    }),
-                  ),
-
-                const SizedBox(height: 16),
-                // Boutons retour et valider
-                Row(
-                  children: [
-                    Expanded(
-                      child: ElevatedButton(
-                        child: Text(context.l10n.backToOffer),
-                        onPressed: () => Navigator.pop(context),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: ElevatedButton(
-                        onPressed:
-                            (_selectedDeliveryMethod != null &&
-                                cartVm.totalItems > 0)
-                            ? () async {
-                                await cartVm.submitOrder(
-                                  user: widget.user,
-                                  deliveryMethod: _selectedDeliveryMethod!,
-                                  notes: _noteController.text.isNotEmpty
-                                      ? _noteController.text
-                                      : null,
-                                );
-
-                                if (!context.mounted) return;
-
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(context.l10n.orderSent),
+                            // 🧱 Contenu texte + boutons
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  // 🔹 Ligne 1 : Nom du légume
+                                  Text(
+                                    veg.name,
+                                    style: const TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
-                                );
-                                Navigator.of(
-                                  context,
-                                ).popUntil((route) => route.isFirst);
-                              }
-                            : null,
-                        child: Text(context.l10n.validateOrder),
+
+                                  // 🔹 Ligne 2 : Prix + conditionnement
+                                  Padding(
+                                    padding: const EdgeInsets.only(
+                                      top: 4.0,
+                                      bottom: 8.0,
+                                    ),
+                                    child: Text(
+                                      '${veg.price?.toStringAsFixed(2) ?? "-"} € / ${veg.packaging} '
+                                      '(cond. ${veg.standardQuantity} ${veg.packaging})',
+                                      style: const TextStyle(
+                                        fontSize: 14,
+                                        color: Colors.black87,
+                                      ),
+                                    ),
+                                  ),
+
+                                  // 🔹 Ligne 3 : Quantité + boutons +/- alignés horizontalement
+                                  Row(
+                                    children: [
+                                      IconButton(
+                                        icon: const Icon(
+                                          Icons.remove_circle_outline,
+                                        ),
+                                        onPressed: qty > 0
+                                            ? () => cartVm.updateQuantity(
+                                                veg,
+                                                (qty - 1).clamp(
+                                                  0.0,
+                                                  double.infinity,
+                                                ),
+                                              )
+                                            : null,
+                                      ),
+                                      SizedBox(
+                                        width: 60,
+                                        child: TextField(
+                                          keyboardType:
+                                              const TextInputType.numberWithOptions(
+                                                decimal: true,
+                                              ),
+                                          textAlign: TextAlign.center,
+                                          controller: TextEditingController(
+                                            text: qty.toStringAsFixed(2),
+                                          ),
+                                          onSubmitted: (value) {
+                                            final parsed = double.tryParse(
+                                              value,
+                                            );
+                                            if (parsed != null && parsed >= 0) {
+                                              cartVm.updateQuantity(
+                                                veg,
+                                                parsed,
+                                              );
+                                            }
+                                          },
+                                        ),
+                                      ),
+                                      IconButton(
+                                        icon: const Icon(
+                                          Icons.add_circle_outline,
+                                        ),
+                                        onPressed: () =>
+                                            cartVm.updateQuantity(veg, qty + 1),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      // 🔹 Bouton supprimer
+                                      IconButton(
+                                        icon: const Icon(Icons.delete_outline),
+                                        onPressed: () =>
+                                            cartVm.updateQuantity(veg, 0),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
+                    );
+                  }),
+                  const SizedBox(height: 12),
+                  // Note
+                  TextField(
+                    controller: _noteController,
+                    maxLines: 3,
+                    decoration: InputDecoration(
+                      labelText: context.l10n.addNote,
+                      border: const OutlineInputBorder(),
                     ),
-                  ],
-                ),
-              ],
-            ),
+                  ),
+                  const SizedBox(height: 16),
+
+                  // 🚚 Sélection de la méthode de livraison
+                  if (deliveryMethodVM.loading)
+                    const Center(child: CircularProgressIndicator())
+                  else if (deliveryMethodVM.error != null)
+                    Text("Erreur: ${deliveryMethodVM.error}")
+                  else
+                    DeliveryMethodDropdown(
+                      notifier: ValueNotifier<DeliveryMethodConfig>(
+                        _selectedDeliveryMethod!,
+                      ),
+                      methods: deliveryMethodVM.activeMethods,
+                      onChanged: (v) => setState(() {
+                        _selectedDeliveryMethod = v;
+                      }),
+                    ),
+
+                  const SizedBox(height: 16),
+                  // Boutons retour et valider
+                  Row(
+                    children: [
+                      Expanded(
+                        child: ElevatedButton(
+                          child: Text(context.l10n.backToOffer),
+                          onPressed: () => Navigator.pop(context),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed:
+                              (_selectedDeliveryMethod != null &&
+                                  cartVm.totalItems > 0)
+                              ? () async {
+                                  await cartVm.submitOrder(
+                                    user: widget.user,
+                                    deliveryMethod: _selectedDeliveryMethod!,
+                                    notes: _noteController.text.isNotEmpty
+                                        ? _noteController.text
+                                        : null,
+                                  );
+
+                                  if (!context.mounted) return;
+
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(context.l10n.orderSent),
+                                    ),
+                                  );
+                                  Navigator.of(
+                                    context,
+                                  ).popUntil((route) => route.isFirst);
+                                }
+                              : null,
+                          child: Text(context.l10n.validateOrder),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+      ),
     );
   }
 }
