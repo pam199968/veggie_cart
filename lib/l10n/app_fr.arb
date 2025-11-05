@@ -142,6 +142,7 @@
   "add": "Ajouter",
   "name": "Nom",
   "category": "Catégorie",
+  "imageUrl": "URL de l’image",
   "standardQuantity": "Quantité standard (optionnelle)",
   "active": "Actif",
   "allCategories": "Toutes Categories",

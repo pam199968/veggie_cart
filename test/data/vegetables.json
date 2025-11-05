@@ -7,7 +7,8 @@
       "packaging": "pièce",
       "standardQuantity": 1,
       "price": 1.20,
-      "active": true
+      "active": true,
+      "image": "https://www.memozor.com/images/fr/listes/legumes/laitue_pommee.jpg"
     },
     "epinard": {
       "name": "Épinard",
@@ -16,7 +17,8 @@
       "packaging": "kg",
       "standardQuantity": 1,
       "price": 3.50,
-      "active": true
+      "active": true,
+      "image": "https://www.memozor.com/images/fr/listes/legumes/epinard.jpg"
     },
     "bette": {
       "name": "Bette (blette)",
@@ -25,7 +27,8 @@
       "packaging": "kg",
       "standardQuantity": 1,
       "price": 3.00,
-      "active": true
+      "active": true,
+      "image": "https://www.memozor.com/images/fr/listes/legumes/blette.jpg"
     },
     "chou_framboise": {
       "name": "Chou frisé",
@@ -34,7 +37,8 @@
       "packaging": "pièce",
       "standardQuantity": 1,
       "price": 2.50,
-      "active": true
+      "active": true,
+      "image": "https://www.memozor.com/images/fr/listes/legumes/chou_vert_frise.jpg"
     },
     "roquette": {
       "name": "Roquette",
@@ -43,7 +47,8 @@
       "packaging": "botte",
       "standardQuantity": 1,
       "price": 1.80,
-      "active": true
+      "active": true,
+      "image": "https://www.memozor.com/images/fr/listes/legumes/roquette.jpg"
     },
     "mesclun": {
       "name": "Mesclun",
@@ -52,7 +57,8 @@
       "packaging": "barquette",
       "standardQuantity": 0.25,
       "price": 2.20,
-      "active": true
+      "active": true,
+      "image": "https://www.memozor.com/images/fr/listes/legumes/cresson.jpg"
     },
     "chou_chinois": {
       "name": "Chou chinois",
@@ -61,7 +67,8 @@
       "packaging": "pièce",
       "standardQuantity": 1,
       "price": 2.80,
-      "active": true
+      "active": true,
+      "image": "https://www.memozor.com/images/fr/listes/legumes/chou_chinois.jpg"
     },
     "tomate": {
       "name": "Tomate",
@@ -70,16 +77,18 @@
       "packaging": "kg",
       "standardQuantity": 1,
       "price": 3.00,
-      "active": true
+      "active": true,
+      "image": "https://www.memozor.com/images/fr/listes/legumes/tomate.jpg"
     },
     "courgette": {
       "name": "Courgette",
       "category": "fruit",
-      "description": "Légume d’été tendre, parfait en ratatouille.",
+      "description": "Légume d'été tendre, parfait en ratatouille.",
       "packaging": "kg",
       "standardQuantity": 1,
       "price": 2.20,
-      "active": true
+      "active": true,
+      "image": "https://www.memozor.com/images/fr/listes/legumes/courgette.jpg"
     },
     "poivron": {
       "name": "Poivron",
@@ -88,7 +97,8 @@
       "packaging": "kg",
       "standardQuantity": 1,
       "price": 3.00,
-      "active": true
+      "active": true,
+      "image": "https://www.memozor.com/images/fr/listes/legumes/poivron_rouge.jpg"
     },
     "aubergine": {
       "name": "Aubergine",
@@ -97,7 +107,8 @@
       "packaging": "kg",
       "standardQuantity": 1,
       "price": 2.80,
-      "active": true
+      "active": true,
+      "image": "https://www.memozor.com/images/fr/listes/legumes/aubergine.jpg"
     },
     "concombre": {
       "name": "Concombre",
@@ -106,16 +117,18 @@
       "packaging": "pièce",
       "standardQuantity": 1,
       "price": 1.50,
-      "active": true
+      "active": true,
+      "image": "https://www.memozor.com/images/fr/listes/legumes/concombre.jpg"
     },
     "potiron": {
       "name": "Potiron",
       "category": "fruit",
-      "description": "Courge d’automne, sucrée et onctueuse en soupe.",
+      "description": "Courge d'automne, sucrée et onctueuse en soupe.",
       "packaging": "kg",
       "standardQuantity": 1,
       "price": 2.50,
-      "active": true
+      "active": true,
+      "image": "https://www.memozor.com/images/fr/listes/legumes/potiron.jpg"
     },
     "butternut": {
       "name": "Courge butternut",
@@ -124,16 +137,18 @@
       "packaging": "kg",
       "standardQuantity": 1,
       "price": 2.80,
-      "active": true
+      "active": true,
+      "image": "https://www.memozor.com/images/fr/listes/legumes/butternut.jpg"
     },
     "melon": {
       "name": "Melon",
       "category": "other",
-      "description": "Fruit d’été sucré, souvent cultivé dans le sud de la France.",
+      "description": "Fruit d'été sucré, souvent cultivé dans le sud de la France.",
       "packaging": "pièce",
       "standardQuantity": 1,
       "price": 3.50,
-      "active": true
+      "active": true,
+      "image": "https://www.memozor.com/images/fr/listes/legumes/melon.jpg"
     },
     "piment": {
       "name": "Piment doux",
@@ -142,7 +157,8 @@
       "packaging": "kg",
       "standardQuantity": 1,
       "price": 4.00,
-      "active": true
+      "active": true,
+      "image": "https://www.memozor.com/images/fr/listes/legumes/piment.jpg"
     },
     "carotte": {
       "name": "Carotte",
@@ -151,7 +167,8 @@
       "packaging": "kg",
       "standardQuantity": 1,
       "price": 2.00,
-      "active": true
+      "active": true,
+      "image": "https://www.memozor.com/images/fr/listes/legumes/carotte.jpg"
     },
     "navet": {
       "name": "Navet",
@@ -160,7 +177,8 @@
       "packaging": "kg",
       "standardQuantity": 1,
       "price": 2.20,
-      "active": true
+      "active": true,
+      "image": "https://www.memozor.com/images/fr/listes/legumes/navet.jpg"
     },
     "panais": {
       "name": "Panais",
@@ -169,7 +187,8 @@
       "packaging": "kg",
       "standardQuantity": 1,
       "price": 3.00,
-      "active": true
+      "active": true,
+      "image": "https://www.memozor.com/images/fr/listes/legumes/panais.jpg"
     },
     "betterave": {
       "name": "Betterave rouge",
@@ -178,7 +197,8 @@
       "packaging": "kg",
       "standardQuantity": 1,
       "price": 2.50,
-      "active": true
+      "active": true,
+      "image": "https://www.memozor.com/images/fr/listes/legumes/betterave.jpg"
     },
     "radis": {
       "name": "Radis rose",
@@ -187,7 +207,8 @@
       "packaging": "botte",
       "standardQuantity": 1,
       "price": 1.80,
-      "active": true
+      "active": true,
+      "image": "https://www.memozor.com/images/fr/listes/legumes/radis.jpg"
     },
     "oignon": {
       "name": "Oignon jaune",
@@ -196,7 +217,8 @@
       "packaging": "kg",
       "standardQuantity": 1,
       "price": 2.00,
-      "active": true
+      "active": true,
+      "image": "https://www.memozor.com/images/fr/listes/legumes/oignon.jpg"
     },
     "ail": {
       "name": "Ail",
@@ -205,16 +227,18 @@
       "packaging": "tête",
       "standardQuantity": 1,
       "price": 0.80,
-      "active": true
+      "active": true,
+      "image": "https://www.memozor.com/images/fr/listes/legumes/ail.jpg"
     },
     "poireau": {
       "name": "Poireau",
       "category": "root",
-      "description": "Légume d’hiver, doux et fondant.",
+      "description": "Légume d'hiver, doux et fondant.",
       "packaging": "kg",
       "standardQuantity": 1,
       "price": 2.50,
-      "active": true
+      "active": true,
+      "image": "https://www.memozor.com/images/fr/listes/legumes/poireau.jpg"
     },
     "celeri_rave": {
       "name": "Céleri-rave",
@@ -223,16 +247,18 @@
       "packaging": "pièce",
       "standardQuantity": 1,
       "price": 2.80,
-      "active": true
+      "active": true,
+      "image": "https://www.memozor.com/images/fr/listes/legumes/celeri_rave.jpg"
     },
     "topinambour": {
       "name": "Topinambour",
       "category": "root",
-      "description": "Racine douce au goût d’artichaut.",
+      "description": "Racine douce au goût d'artichaut.",
       "packaging": "kg",
       "standardQuantity": 1,
       "price": 3.50,
-      "active": true
+      "active": true,
+      "image": "https://www.memozor.com/images/fr/listes/legumes/topinambour.jpg"
     },
     "persil": {
       "name": "Persil",
@@ -241,16 +267,18 @@
       "packaging": "botte",
       "standardQuantity": 1,
       "price": 1.50,
-      "active": true
+      "active": true,
+      "image": "https://www.memozor.com/images/fr/listes/legumes/persil.jpg"
     },
     "ciboulette": {
       "name": "Ciboulette",
       "category": "other",
-      "description": "Herbe aromatique au goût d’oignon doux.",
+      "description": "Herbe aromatique au goût d'oignon doux.",
       "packaging": "botte",
       "standardQuantity": 1,
       "price": 1.50,
-      "active": true
+      "active": true,
+      "image": "https://www.memozor.com/images/fr/listes/legumes/ciboulette.jpg"
     },
     "basilic": {
       "name": "Basilic",
@@ -259,7 +287,8 @@
       "packaging": "pot",
       "standardQuantity": 1,
       "price": 2.50,
-      "active": true
+      "active": true,
+      "image": "https://www.memozor.com/images/fr/listes/legumes/basilic.jpg"
     },
     "menthe": {
       "name": "Menthe",
@@ -268,7 +297,8 @@
       "packaging": "botte",
       "standardQuantity": 1,
       "price": 1.80,
-      "active": true
+      "active": true,
+      "image": "https://www.memozor.com/images/fr/listes/legumes/menthe.jpg"
     },
     "aneth": {
       "name": "Aneth",
@@ -277,7 +307,8 @@
       "packaging": "botte",
       "standardQuantity": 1,
       "price": 1.80,
-      "active": true
+      "active": true,
+      "image": "https://www.memozor.com/images/fr/listes/legumes/aneth.jpg"
     },
     "cerfeuil": {
       "name": "Cerfeuil",
@@ -286,7 +317,8 @@
       "packaging": "botte",
       "standardQuantity": 1,
       "price": 1.50,
-      "active": true
+      "active": true,
+      "image": "https://www.memozor.com/images/fr/listes/legumes/cerfeuil.jpg"
     },
     "haricot_vert": {
       "name": "Haricot vert",
@@ -295,7 +327,8 @@
       "packaging": "kg",
       "standardQuantity": 1,
       "price": 3.20,
-      "active": true
+      "active": true,
+      "image": "https://www.memozor.com/images/fr/listes/legumes/haricot_vert.jpg"
     },
     "petit_pois": {
       "name": "Petit pois",
@@ -304,7 +337,8 @@
       "packaging": "kg",
       "standardQuantity": 1,
       "price": 4.00,
-      "active": true
+      "active": true,
+      "image": "https://www.memozor.com/images/fr/listes/legumes/petit_pois.jpg"
     },
     "fève": {
       "name": "Fève",
@@ -313,7 +347,8 @@
       "packaging": "kg",
       "standardQuantity": 1,
       "price": 4.50,
-      "active": true
+      "active": true,
+      "image": "https://www.memozor.com/images/fr/listes/legumes/feves.jpg"
     },
     "chou_fleur": {
       "name": "Chou-fleur",
@@ -322,7 +357,8 @@
       "packaging": "pièce",
       "standardQuantity": 1,
       "price": 2.80,
-      "active": true
+      "active": true,
+      "image": "https://www.memozor.com/images/fr/listes/legumes/chou_fleur.jpg"
     },
     "brocoli": {
       "name": "Brocoli",
@@ -331,7 +367,8 @@
       "packaging": "kg",
       "standardQuantity": 1,
       "price": 3.00,
-      "active": true
+      "active": true,
+      "image": "https://www.memozor.com/images/fr/listes/legumes/brocoli.jpg"
     },
     "endive": {
       "name": "Endive",
@@ -340,7 +377,8 @@
       "packaging": "kg",
       "standardQuantity": 1,
       "price": 2.80,
-      "active": true
+      "active": true,
+      "image": "https://www.memozor.com/images/fr/listes/legumes/endive.jpg"
     },
     "asperge": {
       "name": "Asperge",
@@ -349,7 +387,8 @@
       "packaging": "botte",
       "standardQuantity": 1,
       "price": 4.50,
-      "active": true
+      "active": true,
+      "image": "https://www.memozor.com/images/fr/listes/legumes/asperge.jpg"
     }
   }
 }

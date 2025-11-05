@@ -442,6 +442,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get category => 'Catégorie';
 
   @override
+  String get imageUrl => 'URL de l’image';
+
+  @override
   String get standardQuantity => 'Quantité standard (optionnelle)';
 
   @override

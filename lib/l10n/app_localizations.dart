@@ -956,6 +956,12 @@ abstract class AppLocalizations {
   /// **'Category'**
   String get category;
 
+  /// No description provided for @imageUrl.
+  ///
+  /// In en, this message translates to:
+  /// **'Image URL'**
+  String get imageUrl;
+
   /// No description provided for @standardQuantity.
   ///
   /// In en, this message translates to:

@@ -84,10 +84,7 @@ class _CatalogPageContentState extends State<CatalogPageContent> {
                 child: Text(context.l10n.allCategories),
               ),
               ...VegetableCategory.values.map(
-                (cat) => DropdownMenuItem(
-                  value: cat,
-                  child: Text(cat.label),
-                ),
+                (cat) => DropdownMenuItem(value: cat, child: Text(cat.label)),
               ),
             ],
             onChanged: vm.setCategory,
@@ -102,21 +99,32 @@ class _CatalogPageContentState extends State<CatalogPageContent> {
   }
 
   void _showEditVegetableDialog(
-      BuildContext context, CatalogViewModel vm, VegetableModel vegetable) {
+    BuildContext context,
+    CatalogViewModel vm,
+    VegetableModel vegetable,
+  ) {
     _showVegetableDialog(context, vm, isEdit: true, vegetable: vegetable);
   }
 
-  void _showVegetableDialog(BuildContext context, CatalogViewModel vm,
-      {required bool isEdit, VegetableModel? vegetable}) {
+  void _showVegetableDialog(
+    BuildContext context,
+    CatalogViewModel vm, {
+    required bool isEdit,
+    VegetableModel? vegetable,
+  }) {
     final nameController = TextEditingController(text: vegetable?.name ?? '');
-    final descController =
-        TextEditingController(text: vegetable?.description ?? '');
-    final packagingController =
-        TextEditingController(text: vegetable?.packaging ?? '');
+    final descController = TextEditingController(
+      text: vegetable?.description ?? '',
+    );
+    final packagingController = TextEditingController(
+      text: vegetable?.packaging ?? '',
+    );
     final quantityController = TextEditingController(
-        text: vegetable?.standardQuantity?.toString() ?? '');
-    final priceController =
-        TextEditingController(text: vegetable?.price?.toString() ?? '');
+      text: vegetable?.standardQuantity?.toString() ?? '',
+    );
+    final priceController = TextEditingController(
+      text: vegetable?.price?.toString() ?? '',
+    );
     final imageController = TextEditingController(text: vegetable?.image ?? '');
     VegetableCategory? selectedCategory =
         vegetable?.category ?? VegetableCategory.other;
@@ -139,7 +147,9 @@ class _CatalogPageContentState extends State<CatalogPageContent> {
             void onFieldChanged() => setState(() {});
 
             return AlertDialog(
-              title: Text(isEdit ? context.l10n.editVegetable : context.l10n.addVegetable),
+              title: Text(
+                isEdit ? context.l10n.editVegetable : context.l10n.addVegetable,
+              ),
               content: SingleChildScrollView(
                 child: Column(
                   children: [
@@ -150,8 +160,9 @@ class _CatalogPageContentState extends State<CatalogPageContent> {
                     ),
                     TextField(
                       controller: descController,
-                      decoration:
-                          InputDecoration(labelText: context.l10n.description),
+                      decoration: InputDecoration(
+                        labelText: context.l10n.description,
+                      ),
                       maxLines: 2,
                     ),
                     DropdownButton<VegetableCategory>(
@@ -170,24 +181,38 @@ class _CatalogPageContentState extends State<CatalogPageContent> {
                     ),
                     TextField(
                       controller: packagingController,
-                      decoration: InputDecoration(labelText: context.l10n.packaging),
+                      decoration: InputDecoration(
+                        labelText: context.l10n.packaging,
+                      ),
                     ),
                     TextField(
                       controller: quantityController,
                       decoration: InputDecoration(
-                          labelText: context.l10n.standardQuantity),
-                      keyboardType:
-                          const TextInputType.numberWithOptions(decimal: true),
+                        labelText: context.l10n.standardQuantity,
+                      ),
+                      keyboardType: const TextInputType.numberWithOptions(
+                        decimal: true,
+                      ),
                       onChanged: (_) => onFieldChanged(),
                     ),
                     TextField(
                       controller: priceController,
-                      decoration:
-                          InputDecoration(labelText: context.l10n.price),
-                      keyboardType:
-                          const TextInputType.numberWithOptions(decimal: true),
+                      decoration: InputDecoration(
+                        labelText: context.l10n.price,
+                      ),
+                      keyboardType: const TextInputType.numberWithOptions(
+                        decimal: true,
+                      ),
                       onChanged: (_) => onFieldChanged(),
                     ),
+                    TextField(
+                      controller: imageController,
+                      decoration: InputDecoration(
+                        labelText: context.l10n.imageUrl,
+                      ),
+                      keyboardType: TextInputType.url,
+                    ),
+
                     SwitchListTile(
                       value: active,
                       title: Text(context.l10n.active),
@@ -216,8 +241,9 @@ class _CatalogPageContentState extends State<CatalogPageContent> {
                                 ? descController.text
                                 : null,
                             packaging: packagingController.text,
-                            standardQuantity:
-                                double.tryParse(quantityController.text),
+                            standardQuantity: double.tryParse(
+                              quantityController.text,
+                            ),
                             price: double.tryParse(priceController.text),
                             active: active,
                             image: imageController.text.isNotEmpty
@@ -269,6 +295,27 @@ class VegetableCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // ✅ Affiche la miniature si une image est définie
+            if (vegetable.image != null && vegetable.image!.isNotEmpty)
+              ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: Image.network(
+                  vegetable.image!,
+                  height: 128,
+                  width: 128,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) {
+                    return Container(
+                      height: 100,
+                      color: Colors.grey.shade200,
+                      child: const Center(
+                        child: Icon(Icons.broken_image, color: Colors.grey),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            const SizedBox(height: 8),
             Row(
               children: [
                 const Icon(Icons.eco, color: Colors.green),

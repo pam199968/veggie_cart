@@ -1,17 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:veggie_cart/models/profile.dart';
 import '../models/delivery_method_config.dart';
 import '../models/user_model.dart';
 import '../models/weekly_offer.dart';
-import '../viewmodels/account_view_model.dart';
 import '../viewmodels/delivery_method_view_model.dart';
 import '../viewmodels/my_orders_view_model.dart';
 import '../viewmodels/weekly_offers_view_model.dart';
 import '../viewmodels/cart_view_model.dart';
 import 'package:veggie_cart/extensions/context_extension.dart';
-
-import 'customers_page_content.dart';
 
 class OffersPageContent extends StatefulWidget {
   final UserModel? user;
@@ -166,46 +162,96 @@ class OfferDetailScreen extends StatelessWidget {
           final qty = cartVm.items[veg] ?? 0;
           return Card(
             margin: const EdgeInsets.symmetric(vertical: 6),
-            child: ListTile(
-              title: Text(
-                '${veg.name} : ${veg.price?.toStringAsFixed(2) ?? "-"} € / ${veg.packaging}',
-              ),
-              subtitle: Text(
-                '(cond. par ${veg.standardQuantity} ${veg.packaging})',
-              ),
-              trailing: Row(
-                mainAxisSize: MainAxisSize.min,
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  IconButton(
-                    icon: const Icon(Icons.remove_circle_outline),
-                    onPressed: qty > 0
-                        ? () => cartVm.updateQuantity(
-                            veg,
-                            (qty - 1).clamp(0.0, double.infinity),
-                          )
-                        : null,
-                  ),
-                  SizedBox(
-                    width: 60,
-                    child: TextField(
-                      keyboardType: const TextInputType.numberWithOptions(
-                        decimal: true,
+                  // 🥬 Image du légume
+                  if (veg.image != null && veg.image!.isNotEmpty)
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: Image.network(
+                        veg.image!,
+                        width: 64,
+                        height: 64,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) => Container(
+                          width: 64,
+                          height: 64,
+                          color: Colors.grey.shade200,
+                        ),
                       ),
-                      textAlign: TextAlign.center,
-                      controller: TextEditingController(
-                        text: qty.toStringAsFixed(2),
-                      ),
-                      onSubmitted: (value) {
-                        final parsed = double.tryParse(value);
-                        if (parsed != null && parsed >= 0) {
-                          cartVm.updateQuantity(veg, parsed);
-                        }
-                      },
                     ),
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.add_circle_outline),
-                    onPressed: () => cartVm.updateQuantity(veg, qty + 1),
+                  const SizedBox(width: 12),
+
+                  // 🧱 Contenu texte + boutons
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // 🔹 Ligne 1 : Nom du légume
+                        Text(
+                          veg.name,
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+
+                        // 🔹 Ligne 2 : Prix + conditionnement
+                        Padding(
+                          padding: const EdgeInsets.only(top: 4.0, bottom: 8.0),
+                          child: Text(
+                            '${veg.price?.toStringAsFixed(2) ?? "-"} € / ${veg.packaging} '
+                            '(cond. ${veg.standardQuantity} ${veg.packaging})',
+                            style: const TextStyle(
+                              fontSize: 14,
+                              color: Colors.black87,
+                            ),
+                          ),
+                        ),
+
+                        // 🔹 Ligne 3 : Quantité + boutons +/- alignés horizontalement
+                        Row(
+                          children: [
+                            IconButton(
+                              icon: const Icon(Icons.remove_circle_outline),
+                              onPressed: qty > 0
+                                  ? () => cartVm.updateQuantity(
+                                      veg,
+                                      (qty - 1).clamp(0.0, double.infinity),
+                                    )
+                                  : null,
+                            ),
+                            SizedBox(
+                              width: 60,
+                              child: TextField(
+                                keyboardType:
+                                    const TextInputType.numberWithOptions(
+                                      decimal: true,
+                                    ),
+                                textAlign: TextAlign.center,
+                                controller: TextEditingController(
+                                  text: qty.toStringAsFixed(2),
+                                ),
+                                onSubmitted: (value) {
+                                  final parsed = double.tryParse(value);
+                                  if (parsed != null && parsed >= 0) {
+                                    cartVm.updateQuantity(veg, parsed);
+                                  }
+                                },
+                              ),
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.add_circle_outline),
+                              onPressed: () =>
+                                  cartVm.updateQuantity(veg, qty + 1),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),
