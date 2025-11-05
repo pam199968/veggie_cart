@@ -235,11 +235,10 @@ class _PreparationTabState extends State<PreparationTab>
                                                   fontWeight: FontWeight.bold,
                                                 ),
                                               ),
-                                              Text(
-                                                context.l10n.delivery +
-                                                    deliveryMethod,
+                                              Text(' $deliveryMethod',
                                                 style: const TextStyle(
                                                   color: Colors.grey,
+                                                  overflow: TextOverflow.ellipsis
                                                 ),
                                               ),
                                             ],
