@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:veggie_cart/models/delivery_method_config.dart';
+import '../models/delivery_method_config.dart';
 
 import '../models/order_item.dart';
 import '../models/order_model.dart';

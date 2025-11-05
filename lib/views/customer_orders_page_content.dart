@@ -4,7 +4,7 @@ import '../models/order_model_with_customer.dart';
 import '../viewmodels/customer_orders_view_model.dart';
 import '../models/order_model.dart';
 import 'preparation_tab.dart';
-import 'package:veggie_cart/extensions/context_extension.dart';
+import '../extensions/context_extension.dart';
 
 class CustomerOrdersPageContent extends StatefulWidget {
   const CustomerOrdersPageContent({super.key});

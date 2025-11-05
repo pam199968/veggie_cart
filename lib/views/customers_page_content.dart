@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:veggie_cart/extensions/context_extension.dart';
-import 'package:veggie_cart/l10n/app_localizations.dart';
+import '../extensions/context_extension.dart';
+import '../l10n/app_localizations.dart';
 import '../models/user_model.dart';
 import '../viewmodels/account_view_model.dart';
 import 'offers_page_content.dart';

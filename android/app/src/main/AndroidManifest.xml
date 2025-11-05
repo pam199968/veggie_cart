@@ -1,6 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <application
-        android:label="Mon_panier_au_bio_jardin"
+        android:label="Mon panier au Bi'O Jardin"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

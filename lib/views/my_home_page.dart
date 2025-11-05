@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:veggie_cart/viewmodels/delivery_method_view_model.dart';
-import 'package:veggie_cart/views/offers_mngt_page_content.dart';
+import '../viewmodels/delivery_method_view_model.dart';
+import '../views/offers_mngt_page_content.dart';
 import '../models/profile.dart';
 import '../viewmodels/account_view_model.dart';
 import '../viewmodels/catalog_view_model.dart';
@@ -16,7 +16,7 @@ import 'my_orders_page_content.dart';
 import 'offers_page_content.dart';
 import 'customer_orders_page_content.dart';
 import 'gardeners_page_content.dart';
-import 'package:veggie_cart/extensions/context_extension.dart';
+import '../extensions/context_extension.dart';
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});

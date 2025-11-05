@@ -9,9 +9,9 @@ import 'dart:ui' as _i8;
 import 'package:flutter/material.dart' as _i7;
 import 'package:mockito/mockito.dart' as _i1;
 import 'package:mockito/src/dummies.dart' as _i5;
-import 'package:veggie_cart/models/user_model.dart' as _i3;
-import 'package:veggie_cart/repositories/account_repository.dart' as _i2;
-import 'package:veggie_cart/viewmodels/account_view_model.dart' as _i4;
+import 'package:au_bio_jardin_app/models/user_model.dart' as _i3;
+import 'package:au_bio_jardin_app/repositories/account_repository.dart' as _i2;
+import 'package:au_bio_jardin_app/viewmodels/account_view_model.dart' as _i4;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values

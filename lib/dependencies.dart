@@ -2,8 +2,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:veggie_cart/repositories/delivery_method_repository.dart';
-import 'package:veggie_cart/services/delivery_method_service.dart';
+import 'repositories/delivery_method_repository.dart';
+import 'services/delivery_method_service.dart';
 
 import 'l10n/app_localizations.dart';
 

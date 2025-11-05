@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:veggie_cart/extensions/context_extension.dart';
+import '../extensions/context_extension.dart';
 import '../models/vegetable_model.dart';
 import '../viewmodels/catalog_view_model.dart';
 

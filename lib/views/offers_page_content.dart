@@ -7,7 +7,7 @@ import '../viewmodels/delivery_method_view_model.dart';
 import '../viewmodels/my_orders_view_model.dart';
 import '../viewmodels/weekly_offers_view_model.dart';
 import '../viewmodels/cart_view_model.dart';
-import 'package:veggie_cart/extensions/context_extension.dart';
+import '../extensions/context_extension.dart';
 
 class OffersPageContent extends StatefulWidget {
   final UserModel? user;

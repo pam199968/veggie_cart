@@ -1,4 +1,4 @@
-import 'package:veggie_cart/models/profile.dart';
+import '../models/profile.dart';
 import '../models/delivery_method_config.dart';
 import '../repositories/delivery_method_repository.dart';
 

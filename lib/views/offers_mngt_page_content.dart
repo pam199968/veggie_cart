@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 
-import 'package:veggie_cart/views/weekly_offer_form_page.dart';
+import '../views/weekly_offer_form_page.dart';
 import '../viewmodels/weekly_offers_view_model.dart';
 import '../models/weekly_offer.dart';
-import 'package:veggie_cart/extensions/context_extension.dart';
+import '../extensions/context_extension.dart';
 
 class OffersMngtPageContent extends StatelessWidget {
   const OffersMngtPageContent({super.key});

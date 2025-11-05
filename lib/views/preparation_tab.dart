@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import '../viewmodels/customer_orders_view_model.dart';
 import '../models/order_model.dart';
 import '../utils/print_util.dart';
-import 'package:veggie_cart/extensions/context_extension.dart';
+import '../extensions/context_extension.dart';
 
 class PreparationTab extends StatefulWidget {
   const PreparationTab({super.key});

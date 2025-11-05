@@ -1,16 +1,17 @@
 // test/views/gardeners_page_content_test.dart
+import 'dart:async';
+
+import 'package:au_bio_jardin_app/models/delivery_method_config.dart';
+import 'package:au_bio_jardin_app/models/profile.dart';
+import 'package:au_bio_jardin_app/models/user_model.dart';
+import 'package:au_bio_jardin_app/viewmodels/account_view_model.dart';
+import 'package:au_bio_jardin_app/views/gardeners_page_content.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:mockito/mockito.dart';
 import 'package:mockito/annotations.dart';
-import 'package:veggie_cart/models/delivery_method_config.dart';
-import 'dart:async';
 
-import 'package:veggie_cart/views/gardeners_page_content.dart';
-import 'package:veggie_cart/viewmodels/account_view_model.dart';
-import 'package:veggie_cart/models/user_model.dart';
-import 'package:veggie_cart/models/profile.dart';
 
 // Générera gardeners_page_content_test.mocks.dart
 @GenerateMocks([AccountViewModel])

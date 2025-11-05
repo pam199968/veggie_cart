@@ -4,12 +4,12 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:mockito/mockito.dart';
 import 'package:mockito/annotations.dart';
-import 'package:veggie_cart/models/delivery_method_config.dart';
+import 'package:au_bio_jardin_app/models/delivery_method_config.dart';
 
-import 'package:veggie_cart/views/login_content.dart';
-import 'package:veggie_cart/viewmodels/account_view_model.dart';
-import 'package:veggie_cart/models/user_model.dart';
-import 'package:veggie_cart/l10n/app_localizations.dart';
+import 'package:au_bio_jardin_app/views/login_content.dart';
+import 'package:au_bio_jardin_app/viewmodels/account_view_model.dart';
+import 'package:au_bio_jardin_app/models/user_model.dart';
+import 'package:au_bio_jardin_app/l10n/app_localizations.dart';
 
 // Générera login_content_test.mocks.dart
 @GenerateMocks([AccountViewModel])

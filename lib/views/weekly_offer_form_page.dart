@@ -5,7 +5,7 @@ import '../models/weekly_offer.dart';
 import '../models/vegetable_model.dart';
 import '../viewmodels/weekly_offers_view_model.dart';
 import '../repositories/catalog_repository.dart';
-import 'package:veggie_cart/extensions/context_extension.dart';
+import '../extensions/context_extension.dart';
 
 class WeeklyOfferFormPage extends StatefulWidget {
   final WeeklyOffer? existingOffer;

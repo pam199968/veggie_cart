@@ -4,7 +4,7 @@ import '../models/delivery_method_config.dart';
 import '../models/user_model.dart';
 import '../viewmodels/account_view_model.dart';
 import '../repositories/account_repository.dart';
-import 'package:veggie_cart/extensions/context_extension.dart';
+import '../extensions/context_extension.dart';
 
 import '../viewmodels/delivery_method_view_model.dart';
 

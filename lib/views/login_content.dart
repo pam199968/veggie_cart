@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import '../models/delivery_method_config.dart';
 import '../viewmodels/account_view_model.dart';
 import '../viewmodels/delivery_method_view_model.dart';
-import 'package:veggie_cart/extensions/context_extension.dart';
+import '../extensions/context_extension.dart';
 
 class LoginContent extends StatefulWidget {
   final VoidCallback? onLoginSuccess;
