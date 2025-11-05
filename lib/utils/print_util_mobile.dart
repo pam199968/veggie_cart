@@ -2,7 +2,6 @@ import 'package:printing/printing.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 
-import '../models/delivery_method.dart';
 
 /// 🥬 Impression "Préparation par légume"
 Future<void> printVegetableTableImpl(List<List<String>> rows) async {
@@ -51,7 +50,7 @@ Future<void> printCustomerOrdersImpl(Map<String, List<dynamic>> ordersByCustomer
         ];
 
         ordersByCustomer.forEach((customerName, orders) {
-          final deliveryMethod = deliveryMethodLabel(orders.first.deliveryMethod);
+          final deliveryMethod = orders.first.deliveryMethod.label;
           final List<List<String>> vegRows = [];
 
           for (var order in orders) {
@@ -111,12 +110,3 @@ Future<void> printCustomerOrdersImpl(Map<String, List<dynamic>> ordersByCustomer
   await Printing.layoutPdf(onLayout: (format) async => pdf.save());
 }
 
-String deliveryMethodLabel(dynamic deliveryMethod) {
-  if (deliveryMethod == null) return '';
-  if (deliveryMethod is DeliveryMethod) return deliveryMethod.label;
-  if (deliveryMethod is String) {
-    // convertir depuis String
-    return DeliveryMethodExtension.fromString(deliveryMethod).label;
-  }
-  return deliveryMethod.toString();
-}

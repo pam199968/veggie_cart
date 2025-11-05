@@ -1,4 +1,4 @@
-import '../models/delivery_method.dart';
+import 'package:veggie_cart/models/delivery_method_config.dart';
 import '../models/order_item.dart';
 import '../models/order_model.dart';
 import '../services/order_service.dart';
@@ -53,7 +53,7 @@ class OrderRepository {
   Future<OrderModel> createOrder({
     required String customerId,
     required WeeklyOfferSummary offerSummary,
-    required DeliveryMethod deliveryMethod,
+    required DeliveryMethodConfig deliveryMethod,
     List<OrderItem> items = const [],
     OrderStatus status = OrderStatus.pending,
     String? notes,

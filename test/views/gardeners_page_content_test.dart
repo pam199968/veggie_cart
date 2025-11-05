@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:mockito/mockito.dart';
 import 'package:mockito/annotations.dart';
+import 'package:veggie_cart/models/delivery_method_config.dart';
 import 'dart:async';
 
 import 'package:veggie_cart/views/gardeners_page_content.dart';
@@ -23,7 +24,7 @@ void main() {
 
     setUp(() {
       mockViewModel = MockAccountViewModel();
-      
+
       // Utilisateur connecté
       currentUser = UserModel(
         id: 'current-user-id',
@@ -31,6 +32,11 @@ void main() {
         givenName: 'Courant',
         email: 'current@example.com',
         profile: Profile.gardener,
+        deliveryMethod: DeliveryMethodConfig(
+          key: 'farmPickup',
+          label: 'Retrait à la ferme',
+          enabled: true,
+        ),
         phoneNumber: '0123456789',
         address: '123 Rue Test',
       );
@@ -43,6 +49,11 @@ void main() {
           givenName: 'Marie',
           email: 'marie.dupont@example.com',
           profile: Profile.gardener,
+          deliveryMethod: DeliveryMethodConfig(
+            key: 'farmPickup',
+            label: 'Retrait à la ferme',
+            enabled: true,
+          ),
           phoneNumber: '0111111111',
           address: '1 Rue du Jardin',
         ),
@@ -52,6 +63,11 @@ void main() {
           givenName: 'Pierre',
           email: 'pierre.martin@example.com',
           profile: Profile.customer,
+          deliveryMethod: DeliveryMethodConfig(
+            key: 'farmPickup',
+            label: 'Retrait à la ferme',
+            enabled: true,
+          ),
           phoneNumber: '0222222222',
           address: '2 Rue du Potager',
         ),
@@ -60,9 +76,9 @@ void main() {
 
       // Configuration des comportements par défaut
       when(mockViewModel.currentUser).thenReturn(currentUser);
-      when(mockViewModel.gardenersStream).thenAnswer(
-        (_) => Stream.value(mockGardeners),
-      );
+      when(
+        mockViewModel.gardenersStream,
+      ).thenAnswer((_) => Stream.value(mockGardeners));
     });
 
     Widget createTestWidget(MockAccountViewModel viewModel) {
@@ -75,8 +91,9 @@ void main() {
     }
 
     group('UI Elements Tests', () {
-      testWidgets('Affiche l\'AppBar avec le titre correct', 
-          (WidgetTester tester) async {
+      testWidgets('Affiche l\'AppBar avec le titre correct', (
+        WidgetTester tester,
+      ) async {
         // Act
         await tester.pumpWidget(createTestWidget(mockViewModel));
         await tester.pumpAndSettle();
@@ -86,8 +103,9 @@ void main() {
         expect(find.byType(AppBar), findsOneWidget);
       });
 
-      testWidgets('Affiche le bouton d\'ajout dans l\'AppBar', 
-          (WidgetTester tester) async {
+      testWidgets('Affiche le bouton d\'ajout dans l\'AppBar', (
+        WidgetTester tester,
+      ) async {
         // Act
         await tester.pumpWidget(createTestWidget(mockViewModel));
         await tester.pumpAndSettle();
@@ -97,12 +115,11 @@ void main() {
         expect(find.byTooltip('Ajouter un maraîcher'), findsOneWidget);
       });
 
-      testWidgets('Affiche un message quand il n\'y a pas de maraîchers', 
-          (WidgetTester tester) async {
+      testWidgets('Affiche un message quand il n\'y a pas de maraîchers', (
+        WidgetTester tester,
+      ) async {
         // Arrange
-        when(mockViewModel.gardenersStream).thenAnswer(
-          (_) => Stream.value([]),
-        );
+        when(mockViewModel.gardenersStream).thenAnswer((_) => Stream.value([]));
 
         // Act
         await tester.pumpWidget(createTestWidget(mockViewModel));
@@ -114,8 +131,9 @@ void main() {
     });
 
     group('ListView Tests', () {
-      testWidgets('Affiche la liste des maraîchers', 
-          (WidgetTester tester) async {
+      testWidgets('Affiche la liste des maraîchers', (
+        WidgetTester tester,
+      ) async {
         // Act
         await tester.pumpWidget(createTestWidget(mockViewModel));
         await tester.pumpAndSettle();
@@ -126,8 +144,9 @@ void main() {
         expect(find.byType(ListTile), findsNWidgets(mockGardeners.length));
       });
 
-      testWidgets('Affiche les noms et emails des maraîchers', 
-          (WidgetTester tester) async {
+      testWidgets('Affiche les noms et emails des maraîchers', (
+        WidgetTester tester,
+      ) async {
         // Act
         await tester.pumpWidget(createTestWidget(mockViewModel));
         await tester.pumpAndSettle();
@@ -139,8 +158,9 @@ void main() {
         expect(find.text('pierre.martin@example.com'), findsOneWidget);
       });
 
-      testWidgets('Affiche les checkboxes pour chaque maraîcher', 
-          (WidgetTester tester) async {
+      testWidgets('Affiche les checkboxes pour chaque maraîcher', (
+        WidgetTester tester,
+      ) async {
         // Act
         await tester.pumpWidget(createTestWidget(mockViewModel));
         await tester.pumpAndSettle();
@@ -149,8 +169,9 @@ void main() {
         expect(find.byType(Checkbox), findsNWidgets(mockGardeners.length));
       });
 
-      testWidgets('La checkbox est cochée pour un maraîcher', 
-          (WidgetTester tester) async {
+      testWidgets('La checkbox est cochée pour un maraîcher', (
+        WidgetTester tester,
+      ) async {
         // Act
         await tester.pumpWidget(createTestWidget(mockViewModel));
         await tester.pumpAndSettle();
@@ -161,109 +182,135 @@ void main() {
         expect(gardenerCheckbox.value, isTrue); // gardener-1 a profile.gardener
       });
 
-      testWidgets('La checkbox n\'est pas cochée pour un non-maraîcher', 
-          (WidgetTester tester) async {
+      testWidgets('La checkbox n\'est pas cochée pour un non-maraîcher', (
+        WidgetTester tester,
+      ) async {
         // Act
         await tester.pumpWidget(createTestWidget(mockViewModel));
         await tester.pumpAndSettle();
 
         // Assert
-        final checkboxes = tester.widgetList<Checkbox>(find.byType(Checkbox)).toList();
+        final checkboxes = tester
+            .widgetList<Checkbox>(find.byType(Checkbox))
+            .toList();
         final customerCheckbox = checkboxes[1];
-        expect(customerCheckbox.value, isFalse); // gardener-2 a profile.customer
+        expect(
+          customerCheckbox.value,
+          isFalse,
+        ); // gardener-2 a profile.customer
       });
 
-      testWidgets('La checkbox de l\'utilisateur connecté est désactivée', 
-          (WidgetTester tester) async {
+      testWidgets('La checkbox de l\'utilisateur connecté est désactivée', (
+        WidgetTester tester,
+      ) async {
         // Act
         await tester.pumpWidget(createTestWidget(mockViewModel));
         await tester.pumpAndSettle();
 
         // Assert
-        final checkboxes = tester.widgetList<Checkbox>(find.byType(Checkbox)).toList();
-        final currentUserCheckbox = checkboxes[2]; // Le 3ème est l'utilisateur connecté
+        final checkboxes = tester
+            .widgetList<Checkbox>(find.byType(Checkbox))
+            .toList();
+        final currentUserCheckbox =
+            checkboxes[2]; // Le 3ème est l'utilisateur connecté
         expect(currentUserCheckbox.onChanged, isNull); // Désactivée
       });
 
-      testWidgets('Les autres checkboxes sont activées', 
-          (WidgetTester tester) async {
+      testWidgets('Les autres checkboxes sont activées', (
+        WidgetTester tester,
+      ) async {
         // Act
         await tester.pumpWidget(createTestWidget(mockViewModel));
         await tester.pumpAndSettle();
 
         // Assert
-        final checkboxes = tester.widgetList<Checkbox>(find.byType(Checkbox)).toList();
+        final checkboxes = tester
+            .widgetList<Checkbox>(find.byType(Checkbox))
+            .toList();
         expect(checkboxes[0].onChanged, isNotNull); // gardener-1
         expect(checkboxes[1].onChanged, isNotNull); // gardener-2
       });
     });
 
     group('Toggle Gardener Status Tests', () {
-      testWidgets('Cocher une checkbox appelle toggleGardenerStatus avec true', 
-          (WidgetTester tester) async {
-        // Arrange
-        when(mockViewModel.toggleGardenerStatus(any, any, any))
-            .thenAnswer((_) async => {});
+      testWidgets(
+        'Cocher une checkbox appelle toggleGardenerStatus avec true',
+        (WidgetTester tester) async {
+          // Arrange
+          when(
+            mockViewModel.toggleGardenerStatus(any, any, any),
+          ).thenAnswer((_) async => {});
 
-        // Act
-        await tester.pumpWidget(createTestWidget(mockViewModel));
-        await tester.pumpAndSettle();
+          // Act
+          await tester.pumpWidget(createTestWidget(mockViewModel));
+          await tester.pumpAndSettle();
 
-        // Tap sur la deuxième checkbox (Pierre Martin - customer)
-        final checkboxes = find.byType(Checkbox);
-        await tester.tap(checkboxes.at(1));
-        await tester.pumpAndSettle();
+          // Tap sur la deuxième checkbox (Pierre Martin - customer)
+          final checkboxes = find.byType(Checkbox);
+          await tester.tap(checkboxes.at(1));
+          await tester.pumpAndSettle();
 
-        // Assert
-        verify(mockViewModel.toggleGardenerStatus(
-          any,
-          argThat(predicate<UserModel>((user) => user.id == 'gardener-2')),
-          true,
-        )).called(1);
-      });
+          // Assert
+          verify(
+            mockViewModel.toggleGardenerStatus(
+              any,
+              argThat(predicate<UserModel>((user) => user.id == 'gardener-2')),
+              true,
+            ),
+          ).called(1);
+        },
+      );
 
-      testWidgets('Décocher une checkbox appelle toggleGardenerStatus avec false', 
-          (WidgetTester tester) async {
-        // Arrange
-        when(mockViewModel.toggleGardenerStatus(any, any, any))
-            .thenAnswer((_) async => {});
+      testWidgets(
+        'Décocher une checkbox appelle toggleGardenerStatus avec false',
+        (WidgetTester tester) async {
+          // Arrange
+          when(
+            mockViewModel.toggleGardenerStatus(any, any, any),
+          ).thenAnswer((_) async => {});
 
-        // Act
-        await tester.pumpWidget(createTestWidget(mockViewModel));
-        await tester.pumpAndSettle();
+          // Act
+          await tester.pumpWidget(createTestWidget(mockViewModel));
+          await tester.pumpAndSettle();
 
-        // Tap sur la première checkbox (Marie Dupont - gardener)
-        final checkboxes = find.byType(Checkbox);
-        await tester.tap(checkboxes.first);
-        await tester.pumpAndSettle();
+          // Tap sur la première checkbox (Marie Dupont - gardener)
+          final checkboxes = find.byType(Checkbox);
+          await tester.tap(checkboxes.first);
+          await tester.pumpAndSettle();
 
-        // Assert
-        verify(mockViewModel.toggleGardenerStatus(
-          any,
-          argThat(predicate<UserModel>((user) => user.id == 'gardener-1')),
-          false,
-        )).called(1);
-      });
+          // Assert
+          verify(
+            mockViewModel.toggleGardenerStatus(
+              any,
+              argThat(predicate<UserModel>((user) => user.id == 'gardener-1')),
+              false,
+            ),
+          ).called(1);
+        },
+      );
 
-      testWidgets('Taper sur la checkbox de l\'utilisateur connecté ne fait rien', 
-          (WidgetTester tester) async {
-        // Act
-        await tester.pumpWidget(createTestWidget(mockViewModel));
-        await tester.pumpAndSettle();
+      testWidgets(
+        'Taper sur la checkbox de l\'utilisateur connecté ne fait rien',
+        (WidgetTester tester) async {
+          // Act
+          await tester.pumpWidget(createTestWidget(mockViewModel));
+          await tester.pumpAndSettle();
 
-        // Tap sur la checkbox de l'utilisateur connecté (3ème)
-        final checkboxes = find.byType(Checkbox);
-        await tester.tap(checkboxes.at(2));
-        await tester.pumpAndSettle();
+          // Tap sur la checkbox de l'utilisateur connecté (3ème)
+          final checkboxes = find.byType(Checkbox);
+          await tester.tap(checkboxes.at(2));
+          await tester.pumpAndSettle();
 
-        // Assert
-        verifyNever(mockViewModel.toggleGardenerStatus(any, any, any));
-      });
+          // Assert
+          verifyNever(mockViewModel.toggleGardenerStatus(any, any, any));
+        },
+      );
     });
 
     group('Add Gardener Dialog Tests', () {
-      testWidgets('Clic sur le bouton + ouvre le dialogue', 
-          (WidgetTester tester) async {
+      testWidgets('Clic sur le bouton + ouvre le dialogue', (
+        WidgetTester tester,
+      ) async {
         // Act
         await tester.pumpWidget(createTestWidget(mockViewModel));
         await tester.pumpAndSettle();
@@ -276,8 +323,9 @@ void main() {
         expect(find.text('Ajouter un maraîcher'), findsOneWidget);
       });
 
-      testWidgets('Le dialogue contient un champ de recherche', 
-          (WidgetTester tester) async {
+      testWidgets('Le dialogue contient un champ de recherche', (
+        WidgetTester tester,
+      ) async {
         // Act
         await tester.pumpWidget(createTestWidget(mockViewModel));
         await tester.pumpAndSettle();
@@ -286,12 +334,16 @@ void main() {
         await tester.pumpAndSettle();
 
         // Assert
-        expect(find.widgetWithText(TextField, 'Rechercher un utilisateur'), findsOneWidget);
+        expect(
+          find.widgetWithText(TextField, 'Rechercher un utilisateur'),
+          findsOneWidget,
+        );
         expect(find.byIcon(Icons.search), findsOneWidget);
       });
 
-      testWidgets('Le dialogue affiche "Aucun résultat" par défaut', 
-          (WidgetTester tester) async {
+      testWidgets('Le dialogue affiche "Aucun résultat" par défaut', (
+        WidgetTester tester,
+      ) async {
         // Act
         await tester.pumpWidget(createTestWidget(mockViewModel));
         await tester.pumpAndSettle();
@@ -303,8 +355,9 @@ void main() {
         expect(find.text('Aucun résultat'), findsOneWidget);
       });
 
-      testWidgets('Le dialogue a un bouton Annuler', 
-          (WidgetTester tester) async {
+      testWidgets('Le dialogue a un bouton Annuler', (
+        WidgetTester tester,
+      ) async {
         // Act
         await tester.pumpWidget(createTestWidget(mockViewModel));
         await tester.pumpAndSettle();
@@ -316,8 +369,9 @@ void main() {
         expect(find.text('Annuler'), findsOneWidget);
       });
 
-      testWidgets('Clic sur Annuler ferme le dialogue', 
-          (WidgetTester tester) async {
+      testWidgets('Clic sur Annuler ferme le dialogue', (
+        WidgetTester tester,
+      ) async {
         // Act
         await tester.pumpWidget(createTestWidget(mockViewModel));
         await tester.pumpAndSettle();
@@ -332,8 +386,9 @@ void main() {
         expect(find.byType(AlertDialog), findsNothing);
       });
 
-      testWidgets('Recherche d\'utilisateurs affiche les résultats', 
-          (WidgetTester tester) async {
+      testWidgets('Recherche d\'utilisateurs affiche les résultats', (
+        WidgetTester tester,
+      ) async {
         // Arrange
         final searchResults = [
           UserModel(
@@ -342,12 +397,18 @@ void main() {
             givenName: 'Test',
             email: 'test@example.com',
             profile: Profile.customer,
+            deliveryMethod: DeliveryMethodConfig(
+              key: 'farmPickup',
+              label: 'Retrait à la ferme',
+              enabled: true,
+            ),
             phoneNumber: '0333333333',
             address: '3 Rue Test',
           ),
         ];
-        when(mockViewModel.searchCustomers(any))
-            .thenAnswer((_) async => searchResults);
+        when(
+          mockViewModel.searchCustomers(any),
+        ).thenAnswer((_) async => searchResults);
 
         // Act
         await tester.pumpWidget(createTestWidget(mockViewModel));
@@ -359,9 +420,9 @@ void main() {
         // Saisir dans le champ de recherche
         await tester.enterText(
           find.widgetWithText(TextField, 'Rechercher un utilisateur'),
-          'Test'
+          'Test',
         );
-        
+
         // Attendre le debounce (300ms) + un peu plus
         await tester.pumpAndSettle(const Duration(milliseconds: 400));
 
@@ -370,11 +431,11 @@ void main() {
         expect(find.text('test@example.com'), findsOneWidget);
       });
 
-      testWidgets('Saisie vide ne déclenche pas de recherche', 
-          (WidgetTester tester) async {
+      testWidgets('Saisie vide ne déclenche pas de recherche', (
+        WidgetTester tester,
+      ) async {
         // Arrange
-        when(mockViewModel.searchCustomers(any))
-            .thenAnswer((_) async => []);
+        when(mockViewModel.searchCustomers(any)).thenAnswer((_) async => []);
 
         // Act
         await tester.pumpWidget(createTestWidget(mockViewModel));
@@ -384,10 +445,13 @@ void main() {
         await tester.pumpAndSettle();
 
         // Saisir puis effacer
-        final searchField = find.widgetWithText(TextField, 'Rechercher un utilisateur');
+        final searchField = find.widgetWithText(
+          TextField,
+          'Rechercher un utilisateur',
+        );
         await tester.enterText(searchField, 'Test');
         await tester.pumpAndSettle(const Duration(milliseconds: 400));
-        
+
         await tester.enterText(searchField, '');
         await tester.pumpAndSettle(const Duration(milliseconds: 400));
 
@@ -395,95 +459,113 @@ void main() {
         expect(find.text('Aucun résultat'), findsOneWidget);
       });
 
-      testWidgets('Clic sur un résultat appelle promoteToGardener et ferme le dialogue', 
-          (WidgetTester tester) async {
-        // Arrange
-        final searchResults = [
-          UserModel(
-            id: 'search-1',
-            name: 'Recherche',
-            givenName: 'Test',
-            email: 'test@example.com',
-            profile: Profile.customer,
-            phoneNumber: '0333333333',
-            address: '3 Rue Test',
-          ),
-        ];
-        when(mockViewModel.searchCustomers(any))
-            .thenAnswer((_) async => searchResults);
-        when(mockViewModel.promoteToGardener(any, any))
-            .thenAnswer((_) async => {});
+      testWidgets(
+        'Clic sur un résultat appelle promoteToGardener et ferme le dialogue',
+        (WidgetTester tester) async {
+          // Arrange
+          final searchResults = [
+            UserModel(
+              id: 'search-1',
+              name: 'Recherche',
+              givenName: 'Test',
+              email: 'test@example.com',
+              profile: Profile.customer,
+              deliveryMethod: DeliveryMethodConfig(
+                key: 'farmPickup',
+                label: 'Retrait à la ferme',
+                enabled: true,
+              ),
+              phoneNumber: '0333333333',
+              address: '3 Rue Test',
+            ),
+          ];
+          when(
+            mockViewModel.searchCustomers(any),
+          ).thenAnswer((_) async => searchResults);
+          when(
+            mockViewModel.promoteToGardener(any, any),
+          ).thenAnswer((_) async => {});
 
-        // Act
-        await tester.pumpWidget(createTestWidget(mockViewModel));
-        await tester.pumpAndSettle();
+          // Act
+          await tester.pumpWidget(createTestWidget(mockViewModel));
+          await tester.pumpAndSettle();
 
-        await tester.tap(find.byIcon(Icons.add));
-        await tester.pumpAndSettle();
+          await tester.tap(find.byIcon(Icons.add));
+          await tester.pumpAndSettle();
 
-        await tester.enterText(
-          find.widgetWithText(TextField, 'Rechercher un utilisateur'),
-          'Test'
-        );
-        await tester.pumpAndSettle(const Duration(milliseconds: 400));
+          await tester.enterText(
+            find.widgetWithText(TextField, 'Rechercher un utilisateur'),
+            'Test',
+          );
+          await tester.pumpAndSettle(const Duration(milliseconds: 400));
 
-        // Taper sur le résultat
-        await tester.tap(find.text('Test Recherche'));
-        await tester.pumpAndSettle();
+          // Taper sur le résultat
+          await tester.tap(find.text('Test Recherche'));
+          await tester.pumpAndSettle();
 
-        // Assert
-        verify(mockViewModel.promoteToGardener(
-          any,
-          argThat(predicate<UserModel>((user) => user.id == 'search-1')),
-        )).called(1);
-        expect(find.byType(AlertDialog), findsNothing);
-      });
+          // Assert
+          verify(
+            mockViewModel.promoteToGardener(
+              any,
+              argThat(predicate<UserModel>((user) => user.id == 'search-1')),
+            ),
+          ).called(1);
+          expect(find.byType(AlertDialog), findsNothing);
+        },
+      );
     });
 
     group('Stream Updates Tests', () {
-      testWidgets('La liste se met à jour quand le stream émet de nouvelles données', 
-          (WidgetTester tester) async {
-        // Arrange
-        final newGardeners = [
-          ...mockGardeners,
-          UserModel(
-            id: 'new-gardener',
-            name: 'Nouveau',
-            givenName: 'Maraîcher',
-            email: 'nouveau@example.com',
-            profile: Profile.gardener,
-            phoneNumber: '0444444444',
-            address: '4 Rue Nouvelle',
-          ),
-        ];
+      testWidgets(
+        'La liste se met à jour quand le stream émet de nouvelles données',
+        (WidgetTester tester) async {
+          // Arrange
+          final newGardeners = [
+            ...mockGardeners,
+            UserModel(
+              id: 'new-gardener',
+              name: 'Nouveau',
+              givenName: 'Maraîcher',
+              email: 'nouveau@example.com',
+              profile: Profile.gardener,
+              deliveryMethod: DeliveryMethodConfig(
+                key: 'farmPickup',
+                label: 'Retrait à la ferme',
+                enabled: true,
+              ),
+              phoneNumber: '0444444444',
+              address: '4 Rue Nouvelle',
+            ),
+          ];
 
-        // Créer un StreamController pour contrôler les émissions
-        final streamController = StreamController<List<UserModel>>();
-        when(mockViewModel.gardenersStream).thenAnswer(
-          (_) => streamController.stream,
-        );
+          // Créer un StreamController pour contrôler les émissions
+          final streamController = StreamController<List<UserModel>>();
+          when(
+            mockViewModel.gardenersStream,
+          ).thenAnswer((_) => streamController.stream);
 
-        // Act
-        await tester.pumpWidget(createTestWidget(mockViewModel));
-        
-        // Émettre les données initiales
-        streamController.add(mockGardeners);
-        await tester.pumpAndSettle();
+          // Act
+          await tester.pumpWidget(createTestWidget(mockViewModel));
 
-        // Vérifier l'état initial
-        expect(find.byType(Card), findsNWidgets(mockGardeners.length));
+          // Émettre les données initiales
+          streamController.add(mockGardeners);
+          await tester.pumpAndSettle();
 
-        // Émettre les nouvelles données
-        streamController.add(newGardeners);
-        await tester.pumpAndSettle();
+          // Vérifier l'état initial
+          expect(find.byType(Card), findsNWidgets(mockGardeners.length));
 
-        // Assert
-        expect(find.byType(Card), findsNWidgets(newGardeners.length));
-        expect(find.text('Maraîcher Nouveau'), findsOneWidget);
+          // Émettre les nouvelles données
+          streamController.add(newGardeners);
+          await tester.pumpAndSettle();
 
-        // Cleanup
-        await streamController.close();
-      });
+          // Assert
+          expect(find.byType(Card), findsNWidgets(newGardeners.length));
+          expect(find.text('Maraîcher Nouveau'), findsOneWidget);
+
+          // Cleanup
+          await streamController.close();
+        },
+      );
     });
   });
 }

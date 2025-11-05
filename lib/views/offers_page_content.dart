@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:veggie_cart/models/profile.dart';
-import '../models/delivery_method.dart';
+import '../models/delivery_method_config.dart';
 import '../models/user_model.dart';
 import '../models/weekly_offer.dart';
 import '../viewmodels/account_view_model.dart';
+import '../viewmodels/delivery_method_view_model.dart';
 import '../viewmodels/my_orders_view_model.dart';
 import '../viewmodels/weekly_offers_view_model.dart';
 import '../viewmodels/cart_view_model.dart';
@@ -255,17 +256,19 @@ class CartScreen extends StatefulWidget {
 
 class _CartScreenState extends State<CartScreen> {
   final TextEditingController _noteController = TextEditingController();
-  late DeliveryMethod _selectedDeliveryMethod;
+  DeliveryMethodConfig? _selectedDeliveryMethod;
 
   @override
   void initState() {
     super.initState();
-    final accountVm = context.read<AccountViewModel>();
-    if (widget.user != null) {
-      _selectedDeliveryMethod = widget.user!.deliveryMethod;
-    } else {
-      _selectedDeliveryMethod = accountVm.currentUser.deliveryMethod;
-    }
+    final deliveryMethodVM = context.read<DeliveryMethodViewModel>();
+
+    // Initialisation avec la méthode de l'utilisateur
+    _selectedDeliveryMethod =
+        widget.user?.deliveryMethod ??
+        (deliveryMethodVM.methods.isNotEmpty
+            ? deliveryMethodVM.defaultMethod
+            : null);
   }
 
   @override
@@ -277,6 +280,7 @@ class _CartScreenState extends State<CartScreen> {
   @override
   Widget build(BuildContext context) {
     final cartVm = context.watch<CartViewModel>();
+    final deliveryMethodVM = context.watch<DeliveryMethodViewModel>();
 
     return Scaffold(
       appBar: AppBar(title: Text(context.l10n.myCart)),
@@ -287,7 +291,7 @@ class _CartScreenState extends State<CartScreen> {
               children: [
                 // Liste des articles dans le panier
                 ...cartVm.items.entries.map((entry) {
-                  final veg = entry.key; // VegetableModel
+                  final veg = entry.key;
                   final qty = entry.value;
 
                   return Card(
@@ -308,21 +312,17 @@ class _CartScreenState extends State<CartScreen> {
                       trailing: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          // Supprimer l'article
                           IconButton(
                             icon: const Icon(Icons.delete_outline),
                             onPressed: () => cartVm.updateQuantity(veg, 0),
                           ),
-                          // Diminuer la quantité
                           IconButton(
                             icon: const Icon(Icons.remove_circle_outline),
                             onPressed: qty > 0
                                 ? () => cartVm.updateQuantity(veg, qty - 1)
                                 : null,
                           ),
-                          // Afficher la quantité
                           Text(qty.toString()),
-                          // Augmenter la quantité
                           IconButton(
                             icon: const Icon(Icons.add_circle_outline),
                             onPressed: () =>
@@ -346,26 +346,21 @@ class _CartScreenState extends State<CartScreen> {
                 const SizedBox(height: 16),
 
                 // 🚚 Sélection de la méthode de livraison
-                DropdownButtonFormField<DeliveryMethod>(
-                  initialValue: _selectedDeliveryMethod,
-                  decoration: InputDecoration(
-                    labelText: context.l10n.deliveryMethod,
-                    border: const OutlineInputBorder(),
+                if (deliveryMethodVM.loading)
+                  const Center(child: CircularProgressIndicator())
+                else if (deliveryMethodVM.error != null)
+                  Text("Erreur: ${deliveryMethodVM.error}")
+                else
+                  DeliveryMethodDropdown(
+                    notifier: ValueNotifier<DeliveryMethodConfig>(
+                      _selectedDeliveryMethod!,
+                    ),
+                    methods: deliveryMethodVM.activeMethods,
+                    onChanged: (v) => setState(() {
+                      _selectedDeliveryMethod = v;
+                    }),
                   ),
-                  items: DeliveryMethod.values.map((method) {
-                    return DropdownMenuItem<DeliveryMethod>(
-                      value: method,
-                      child: Text(method.label),
-                    );
-                  }).toList(),
-                  onChanged: (value) {
-                    if (value != null) {
-                      setState(() {
-                        _selectedDeliveryMethod = value;
-                      });
-                    }
-                  },
-                ),
+
                 const SizedBox(height: 16),
                 // Boutons retour et valider
                 Row(
@@ -379,36 +374,82 @@ class _CartScreenState extends State<CartScreen> {
                     const SizedBox(width: 12),
                     Expanded(
                       child: ElevatedButton(
+                        onPressed:
+                            (_selectedDeliveryMethod != null &&
+                                cartVm.totalItems > 0)
+                            ? () async {
+                                await cartVm.submitOrder(
+                                  user: widget.user,
+                                  deliveryMethod: _selectedDeliveryMethod!,
+                                  notes: _noteController.text.isNotEmpty
+                                      ? _noteController.text
+                                      : null,
+                                );
+
+                                if (!context.mounted) return;
+
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(context.l10n.orderSent),
+                                  ),
+                                );
+                                Navigator.of(
+                                  context,
+                                ).popUntil((route) => route.isFirst);
+                              }
+                            : null,
                         child: Text(context.l10n.validateOrder),
-                        onPressed: () async {
-                          final deliveryMethod = _selectedDeliveryMethod;
-
-                          await cartVm.submitOrder(
-                            user: widget.user,
-                            deliveryMethod: deliveryMethod,
-                            notes: _noteController.text.isNotEmpty
-                                ? _noteController.text
-                                : null,
-                          );
-
-                          // 🔹 Vérifier mounted APRÈS l'opération async
-                          if (!context.mounted) return;
-
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text(context.l10n.orderSent)),
-                          );
-                          Navigator.of(
-                            context,
-                          ).popUntil((route) => route.isFirst);
-
-                          // retour à la liste des offres
-                        },
                       ),
                     ),
                   ],
                 ),
               ],
             ),
+    );
+  }
+}
+
+class DeliveryMethodDropdown extends StatelessWidget {
+  final ValueNotifier<DeliveryMethodConfig> notifier;
+  final List<DeliveryMethodConfig> methods;
+  final ValueChanged<DeliveryMethodConfig> onChanged;
+
+  const DeliveryMethodDropdown({
+    super.key,
+    required this.notifier,
+    required this.methods,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    double fieldWidth = MediaQuery.of(context).size.width * 0.9;
+    if (fieldWidth > 300) fieldWidth = 300;
+
+    return ValueListenableBuilder<DeliveryMethodConfig>(
+      valueListenable: notifier,
+      builder: (context, value, child) {
+        return SizedBox(
+          width: fieldWidth,
+          child: DropdownButtonFormField<DeliveryMethodConfig>(
+            isExpanded: true,
+            initialValue: value,
+            items: methods
+                .map((m) => DropdownMenuItem(value: m, child: Text(m.label)))
+                .toList(),
+            onChanged: (v) {
+              if (v != null) {
+                notifier.value = v;
+                onChanged(v);
+              }
+            },
+            decoration: InputDecoration(
+              labelText: context.l10n.deliveryMethod,
+              border: const OutlineInputBorder(),
+            ),
+          ),
+        );
+      },
     );
   }
 }

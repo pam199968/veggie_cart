@@ -190,6 +190,27 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deliveryMethod => 'Delivery Method: ';
 
   @override
+  String get deliveryMethods => 'Delivery methods';
+
+  @override
+  String get searchDeliveryMethod => 'search delivery method';
+
+  @override
+  String get addDeliveryMethod => 'Add dlivery method';
+
+  @override
+  String get disable => 'Disable';
+
+  @override
+  String get reactivate => 'Reactivate';
+
+  @override
+  String get noDeliveryMethodsFound => 'No delivery method found';
+
+  @override
+  String get editDeliveryMethod => 'Edit delivery method';
+
+  @override
   String get notes => 'Notes: ';
 
   @override

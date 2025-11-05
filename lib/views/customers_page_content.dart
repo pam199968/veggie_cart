@@ -2,10 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:veggie_cart/extensions/context_extension.dart';
 import 'package:veggie_cart/l10n/app_localizations.dart';
-import 'package:veggie_cart/models/delivery_method.dart';
 import '../models/user_model.dart';
 import '../viewmodels/account_view_model.dart';
-import 'my_home_page.dart';
 import 'offers_page_content.dart';
 
 class CustomersPageContent extends StatefulWidget {

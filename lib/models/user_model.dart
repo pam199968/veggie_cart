@@ -1,5 +1,6 @@
 import 'package:veggie_cart/models/profile.dart';
-import 'delivery_method.dart';
+import '../models/delivery_method_config.dart';
+import '../repositories/delivery_method_repository.dart';
 
 /// Modèle de données pour un utilisateur
 class UserModel {
@@ -10,7 +11,7 @@ class UserModel {
   final String phoneNumber;
   final Profile profile;
   final String address;
-  final DeliveryMethod deliveryMethod;
+  final DeliveryMethodConfig deliveryMethod;
   final bool pushNotifications;
   final bool isActive;
 
@@ -22,9 +23,9 @@ class UserModel {
     required this.phoneNumber,
     this.profile = Profile.customer,
     required this.address,
-    this.deliveryMethod = DeliveryMethod.farmPickup,
+    required this.deliveryMethod,
     this.pushNotifications = true,
-    this.isActive = true
+    this.isActive = true,
   });
 
   /// 🧩 Crée une copie du modèle avec certaines valeurs modifiées
@@ -36,7 +37,7 @@ class UserModel {
     String? phoneNumber,
     Profile? profile,
     String? address,
-    DeliveryMethod? deliveryMethod,
+    DeliveryMethodConfig? deliveryMethod,
     bool? pushNotifications,
     bool? isActive,
   }) {
@@ -62,19 +63,20 @@ class UserModel {
       'email': email,
       'phoneNumber': phoneNumber,
       'address': address,
-      'deliveryMethod': deliveryMethod.name,
+      'deliveryMethod': deliveryMethod.key, // 🔹 on enregistre la clé
       'pushNotifications': pushNotifications,
       'profile': profile.name,
-      // 🔽 Ajout pour recherche insensible à la casse
       'nameLower': name.toLowerCase(),
       'givenNameLower': givenName.toLowerCase(),
       'isActive': isActive,
     };
   }
 
-
-  /// 🏗️ Construit un UserModel depuis Firestore
-  factory UserModel.fromMap(Map<String, dynamic> map, String documentId) {
+  factory UserModel.fromMapWithDelivery(
+    Map<String, dynamic> map,
+    String documentId,
+    DeliveryMethodConfig deliveryMethod,
+  ) {
     return UserModel(
       id: documentId,
       name: map['name'] ?? '',
@@ -83,9 +85,31 @@ class UserModel {
       phoneNumber: map['phoneNumber'] ?? '',
       profile: ProfileExtension.fromString(map['profile'] ?? 'customer'),
       address: map['address'] ?? '',
-      deliveryMethod: DeliveryMethodExtension.fromString(
-        map['deliveryMethod'] ?? 'farmPickup',
-      ),
+      deliveryMethod: deliveryMethod,
+      pushNotifications: map['pushNotifications'] ?? true,
+      isActive: map['isActive'] ?? true,
+    );
+  }
+
+  /// 🏗️ Construit un UserModel depuis Firestore (asynchrone)
+  static Future<UserModel> fromMapAsync(
+    Map<String, dynamic> map,
+    String documentId,
+  ) async {
+    final deliveryKey = map['deliveryMethod'] ?? 'farmPickup';
+    final deliveryMethod =
+        await DeliveryMethodRepository.fromKey(deliveryKey) ??
+        DeliveryMethodConfig(key: deliveryKey, label: deliveryKey); // fallback
+
+    return UserModel(
+      id: documentId,
+      name: map['name'] ?? '',
+      givenName: map['givenName'] ?? '',
+      email: map['email'] ?? '',
+      phoneNumber: map['phoneNumber'] ?? '',
+      profile: ProfileExtension.fromString(map['profile'] ?? 'customer'),
+      address: map['address'] ?? '',
+      deliveryMethod: deliveryMethod,
       pushNotifications: map['pushNotifications'] ?? true,
       isActive: map['isActive'] ?? true,
     );
@@ -101,7 +125,10 @@ class UserModel {
       phoneNumber: '',
       profile: Profile.customer,
       address: '',
-      deliveryMethod: DeliveryMethod.farmPickup,
+      deliveryMethod: DeliveryMethodConfig(
+        key: 'farmPickup',
+        label: 'Retrait à la ferme',
+      ),
       pushNotifications: true,
       isActive: true,
     );

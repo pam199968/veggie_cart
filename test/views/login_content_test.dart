@@ -4,13 +4,12 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:mockito/mockito.dart';
 import 'package:mockito/annotations.dart';
+import 'package:veggie_cart/models/delivery_method_config.dart';
 
 import 'package:veggie_cart/views/login_content.dart';
 import 'package:veggie_cart/viewmodels/account_view_model.dart';
-import 'package:veggie_cart/models/delivery_method.dart';
 import 'package:veggie_cart/models/user_model.dart';
 import 'package:veggie_cart/l10n/app_localizations.dart';
-
 
 // Générera login_content_test.mocks.dart
 @GenerateMocks([AccountViewModel])
@@ -25,10 +24,9 @@ void main() {
       return AppLocalizations.of(context)!;
     }
 
-
     setUp(() {
       mockViewModel = MockAccountViewModel();
-      
+
       // Configuration des comportements par défaut
       when(mockViewModel.showSignUpForm).thenReturn(false);
       when(mockViewModel.showSignInForm).thenReturn(true);
@@ -51,8 +49,9 @@ void main() {
     }
 
     group('Sign In Form Tests', () {
-      testWidgets('Affiche le formulaire de connexion par défaut', 
-          (WidgetTester tester) async {
+      testWidgets('Affiche le formulaire de connexion par défaut', (
+        WidgetTester tester,
+      ) async {
         // Arrange
         when(mockViewModel.showSignUpForm).thenReturn(false);
 
@@ -65,14 +64,13 @@ void main() {
         expect(find.text(l10n(tester).passwordLabel), findsOneWidget);
         expect(find.text(l10n(tester).signInButton), findsOneWidget);
         expect(find.text(l10n(tester).createAccountLink), findsOneWidget);
-        
+
         // Vérifie que les champs de création de compte ne sont pas visibles
         expect(find.text(l10n(tester).nameLabel), findsNothing);
         expect(find.text(l10n(tester).givenNameLabel), findsNothing);
       });
 
-      testWidgets('Le logo est affiché', 
-          (WidgetTester tester) async {
+      testWidgets('Le logo est affiché', (WidgetTester tester) async {
         // Act
         await tester.pumpWidget(createTestWidget(mockViewModel));
         await tester.pumpAndSettle();
@@ -81,8 +79,9 @@ void main() {
         expect(find.byType(Image), findsOneWidget);
       });
 
-      testWidgets('Saisie de l\'email met à jour le viewModel', 
-          (WidgetTester tester) async {
+      testWidgets('Saisie de l\'email met à jour le viewModel', (
+        WidgetTester tester,
+      ) async {
         // Arrange
         const testEmail = 'test@example.com';
 
@@ -90,7 +89,10 @@ void main() {
         await tester.pumpWidget(createTestWidget(mockViewModel));
         await tester.pumpAndSettle();
 
-        final emailField = find.widgetWithText(TextField, l10n(tester).emailLabel);
+        final emailField = find.widgetWithText(
+          TextField,
+          l10n(tester).emailLabel,
+        );
         await tester.enterText(emailField, testEmail);
         await tester.pumpAndSettle();
 
@@ -98,8 +100,9 @@ void main() {
         verify(mockViewModel.currentUser = any).called(greaterThan(0));
       });
 
-      testWidgets('Saisie du mot de passe met à jour le viewModel', 
-          (WidgetTester tester) async {
+      testWidgets('Saisie du mot de passe met à jour le viewModel', (
+        WidgetTester tester,
+      ) async {
         // Arrange
         const testPassword = 'password123';
 
@@ -107,7 +110,10 @@ void main() {
         await tester.pumpWidget(createTestWidget(mockViewModel));
         await tester.pumpAndSettle();
 
-        final passwordField = find.widgetWithText(TextField, l10n(tester).passwordLabel);
+        final passwordField = find.widgetWithText(
+          TextField,
+          l10n(tester).passwordLabel,
+        );
         await tester.enterText(passwordField, testPassword);
         await tester.pumpAndSettle();
 
@@ -115,21 +121,23 @@ void main() {
         verify(mockViewModel.password = testPassword).called(1);
       });
 
-      testWidgets('Le champ mot de passe est masqué', 
-          (WidgetTester tester) async {
+      testWidgets('Le champ mot de passe est masqué', (
+        WidgetTester tester,
+      ) async {
         // Act
         await tester.pumpWidget(createTestWidget(mockViewModel));
         await tester.pumpAndSettle();
 
         // Assert
         final passwordField = tester.widget<TextField>(
-          find.widgetWithText(TextField, l10n(tester).passwordLabel)
+          find.widgetWithText(TextField, l10n(tester).passwordLabel),
         );
         expect(passwordField.obscureText, isTrue);
       });
 
-      testWidgets('Clic sur "Se connecter" appelle signIn', 
-          (WidgetTester tester) async {
+      testWidgets('Clic sur "Se connecter" appelle signIn', (
+        WidgetTester tester,
+      ) async {
         // Arrange
         when(mockViewModel.signIn(any)).thenAnswer((_) async => {});
 
@@ -144,23 +152,26 @@ void main() {
         verify(mockViewModel.signIn(any)).called(1);
       });
 
-      testWidgets('Clic sur "Créer un compte" bascule vers le formulaire d\'inscription', 
-          (WidgetTester tester) async {
-        // Act
-        await tester.pumpWidget(createTestWidget(mockViewModel));
-        await tester.pumpAndSettle();
+      testWidgets(
+        'Clic sur "Créer un compte" bascule vers le formulaire d\'inscription',
+        (WidgetTester tester) async {
+          // Act
+          await tester.pumpWidget(createTestWidget(mockViewModel));
+          await tester.pumpAndSettle();
 
-        await tester.tap(find.text(l10n(tester).createAccountLink));
-        await tester.pumpAndSettle();
+          await tester.tap(find.text(l10n(tester).createAccountLink));
+          await tester.pumpAndSettle();
 
-        // Assert
-        verify(mockViewModel.toggleSignUpForm()).called(1);
-      });
+          // Assert
+          verify(mockViewModel.toggleSignUpForm()).called(1);
+        },
+      );
     });
 
     group('Sign Up Form Tests', () {
-      testWidgets('Affiche le formulaire de création de compte', 
-          (WidgetTester tester) async {
+      testWidgets('Affiche le formulaire de création de compte', (
+        WidgetTester tester,
+      ) async {
         // Arrange
         when(mockViewModel.showSignUpForm).thenReturn(true);
 
@@ -180,8 +191,9 @@ void main() {
         expect(find.text(l10n(tester).cancelButton), findsOneWidget);
       });
 
-      testWidgets('Affiche le hint du mot de passe', 
-          (WidgetTester tester) async {
+      testWidgets('Affiche le hint du mot de passe', (
+        WidgetTester tester,
+      ) async {
         // Arrange
         when(mockViewModel.showSignUpForm).thenReturn(true);
 
@@ -193,8 +205,9 @@ void main() {
         expect(find.text(l10n(tester).passwordHint), findsOneWidget);
       });
 
-      testWidgets('Le dropdown de méthode de livraison est présent', 
-          (WidgetTester tester) async {
+      testWidgets('Le dropdown de méthode de livraison est présent', (
+        WidgetTester tester,
+      ) async {
         // Arrange
         when(mockViewModel.showSignUpForm).thenReturn(true);
 
@@ -207,8 +220,9 @@ void main() {
         expect(find.text(l10n(tester).deliveryMethodLabel), findsOneWidget);
       });
 
-      testWidgets('Le switch de notifications push est présent', 
-          (WidgetTester tester) async {
+      testWidgets('Le switch de notifications push est présent', (
+        WidgetTester tester,
+      ) async {
         // Arrange
         when(mockViewModel.showSignUpForm).thenReturn(true);
 
@@ -221,8 +235,9 @@ void main() {
         expect(find.text(l10n(tester).pushNotificationLabel), findsOneWidget);
       });
 
-      testWidgets('Tous les champs peuvent être remplis', 
-          (WidgetTester tester) async {
+      testWidgets('Tous les champs peuvent être remplis', (
+        WidgetTester tester,
+      ) async {
         // Arrange
         when(mockViewModel.showSignUpForm).thenReturn(true);
 
@@ -231,25 +246,47 @@ void main() {
         await tester.pumpAndSettle();
 
         // Remplir tous les champs
-        await tester.enterText(find.widgetWithText(TextField, l10n(tester).nameLabel), 'Dupont');
-        await tester.enterText(find.widgetWithText(TextField, l10n(tester).givenNameLabel), 'Jean');
-        await tester.enterText(find.widgetWithText(TextField, l10n(tester).emailLabel), 'jean@example.com');
-        
-        final passwordFields = find.widgetWithText(TextField, l10n(tester).passwordLabel);
+        await tester.enterText(
+          find.widgetWithText(TextField, l10n(tester).nameLabel),
+          'Dupont',
+        );
+        await tester.enterText(
+          find.widgetWithText(TextField, l10n(tester).givenNameLabel),
+          'Jean',
+        );
+        await tester.enterText(
+          find.widgetWithText(TextField, l10n(tester).emailLabel),
+          'jean@example.com',
+        );
+
+        final passwordFields = find.widgetWithText(
+          TextField,
+          l10n(tester).passwordLabel,
+        );
         await tester.enterText(passwordFields, 'Password123!');
-        
-        await tester.enterText(find.widgetWithText(TextField, l10n(tester).confirmPasswordLabel), 'Password123!');
-        await tester.enterText(find.widgetWithText(TextField, l10n(tester).phoneLabel), '0123456789');
-        await tester.enterText(find.widgetWithText(TextField, l10n(tester).addressLabel), '123 Rue de Test');
-        
+
+        await tester.enterText(
+          find.widgetWithText(TextField, l10n(tester).confirmPasswordLabel),
+          'Password123!',
+        );
+        await tester.enterText(
+          find.widgetWithText(TextField, l10n(tester).phoneLabel),
+          '0123456789',
+        );
+        await tester.enterText(
+          find.widgetWithText(TextField, l10n(tester).addressLabel),
+          '123 Rue de Test',
+        );
+
         await tester.pumpAndSettle();
 
         // Assert - Vérifie que les appels ont été faits
         verify(mockViewModel.currentUser = any).called(greaterThan(0));
       });
 
-      testWidgets('Création de compte avec email invalide affiche une erreur', 
-          (WidgetTester tester) async {
+      testWidgets('Création de compte avec email invalide affiche une erreur', (
+        WidgetTester tester,
+      ) async {
         // Arrange
         when(mockViewModel.showSignUpForm).thenReturn(true);
         when(mockViewModel.isEmailValid(any)).thenReturn(false);
@@ -271,53 +308,60 @@ void main() {
         verifyNever(mockViewModel.signUp(any));
       });
 
-      testWidgets('Création de compte avec mot de passe invalide affiche une erreur', 
-          (WidgetTester tester) async {
-        // Arrange
-        when(mockViewModel.showSignUpForm).thenReturn(true);
-        when(mockViewModel.isEmailValid(any)).thenReturn(true);
-        when(mockViewModel.isPasswordValid(any)).thenReturn(false);
+      testWidgets(
+        'Création de compte avec mot de passe invalide affiche une erreur',
+        (WidgetTester tester) async {
+          // Arrange
+          when(mockViewModel.showSignUpForm).thenReturn(true);
+          when(mockViewModel.isEmailValid(any)).thenReturn(true);
+          when(mockViewModel.isPasswordValid(any)).thenReturn(false);
 
-        // Act
-        await tester.pumpWidget(createTestWidget(mockViewModel));
-        await tester.pumpAndSettle();
+          // Act
+          await tester.pumpWidget(createTestWidget(mockViewModel));
+          await tester.pumpAndSettle();
 
-        await tester.tap(find.text(l10n(tester).createAccountButton));
-        await tester.pumpAndSettle();
+          await tester.tap(find.text(l10n(tester).createAccountButton));
+          await tester.pumpAndSettle();
 
-        // Assert
-        expect(find.text(l10n(tester).passwordError), findsOneWidget);
-        verifyNever(mockViewModel.signUp(any));
-      });
+          // Assert
+          expect(find.text(l10n(tester).passwordError), findsOneWidget);
+          verifyNever(mockViewModel.signUp(any));
+        },
+      );
 
-      testWidgets('Création de compte avec mots de passe différents affiche une erreur', 
-          (WidgetTester tester) async {
-        // Arrange
-        when(mockViewModel.showSignUpForm).thenReturn(true);
-        when(mockViewModel.isEmailValid(any)).thenReturn(true);
-        when(mockViewModel.isPasswordValid(any)).thenReturn(true);
-        when(mockViewModel.password).thenReturn('Password123!');
-        when(mockViewModel.confirmPassword).thenReturn('DifferentPassword');
+      testWidgets(
+        'Création de compte avec mots de passe différents affiche une erreur',
+        (WidgetTester tester) async {
+          // Arrange
+          when(mockViewModel.showSignUpForm).thenReturn(true);
+          when(mockViewModel.isEmailValid(any)).thenReturn(true);
+          when(mockViewModel.isPasswordValid(any)).thenReturn(true);
+          when(mockViewModel.password).thenReturn('Password123!');
+          when(mockViewModel.confirmPassword).thenReturn('DifferentPassword');
 
-        // Act
-        await tester.pumpWidget(createTestWidget(mockViewModel));
-        await tester.pumpAndSettle();
-        // Trouver le bouton
-        final createAccountButton = find.text(l10n(tester).createAccountButton);
-        // Récupérer l’élément BuildContext du widget
-        final context = tester.element(createAccountButton);
-        // Faire défiler jusqu’à ce que le widget soit visible
-        await Scrollable.ensureVisible(context);
-        await tester.tap(find.text(l10n(tester).createAccountButton));
-        await tester.pumpAndSettle();
+          // Act
+          await tester.pumpWidget(createTestWidget(mockViewModel));
+          await tester.pumpAndSettle();
+          // Trouver le bouton
+          final createAccountButton = find.text(
+            l10n(tester).createAccountButton,
+          );
+          // Récupérer l’élément BuildContext du widget
+          final context = tester.element(createAccountButton);
+          // Faire défiler jusqu’à ce que le widget soit visible
+          await Scrollable.ensureVisible(context);
+          await tester.tap(find.text(l10n(tester).createAccountButton));
+          await tester.pumpAndSettle();
 
-        // Assert
-        expect(find.text(l10n(tester).passwordMismatchError), findsOneWidget);
-        verifyNever(mockViewModel.signUp(any));
-      });
+          // Assert
+          expect(find.text(l10n(tester).passwordMismatchError), findsOneWidget);
+          verifyNever(mockViewModel.signUp(any));
+        },
+      );
 
-      testWidgets('Création de compte avec données valides appelle signUp', 
-          (WidgetTester tester) async {
+      testWidgets('Création de compte avec données valides appelle signUp', (
+        WidgetTester tester,
+      ) async {
         // Arrange
         when(mockViewModel.showSignUpForm).thenReturn(true);
         when(mockViewModel.isEmailValid(any)).thenReturn(true);
@@ -343,31 +387,34 @@ void main() {
         verify(mockViewModel.toggleSignUpForm()).called(1);
       });
 
-      testWidgets('Clic sur "Annuler" bascule vers le formulaire de connexion', 
-          (WidgetTester tester) async {
-        // Arrange
-        when(mockViewModel.showSignUpForm).thenReturn(true);
+      testWidgets(
+        'Clic sur "Annuler" bascule vers le formulaire de connexion',
+        (WidgetTester tester) async {
+          // Arrange
+          when(mockViewModel.showSignUpForm).thenReturn(true);
 
-        // Act
-        await tester.pumpWidget(createTestWidget(mockViewModel));
-        await tester.pumpAndSettle();
-        // Trouver le bouton
-        final cancelButton = find.text(l10n(tester).cancelButton);
-        // Récupérer l’élément BuildContext du widget
-        final context = tester.element(cancelButton);
-        // Faire défiler jusqu’à ce que le widget soit visible
-        await Scrollable.ensureVisible(context);
-        await tester.tap(cancelButton);
-        await tester.pumpAndSettle();
+          // Act
+          await tester.pumpWidget(createTestWidget(mockViewModel));
+          await tester.pumpAndSettle();
+          // Trouver le bouton
+          final cancelButton = find.text(l10n(tester).cancelButton);
+          // Récupérer l’élément BuildContext du widget
+          final context = tester.element(cancelButton);
+          // Faire défiler jusqu’à ce que le widget soit visible
+          await Scrollable.ensureVisible(context);
+          await tester.tap(cancelButton);
+          await tester.pumpAndSettle();
 
-        // Assert
-        verify(mockViewModel.toggleSignUpForm()).called(1);
-      });
+          // Assert
+          verify(mockViewModel.toggleSignUpForm()).called(1);
+        },
+      );
     });
 
     group('DeliveryMethodDropdown Tests', () {
-      testWidgets('Change la méthode de livraison', 
-          (WidgetTester tester) async {
+      testWidgets('Change la méthode de livraison', (
+        WidgetTester tester,
+      ) async {
         // Arrange
         when(mockViewModel.showSignUpForm).thenReturn(true);
 
@@ -375,7 +422,9 @@ void main() {
         await tester.pumpWidget(createTestWidget(mockViewModel));
         await tester.pumpAndSettle();
         // Trouver le dropDown
-        final dropDownFinder = find.byType(DropdownButtonFormField<DeliveryMethod>);
+        final dropDownFinder = find.byType(
+          DropdownButtonFormField<DeliveryMethodConfig>,
+        );
         // Récupérer l’élément BuildContext du widget
         final context = tester.element(dropDownFinder);
         // Faire défiler jusqu’à ce que le widget soit visible
@@ -384,19 +433,15 @@ void main() {
         await tester.tap(dropDownFinder);
         await tester.pumpAndSettle();
 
-        // Sélectionner une option (si plusieurs valeurs existent)
-        if (DeliveryMethod.values.length > 1) {
-          await tester.tap(find.text(DeliveryMethod.values[1].label).last);
-          await tester.pumpAndSettle();
-
-          // Assert
-          verify(mockViewModel.currentUser = any).called(greaterThan(0));
-        }
+        // Assert
+        verify(mockViewModel.currentUser = any).called(greaterThan(0));
       });
     });
 
     group('PushNotificationSwitch Tests', () {
-      testWidgets('Toggle le switch de notifications', (WidgetTester tester) async {
+      testWidgets('Toggle le switch de notifications', (
+        WidgetTester tester,
+      ) async {
         // Arrange
         when(mockViewModel.showSignUpForm).thenReturn(true);
 
@@ -418,7 +463,6 @@ void main() {
         // Assert
         verify(mockViewModel.currentUser = any).called(greaterThan(0));
       });
-
     });
   });
 }

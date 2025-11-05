@@ -1,14 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import '../models/delivery_method.dart';
+import 'package:flutter/foundation.dart';
 import '../models/order_item.dart';
 import '../models/order_model.dart';
-import 'package:flutter/foundation.dart';
-
+import '../models/delivery_method_config.dart';
 
 class OrderService {
-  final CollectionReference _ordersRef = FirebaseFirestore.instance.collection(
-    'orders',
-  );
+  final CollectionReference _ordersRef = FirebaseFirestore.instance.collection('orders');
 
   CollectionReference get ordersRef => _ordersRef;
 
@@ -27,16 +24,18 @@ class OrderService {
       query = query.startAfterDocument(startAfterDoc);
     }
 
-    return query.snapshots().map(
-      (snapshot) => snapshot.docs
-          .map(
-            (doc) =>
-                OrderModel.fromMap(doc.data() as Map<String, dynamic>, doc.id),
-          )
-          .toList(),
-    );
+    // ⚠️ Stream Firestore → nécessite transformation asynchrone
+    return query.snapshots().asyncMap((snapshot) async {
+      final orders = await Future.wait(
+        snapshot.docs.map((doc) async {
+          return await OrderModel.fromMapAsync(doc.data() as Map<String, dynamic>, doc.id);
+        }),
+      );
+      return orders;
+    });
   }
 
+  /// 🔹 Pagination par client (sans flux)
   Future<List<OrderModel>> getOrdersByCustomerPaginated({
     required String customerId,
     int limit = 20,
@@ -53,15 +52,12 @@ class OrderService {
     }
 
     final snapshot = await query.get();
-    return snapshot.docs
-        .map(
-          (doc) =>
-              OrderModel.fromMap(doc.data() as Map<String, dynamic>, doc.id),
-        )
-        .toList();
+    return Future.wait(snapshot.docs.map(
+      (doc) => OrderModel.fromMapAsync(doc.data() as Map<String, dynamic>, doc.id),
+    ));
   }
 
-  /// 🔹 Récupère une seule page (sans flux) pour le scroll infini
+  /// 🔹 Récupère une seule page (sans flux)
   Future<List<OrderModel>> fetchOrdersPage({
     required String customerId,
     int limit = 10,
@@ -77,58 +73,47 @@ class OrderService {
     }
 
     final snapshot = await query.get();
-    return snapshot.docs
-        .map(
-          (doc) =>
-              OrderModel.fromMap(doc.data() as Map<String, dynamic>, doc.id),
-        )
-        .toList();
+    return Future.wait(snapshot.docs.map(
+      (doc) => OrderModel.fromMapAsync(doc.data() as Map<String, dynamic>, doc.id),
+    ));
   }
 
-  /// 🔹 Flux temps réel pour **toutes les commandes**
+  /// 🔹 Flux temps réel pour toutes les commandes
   Stream<List<OrderModel>> streamAllOrders({
     int limit = 50,
-    List<OrderStatus>? statuses, // 🔹 nouveau paramètre optionnel
+    List<OrderStatus>? statuses,
   }) {
     Query query = _ordersRef.orderBy('createdAt', descending: true);
 
-    // 🔹 Filtre sur les statuts
     if (statuses != null && statuses.isNotEmpty) {
-      final statusStrings = statuses.map((s) => s.name).toList();
-      query = query.where('status', whereIn: statusStrings);
+      query = query.where('status', whereIn: statuses.map((s) => s.name).toList());
     }
 
-    // 🔹 Limite de documents
     query = query.limit(limit);
 
-    return query.snapshots().map(
-      (snapshot) => snapshot.docs
-          .map(
-            (doc) =>
-                OrderModel.fromMap(doc.data() as Map<String, dynamic>, doc.id),
-          )
-          .toList(),
-    );
+    return query.snapshots().asyncMap((snapshot) async {
+      final orders = await Future.wait(
+        snapshot.docs.map((doc) async {
+          return await OrderModel.fromMapAsync(doc.data() as Map<String, dynamic>, doc.id);
+        }),
+      );
+      return orders;
+    });
   }
 
-  /// 🔹 Pagination pour toutes les commandes
+  /// 🔹 Pagination toutes commandes
   Future<List<OrderModel>> getAllOrdersPaginated({
     int limit = 20,
     OrderModel? startAfter,
-    List<OrderStatus>? statuses, // 🔹 liste d'états à filtrer
+    List<OrderStatus>? statuses,
   }) async {
     try {
       Query query = _ordersRef
           .orderBy('createdAt', descending: true)
           .limit(limit);
 
-      // 🔹 Filtre sur les statuts si fournis
       if (statuses != null && statuses.isNotEmpty) {
-        // Firestore Web ne supporte que whereIn <= 10 éléments
-        query = query.where(
-          'status',
-          whereIn: statuses.map((s) => s.name).toList(),
-        );
+        query = query.where('status', whereIn: statuses.map((s) => s.name).toList());
       }
 
       if (startAfter != null) {
@@ -139,38 +124,34 @@ class OrderService {
       }
 
       final snapshot = await query.get();
-      return snapshot.docs
-          .map(
-            (doc) =>
-                OrderModel.fromMap(doc.data() as Map<String, dynamic>, doc.id),
-          )
-          .toList();
+      return Future.wait(snapshot.docs.map(
+        (doc) => OrderModel.fromMapAsync(doc.data() as Map<String, dynamic>, doc.id),
+      ));
     } catch (e, stack) {
       debugPrint("🔥 Firestore error in getAllOrdersPaginated: $e");
       debugPrint(stack.toString());
-      rethrow; // 👉 pour propager l’erreur si nécessaire
+      rethrow;
     }
   }
 
   /// 🔹 Mise à jour du statut d'une commande
   Future<void> updateOrderStatus(String orderId, OrderStatus newStatus) async {
     await _ordersRef.doc(orderId).update({
-      'status': newStatus
-          .name, // Assurez-vous que OrderModel.fromMap peut parser le string
+      'status': newStatus.name,
       'updatedAt': DateTime.now(),
     });
   }
 }
 
 extension OrderServiceExtension on OrderService {
-  /// Crée une commande et génère automatiquement orderNumber à partir de l'ID Firestore
+  /// 🔹 Crée une commande et génère automatiquement un numéro
   Future<OrderModel> createOrder({
     required String customerId,
     required WeeklyOfferSummary offerSummary,
-    required DeliveryMethod deliveryMethod,
+    required DeliveryMethodConfig deliveryMethod,
     OrderStatus status = OrderStatus.pending,
     String? notes,
-    required List<OrderItem> items, // 🔹 changé de VegetableModel à OrderItem
+    required List<OrderItem> items,
   }) async {
     final newOrderRef = _ordersRef.doc();
     final orderNumber = _generateOrderNumber(newOrderRef.id);
@@ -184,22 +165,18 @@ extension OrderServiceExtension on OrderService {
       deliveryMethod: deliveryMethod,
       status: status,
       notes: notes,
-      items: items, // 🔹 on passe directement la liste d'OrderItem
+      items: items,
       createdAt: now,
       updatedAt: now,
     );
 
     await newOrderRef.set(order.toMap());
-
     return order;
   }
 
   /// Génération du numéro de commande lisible
   String _generateOrderNumber(String firestoreId) {
-    final datePart = DateTime.now()
-        .toIso8601String()
-        .split('T')[0]
-        .replaceAll('-', '');
+    final datePart = DateTime.now().toIso8601String().split('T')[0].replaceAll('-', '');
     final idPart = firestoreId.substring(firestoreId.length - 4).toUpperCase();
     return 'CMD-$datePart-$idPart';
   }

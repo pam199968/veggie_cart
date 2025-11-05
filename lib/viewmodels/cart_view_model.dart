@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:veggie_cart/models/delivery_method_config.dart';
 
-import '../models/delivery_method.dart';
 import '../models/order_item.dart';
 import '../models/order_model.dart';
 import '../models/user_model.dart';
@@ -80,7 +80,7 @@ class CartViewModel extends ChangeNotifier {
   /// ✅ Créer la commande
   Future<void> submitOrder({
     UserModel? user,
-    required DeliveryMethod deliveryMethod,
+    required DeliveryMethodConfig deliveryMethod,
     String? notes,
   }) async {
     if (_offer == null || _items.isEmpty) return;

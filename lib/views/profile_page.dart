@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../models/delivery_method_config.dart';
 import '../models/user_model.dart';
-import '../models/delivery_method.dart';
 import '../viewmodels/account_view_model.dart';
 import '../repositories/account_repository.dart';
 import 'package:veggie_cart/extensions/context_extension.dart';
+
+import '../viewmodels/delivery_method_view_model.dart';
 
 class ProfilePage extends StatefulWidget {
   final UserModel user;
@@ -146,27 +148,33 @@ class _ProfilePageState extends State<ProfilePage> {
         // ---------------------------
         // Dropdown pour la méthode de livraison
         const SizedBox(height: 16),
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 6),
-          child: DropdownButtonFormField<DeliveryMethod>(
-            initialValue: _editableUser.deliveryMethod,
-            decoration: InputDecoration(
-              labelText: context.l10n.deliveryMethodLabel,
-              border: const OutlineInputBorder(),
-            ),
-            items: DeliveryMethod.values.map((method) {
-              return DropdownMenuItem(value: method, child: Text(method.label));
-            }).toList(),
-            onChanged: (method) {
-              if (method != null) {
+        Consumer<DeliveryMethodViewModel>(
+          builder: (context, deliveryMethodVM, child) {
+            if (deliveryMethodVM.loading) {
+              return const Center(child: CircularProgressIndicator());
+            } else if (deliveryMethodVM.error != null) {
+              return Text("Erreur: ${deliveryMethodVM.error}");
+            }
+
+            // Initialisation si null
+            _editableUser = _editableUser.copyWith(
+              deliveryMethod: _editableUser.deliveryMethod,
+            );
+
+            return DeliveryMethodDropdown(
+              notifier: ValueNotifier<DeliveryMethodConfig>(
+                _editableUser.deliveryMethod,
+              ),
+              methods: deliveryMethodVM.activeMethods,
+              onChanged: (method) {
                 setState(() {
                   _editableUser = _editableUser.copyWith(
                     deliveryMethod: method,
                   );
                 });
-              }
-            },
-          ),
+              },
+            );
+          },
         ),
         // Switch pour les notifications push
         const SizedBox(height: 16),
@@ -249,6 +257,51 @@ class _ProfilePageState extends State<ProfilePage> {
         onChanged: onChanged,
         readOnly: readOnly,
       ),
+    );
+  }
+}
+
+class DeliveryMethodDropdown extends StatelessWidget {
+  final ValueNotifier<DeliveryMethodConfig> notifier;
+  final List<DeliveryMethodConfig> methods;
+  final ValueChanged<DeliveryMethodConfig> onChanged;
+
+  const DeliveryMethodDropdown({
+    super.key,
+    required this.notifier,
+    required this.methods,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    double fieldWidth = MediaQuery.of(context).size.width * 0.9;
+    if (fieldWidth > 300) fieldWidth = 300;
+
+    return ValueListenableBuilder<DeliveryMethodConfig>(
+      valueListenable: notifier,
+      builder: (context, value, child) {
+        return SizedBox(
+          width: fieldWidth,
+          child: DropdownButtonFormField<DeliveryMethodConfig>(
+            isExpanded: true,
+            initialValue: value,
+            items: methods
+                .map((m) => DropdownMenuItem(value: m, child: Text(m.label)))
+                .toList(),
+            onChanged: (v) {
+              if (v != null) {
+                notifier.value = v;
+                onChanged(v);
+              }
+            },
+            decoration: InputDecoration(
+              labelText: context.l10n.deliveryMethodLabel,
+              border: const OutlineInputBorder(),
+            ),
+          ),
+        );
+      },
     );
   }
 }

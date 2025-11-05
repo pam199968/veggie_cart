@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:veggie_cart/repositories/delivery_method_repository.dart';
 import '../repositories/account_repository.dart';
-import '../models/delivery_method.dart';
 import '../models/user_model.dart';
 import '../models/profile.dart';
 
@@ -15,7 +15,7 @@ class AccountViewModel extends ChangeNotifier {
     email: '',
     phoneNumber: '',
     address: '',
-    deliveryMethod: DeliveryMethod.farmPickup,
+    deliveryMethod: DeliveryMethodRepository.defaultMethod,
     pushNotifications: true,
     profile: Profile.customer,
   );
@@ -96,7 +96,7 @@ class AccountViewModel extends ChangeNotifier {
       email: '',
       phoneNumber: '',
       address: '',
-      deliveryMethod: DeliveryMethod.farmPickup,
+      deliveryMethod: DeliveryMethodRepository.defaultMethod,
       pushNotifications: true,
       profile: Profile.customer,
     );

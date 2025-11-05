@@ -190,6 +190,27 @@ class AppLocalizationsFr extends AppLocalizations {
   String get deliveryMethod => 'Méthode de livraison: ';
 
   @override
+  String get deliveryMethods => 'Méthodes de livraison';
+
+  @override
+  String get searchDeliveryMethod => 'Rechercher une méthode de livraison';
+
+  @override
+  String get addDeliveryMethod => 'Ajouter une méthode de livraison';
+
+  @override
+  String get disable => 'Désactiver';
+
+  @override
+  String get reactivate => 'Réactiver';
+
+  @override
+  String get noDeliveryMethodsFound => 'Aucune méthode de livraison trouvée';
+
+  @override
+  String get editDeliveryMethod => 'Modifier la méthode de livraison';
+
+  @override
   String get notes => 'Notes: ';
 
   @override

@@ -2,6 +2,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:veggie_cart/repositories/delivery_method_repository.dart';
+import 'package:veggie_cart/services/delivery_method_service.dart';
 
 import 'l10n/app_localizations.dart';
 
@@ -22,6 +24,7 @@ import 'repositories/order_repository.dart';
 import 'viewmodels/account_view_model.dart';
 import 'viewmodels/catalog_view_model.dart';
 import 'viewmodels/customer_orders_view_model.dart';
+import 'viewmodels/delivery_method_view_model.dart';
 import 'viewmodels/weekly_offers_view_model.dart';
 import 'viewmodels/my_orders_view_model.dart';
 import 'viewmodels/cart_view_model.dart';
@@ -36,31 +39,29 @@ Widget buildApp({
   CatalogService? catalogService,
   WeeklyOffersService? weeklyOffersService,
   OrderService? orderService,
+  DeliveryMethodService? deliveryMethodService,
 }) {
   return MultiProvider(
     providers: [
       // ----------------------
       // 🧩 Services de base
       // ----------------------
-      Provider<AuthService>(
-        create: (_) => authService ?? AuthService(),
-      ),
-      Provider<UserService>(
-        create: (_) => userService ?? UserService(),
-      ),
+      Provider<AuthService>(create: (_) => authService ?? AuthService()),
+      Provider<UserService>(create: (_) => userService ?? UserService()),
       Provider<CatalogService>(
         create: (_) => catalogService ?? CatalogService(),
       ),
       Provider<WeeklyOffersService>(
         create: (_) => weeklyOffersService ?? WeeklyOffersService(),
       ),
-      Provider<OrderService>(
-        create: (_) => orderService ?? OrderService(),
-      ),
+      Provider<OrderService>(create: (_) => orderService ?? OrderService()),
 
       // ----------------------
       // 🧩 Repositories
       // ----------------------
+      Provider<DeliveryMethodRepository>(
+        create: (context) => DeliveryMethodRepository(),
+      ),
       Provider<AccountRepository>(
         create: (context) => AccountRepository(
           authService: context.read<AuthService>(),
@@ -68,9 +69,8 @@ Widget buildApp({
         ),
       ),
       Provider<CatalogRepository>(
-        create: (context) => CatalogRepository(
-          catalogService: context.read<CatalogService>(),
-        ),
+        create: (context) =>
+            CatalogRepository(catalogService: context.read<CatalogService>()),
       ),
       Provider<WeeklyOffersRepository>(
         create: (context) => WeeklyOffersRepository(
@@ -78,9 +78,8 @@ Widget buildApp({
         ),
       ),
       Provider<OrderRepository>(
-        create: (context) => OrderRepository(
-          service: context.read<OrderService>(),
-        ),
+        create: (context) =>
+            OrderRepository(service: context.read<OrderService>()),
       ),
 
       // ----------------------
@@ -113,10 +112,12 @@ Widget buildApp({
           userService: context.read<UserService>(),
         ),
       ),
+      ChangeNotifierProvider<DeliveryMethodViewModel>(
+        create: (context) => DeliveryMethodViewModel(
+          deliveryMethodRepository: context.read<DeliveryMethodRepository>(),
+        )..loadMethods(), // 🔹 précharge automatiquement les méthodes
+      ),
 
-      // ----------------------
-      // 🧩 Nouveau : Panier (CartViewModel)
-      // ----------------------
       ChangeNotifierProvider<CartViewModel>(
         create: (context) => CartViewModel(
           accountViewModel: context.read<AccountViewModel>(),
@@ -151,10 +152,7 @@ class MyApp extends StatelessWidget {
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
-      supportedLocales: const [
-        Locale('en'),
-        Locale('fr'),
-      ],
+      supportedLocales: const [Locale('en'), Locale('fr')],
       home: const MyHomePage(title: 'Mon panier maraîcher'),
     );
   }

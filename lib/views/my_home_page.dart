@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:veggie_cart/models/weekly_offer.dart';
+import 'package:veggie_cart/viewmodels/delivery_method_view_model.dart';
 import 'package:veggie_cart/views/offers_mngt_page_content.dart';
 import '../models/profile.dart';
-import '../models/user_model.dart';
 import '../viewmodels/account_view_model.dart';
 import '../viewmodels/catalog_view_model.dart';
 import '../viewmodels/my_orders_view_model.dart';
 import '../viewmodels/weekly_offers_view_model.dart';
 import 'customers_page_content.dart';
+import 'delivery_methods_page_content.dart';
 import 'profile_page.dart';
 import 'login_content.dart';
 import 'catalog_page_content.dart';
@@ -101,6 +101,9 @@ class _MyHomePageState extends State<MyHomePage> {
         case 'catalog':
           bodyContent = const CatalogPageContent();
           break;
+        case 'delivery_methods':
+          bodyContent = const DeliveryMethodsPageContent();
+          break;
         case 'gardeners':
           bodyContent = const GardenersPageContent();
           break;
@@ -144,6 +147,10 @@ class _MyHomePageState extends State<MyHomePage> {
                 final WeeklyOffersViewModel offerVM = context
                     .read<WeeklyOffersViewModel>();
                 offerVM.cancelSubscriptions();
+
+                final DeliveryMethodViewModel deliveryMethodVM = context
+                    .read<DeliveryMethodViewModel>();
+                deliveryMethodVM.cancelSubscriptions();
 
                 await accountVM.signOut(context);
 
@@ -201,6 +208,12 @@ class _MyHomePageState extends State<MyHomePage> {
                       title: Text(context.l10n.catalog),
                       selected: _currentPage == 'catalog',
                       onTap: () => _navigateTo('catalog'),
+                    ),
+                    ListTile(
+                      leading: const Icon(Icons.local_shipping),
+                      title: Text(context.l10n.deliveryMethods),
+                      selected: _currentPage == 'delivery_methods',
+                      onTap: () => _navigateTo('delivery_methods'),
                     ),
                     ListTile(
                       leading: const Icon(Icons.manage_accounts),

@@ -4,8 +4,6 @@ import 'package:web/web.dart' as web;
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 
-import '../models/delivery_method.dart';
-
 /// 🥬 Version Web - "Préparation par légume"
 Future<void> printVegetableTableImpl(List<List<String>> rows) async {
   final pdf = pw.Document();
@@ -65,7 +63,7 @@ Future<void> printCustomerOrdersImpl(Map<String, List<dynamic>> ordersByCustomer
         ];
 
         ordersByCustomer.forEach((customerName, orders) {
-          final deliveryMethod = deliveryMethodLabel(orders.first.deliveryMethod);
+          final deliveryMethod = orders.first.deliveryMethod.label;
           final List<List<String>> vegRows = [];
 
           for (var order in orders) {
@@ -134,13 +132,4 @@ Future<void> printCustomerOrdersImpl(Map<String, List<dynamic>> ordersByCustomer
   web.URL.revokeObjectURL(url);
 }
 
-String deliveryMethodLabel(dynamic deliveryMethod) {
-  if (deliveryMethod == null) return '';
-  if (deliveryMethod is DeliveryMethod) return deliveryMethod.label;
-  if (deliveryMethod is String) {
-    // convertir depuis String
-    return DeliveryMethodExtension.fromString(deliveryMethod).label;
-  }
-  return deliveryMethod.toString();
-}
 

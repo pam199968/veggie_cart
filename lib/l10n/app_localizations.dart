@@ -458,6 +458,48 @@ abstract class AppLocalizations {
   /// **'Delivery Method: '**
   String get deliveryMethod;
 
+  /// No description provided for @deliveryMethods.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivery methods'**
+  String get deliveryMethods;
+
+  /// No description provided for @searchDeliveryMethod.
+  ///
+  /// In en, this message translates to:
+  /// **'search delivery method'**
+  String get searchDeliveryMethod;
+
+  /// No description provided for @addDeliveryMethod.
+  ///
+  /// In en, this message translates to:
+  /// **'Add dlivery method'**
+  String get addDeliveryMethod;
+
+  /// No description provided for @disable.
+  ///
+  /// In en, this message translates to:
+  /// **'Disable'**
+  String get disable;
+
+  /// No description provided for @reactivate.
+  ///
+  /// In en, this message translates to:
+  /// **'Reactivate'**
+  String get reactivate;
+
+  /// No description provided for @noDeliveryMethodsFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No delivery method found'**
+  String get noDeliveryMethodsFound;
+
+  /// No description provided for @editDeliveryMethod.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit delivery method'**
+  String get editDeliveryMethod;
+
   /// No description provided for @notes.
   ///
   /// In en, this message translates to:

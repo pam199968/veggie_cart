@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../models/delivery_method.dart';
+import '../models/delivery_method_config.dart';
 import '../viewmodels/account_view_model.dart';
+import '../viewmodels/delivery_method_view_model.dart';
 import 'package:veggie_cart/extensions/context_extension.dart';
 
 class LoginContent extends StatefulWidget {
@@ -22,7 +23,7 @@ class _LoginContentState extends State<LoginContent> {
   final _phoneController = TextEditingController();
   final _addressController = TextEditingController();
 
-  DeliveryMethod _selectedDeliveryMethod = DeliveryMethod.farmPickup;
+  DeliveryMethodConfig? _selectedDeliveryMethod;
   bool _pushNotifications = true;
 
   @override
@@ -50,6 +51,12 @@ class _LoginContentState extends State<LoginContent> {
   @override
   Widget build(BuildContext context) {
     final homeViewModel = context.watch<AccountViewModel>();
+    final deliveryMethodVM = context.watch<DeliveryMethodViewModel>();
+
+    // Initialisation du choix par défaut si nécessaire
+    _selectedDeliveryMethod ??= deliveryMethodVM.methods.isNotEmpty
+        ? deliveryMethodVM.methods.first
+        : null;
 
     return SafeArea(
       child: SingleChildScrollView(
@@ -63,7 +70,7 @@ class _LoginContentState extends State<LoginContent> {
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 400),
             child: homeViewModel.showSignUpForm
-                ? _buildSignUpForm(context, homeViewModel)
+                ? _buildSignUpForm(context, homeViewModel, deliveryMethodVM)
                 : _buildSignInForm(context, homeViewModel),
           ),
         ),
@@ -71,10 +78,10 @@ class _LoginContentState extends State<LoginContent> {
     );
   }
 
-  // 🔹 FORMULAIRE INSCRIPTION
   Widget _buildSignUpForm(
     BuildContext context,
     AccountViewModel homeViewModel,
+    DeliveryMethodViewModel deliveryMethodVM,
   ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -114,7 +121,9 @@ class _LoginContentState extends State<LoginContent> {
         _buildPasswordField(
           _confirmPasswordController,
           context.l10n.confirmPasswordLabel,
-          (v) => homeViewModel.confirmPassword = v.trim(),
+          (v) {
+            homeViewModel.confirmPassword = v.trim();
+          },
         ),
         _buildTextField(_phoneController, context.l10n.phoneLabel, (v) {
           homeViewModel.currentUser = homeViewModel.currentUser.copyWith(
@@ -127,15 +136,25 @@ class _LoginContentState extends State<LoginContent> {
           );
         }, maxLines: 4),
         const SizedBox(height: 10),
-        DeliveryMethodDropdown(
-          notifier: ValueNotifier<DeliveryMethod>(_selectedDeliveryMethod),
-          onChanged: (v) {
-            _selectedDeliveryMethod = v;
-            homeViewModel.currentUser = homeViewModel.currentUser.copyWith(
-              deliveryMethod: v,
-            );
-          },
-        ),
+        if (deliveryMethodVM.loading)
+          const CircularProgressIndicator()
+        else if (deliveryMethodVM.error != null)
+          Text("Erreur: ${deliveryMethodVM.error}")
+        else
+          DeliveryMethodDropdown(
+            notifier: ValueNotifier<DeliveryMethodConfig>(
+              _selectedDeliveryMethod!,
+            ),
+            methods: deliveryMethodVM.methods,
+            onChanged: (v) {
+              setState(() {
+                _selectedDeliveryMethod = v;
+                homeViewModel.currentUser = homeViewModel.currentUser.copyWith(
+                  deliveryMethod: v,
+                );
+              });
+            },
+          ),
         PushNotificationSwitch(
           notifier: ValueNotifier<bool>(_pushNotifications),
           onChanged: (v) {
@@ -242,7 +261,9 @@ class _LoginContentState extends State<LoginContent> {
                   if (!context.mounted) return;
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
-                      content: Text("Email de réinitialisation envoyé ✅, pensez à vérifier vos spams"),
+                      content: Text(
+                        "Email de réinitialisation envoyé ✅, pensez à vérifier vos spams",
+                      ),
                     ),
                   );
                 } catch (e) {
@@ -317,14 +338,16 @@ class _LoginContentState extends State<LoginContent> {
   }
 }
 
-// 🔹 Dropdown et Switch restent identiques
+/// 🔹 Dropdown pour DeliveryMethodConfig
 class DeliveryMethodDropdown extends StatelessWidget {
-  final ValueNotifier<DeliveryMethod> notifier;
-  final Function(DeliveryMethod) onChanged;
+  final ValueNotifier<DeliveryMethodConfig> notifier;
+  final List<DeliveryMethodConfig> methods;
+  final ValueChanged<DeliveryMethodConfig> onChanged;
 
   const DeliveryMethodDropdown({
     super.key,
     required this.notifier,
+    required this.methods,
     required this.onChanged,
   });
 
@@ -332,15 +355,16 @@ class DeliveryMethodDropdown extends StatelessWidget {
   Widget build(BuildContext context) {
     double fieldWidth = MediaQuery.of(context).size.width * 0.9;
     if (fieldWidth > 300) fieldWidth = 300;
-    return ValueListenableBuilder<DeliveryMethod>(
+
+    return ValueListenableBuilder<DeliveryMethodConfig>(
       valueListenable: notifier,
       builder: (context, value, child) {
         return SizedBox(
           width: fieldWidth,
-          child: DropdownButtonFormField<DeliveryMethod>(
+          child: DropdownButtonFormField<DeliveryMethodConfig>(
             isExpanded: true,
             initialValue: value,
-            items: DeliveryMethod.values
+            items: methods
                 .map((m) => DropdownMenuItem(value: m, child: Text(m.label)))
                 .toList(),
             onChanged: (v) {
@@ -362,13 +386,11 @@ class DeliveryMethodDropdown extends StatelessWidget {
 class PushNotificationSwitch extends StatelessWidget {
   final ValueNotifier<bool> notifier;
   final Function(bool) onChanged;
-
   const PushNotificationSwitch({
     super.key,
     required this.notifier,
     required this.onChanged,
   });
-
   @override
   Widget build(BuildContext context) {
     double fieldWidth = MediaQuery.of(context).size.width * 0.9;
