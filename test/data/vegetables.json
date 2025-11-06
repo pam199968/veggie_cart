@@ -8,7 +8,7 @@
       "standardQuantity": 1,
       "price": 1.20,
       "active": true,
-      "image": "https://www.memozor.com/images/fr/listes/legumes/laitue_pommee.jpg"
+      "image": ""
     },
     "epinard": {
       "name": "Épinard",
@@ -18,7 +18,7 @@
       "standardQuantity": 1,
       "price": 3.50,
       "active": true,
-      "image": "https://www.memozor.com/images/fr/listes/legumes/epinard.jpg"
+      "image": ""
     },
     "bette": {
       "name": "Bette (blette)",
@@ -28,7 +28,7 @@
       "standardQuantity": 1,
       "price": 3.00,
       "active": true,
-      "image": "https://www.memozor.com/images/fr/listes/legumes/blette.jpg"
+      "image": ""
     },
     "chou_framboise": {
       "name": "Chou frisé",
@@ -38,7 +38,7 @@
       "standardQuantity": 1,
       "price": 2.50,
       "active": true,
-      "image": "https://www.memozor.com/images/fr/listes/legumes/chou_vert_frise.jpg"
+      "image": ""
     },
     "roquette": {
       "name": "Roquette",
@@ -48,7 +48,7 @@
       "standardQuantity": 1,
       "price": 1.80,
       "active": true,
-      "image": "https://www.memozor.com/images/fr/listes/legumes/roquette.jpg"
+      "image": ""
     },
     "mesclun": {
       "name": "Mesclun",
@@ -58,7 +58,7 @@
       "standardQuantity": 0.25,
       "price": 2.20,
       "active": true,
-      "image": "https://www.memozor.com/images/fr/listes/legumes/cresson.jpg"
+      "image": ""
     },
     "chou_chinois": {
       "name": "Chou chinois",
@@ -68,7 +68,7 @@
       "standardQuantity": 1,
       "price": 2.80,
       "active": true,
-      "image": "https://www.memozor.com/images/fr/listes/legumes/chou_chinois.jpg"
+      "image": ""
     },
     "tomate": {
       "name": "Tomate",
@@ -78,7 +78,7 @@
       "standardQuantity": 1,
       "price": 3.00,
       "active": true,
-      "image": "https://www.memozor.com/images/fr/listes/legumes/tomate.jpg"
+      "image": ""
     },
     "courgette": {
       "name": "Courgette",
@@ -88,7 +88,7 @@
       "standardQuantity": 1,
       "price": 2.20,
       "active": true,
-      "image": "https://www.memozor.com/images/fr/listes/legumes/courgette.jpg"
+      "image": ""
     },
     "poivron": {
       "name": "Poivron",
@@ -98,7 +98,7 @@
       "standardQuantity": 1,
       "price": 3.00,
       "active": true,
-      "image": "https://www.memozor.com/images/fr/listes/legumes/poivron_rouge.jpg"
+      "image": ""
     },
     "aubergine": {
       "name": "Aubergine",
@@ -108,7 +108,7 @@
       "standardQuantity": 1,
       "price": 2.80,
       "active": true,
-      "image": "https://www.memozor.com/images/fr/listes/legumes/aubergine.jpg"
+      "image": ""
     },
     "concombre": {
       "name": "Concombre",
@@ -118,7 +118,7 @@
       "standardQuantity": 1,
       "price": 1.50,
       "active": true,
-      "image": "https://www.memozor.com/images/fr/listes/legumes/concombre.jpg"
+      "image": ""
     },
     "potiron": {
       "name": "Potiron",
@@ -128,7 +128,7 @@
       "standardQuantity": 1,
       "price": 2.50,
       "active": true,
-      "image": "https://www.memozor.com/images/fr/listes/legumes/potiron.jpg"
+      "image": ""
     },
     "butternut": {
       "name": "Courge butternut",
@@ -138,7 +138,7 @@
       "standardQuantity": 1,
       "price": 2.80,
       "active": true,
-      "image": "https://www.memozor.com/images/fr/listes/legumes/butternut.jpg"
+      "image": ""
     },
     "melon": {
       "name": "Melon",
@@ -148,7 +148,7 @@
       "standardQuantity": 1,
       "price": 3.50,
       "active": true,
-      "image": "https://www.memozor.com/images/fr/listes/legumes/melon.jpg"
+      "image": ""
     },
     "piment": {
       "name": "Piment doux",
@@ -158,7 +158,7 @@
       "standardQuantity": 1,
       "price": 4.00,
       "active": true,
-      "image": "https://www.memozor.com/images/fr/listes/legumes/piment.jpg"
+      "image": ""
     },
     "carotte": {
       "name": "Carotte",
@@ -168,7 +168,7 @@
       "standardQuantity": 1,
       "price": 2.00,
       "active": true,
-      "image": "https://www.memozor.com/images/fr/listes/legumes/carotte.jpg"
+      "image": ""
     },
     "navet": {
       "name": "Navet",
@@ -178,7 +178,7 @@
       "standardQuantity": 1,
       "price": 2.20,
       "active": true,
-      "image": "https://www.memozor.com/images/fr/listes/legumes/navet.jpg"
+      "image": ""
     },
     "panais": {
       "name": "Panais",
@@ -188,7 +188,7 @@
       "standardQuantity": 1,
       "price": 3.00,
       "active": true,
-      "image": "https://www.memozor.com/images/fr/listes/legumes/panais.jpg"
+      "image": ""
     },
     "betterave": {
       "name": "Betterave rouge",
@@ -198,7 +198,7 @@
       "standardQuantity": 1,
       "price": 2.50,
       "active": true,
-      "image": "https://www.memozor.com/images/fr/listes/legumes/betterave.jpg"
+      "image": ""
     },
     "radis": {
       "name": "Radis rose",
@@ -208,7 +208,7 @@
       "standardQuantity": 1,
       "price": 1.80,
       "active": true,
-      "image": "https://www.memozor.com/images/fr/listes/legumes/radis.jpg"
+      "image": ""
     },
     "oignon": {
       "name": "Oignon jaune",
@@ -218,7 +218,7 @@
       "standardQuantity": 1,
       "price": 2.00,
       "active": true,
-      "image": "https://www.memozor.com/images/fr/listes/legumes/oignon.jpg"
+      "image": ""
     },
     "ail": {
       "name": "Ail",
@@ -228,7 +228,7 @@
       "standardQuantity": 1,
       "price": 0.80,
       "active": true,
-      "image": "https://www.memozor.com/images/fr/listes/legumes/ail.jpg"
+      "image": ""
     },
     "poireau": {
       "name": "Poireau",
@@ -238,7 +238,7 @@
       "standardQuantity": 1,
       "price": 2.50,
       "active": true,
-      "image": "https://www.memozor.com/images/fr/listes/legumes/poireau.jpg"
+      "image": ""
     },
     "celeri_rave": {
       "name": "Céleri-rave",
@@ -248,7 +248,7 @@
       "standardQuantity": 1,
       "price": 2.80,
       "active": true,
-      "image": "https://www.memozor.com/images/fr/listes/legumes/celeri_rave.jpg"
+      "image": ""
     },
     "topinambour": {
       "name": "Topinambour",
@@ -258,7 +258,7 @@
       "standardQuantity": 1,
       "price": 3.50,
       "active": true,
-      "image": "https://www.memozor.com/images/fr/listes/legumes/topinambour.jpg"
+      "image": ""
     },
     "persil": {
       "name": "Persil",
@@ -268,7 +268,7 @@
       "standardQuantity": 1,
       "price": 1.50,
       "active": true,
-      "image": "https://www.memozor.com/images/fr/listes/legumes/persil.jpg"
+      "image": ""
     },
     "ciboulette": {
       "name": "Ciboulette",
@@ -278,7 +278,7 @@
       "standardQuantity": 1,
       "price": 1.50,
       "active": true,
-      "image": "https://www.memozor.com/images/fr/listes/legumes/ciboulette.jpg"
+      "image": ""
     },
     "basilic": {
       "name": "Basilic",
@@ -288,7 +288,7 @@
       "standardQuantity": 1,
       "price": 2.50,
       "active": true,
-      "image": "https://www.memozor.com/images/fr/listes/legumes/basilic.jpg"
+      "image": ""
     },
     "menthe": {
       "name": "Menthe",
@@ -298,7 +298,7 @@
       "standardQuantity": 1,
       "price": 1.80,
       "active": true,
-      "image": "https://www.memozor.com/images/fr/listes/legumes/menthe.jpg"
+      "image": ""
     },
     "aneth": {
       "name": "Aneth",
@@ -308,7 +308,7 @@
       "standardQuantity": 1,
       "price": 1.80,
       "active": true,
-      "image": "https://www.memozor.com/images/fr/listes/legumes/aneth.jpg"
+      "image": ""
     },
     "cerfeuil": {
       "name": "Cerfeuil",
@@ -318,7 +318,7 @@
       "standardQuantity": 1,
       "price": 1.50,
       "active": true,
-      "image": "https://www.memozor.com/images/fr/listes/legumes/cerfeuil.jpg"
+      "image": ""
     },
     "haricot_vert": {
       "name": "Haricot vert",
@@ -328,7 +328,7 @@
       "standardQuantity": 1,
       "price": 3.20,
       "active": true,
-      "image": "https://www.memozor.com/images/fr/listes/legumes/haricot_vert.jpg"
+      "image": ""
     },
     "petit_pois": {
       "name": "Petit pois",
@@ -338,7 +338,7 @@
       "standardQuantity": 1,
       "price": 4.00,
       "active": true,
-      "image": "https://www.memozor.com/images/fr/listes/legumes/petit_pois.jpg"
+      "image": ""
     },
     "fève": {
       "name": "Fève",
@@ -348,7 +348,7 @@
       "standardQuantity": 1,
       "price": 4.50,
       "active": true,
-      "image": "https://www.memozor.com/images/fr/listes/legumes/feves.jpg"
+      "image": ""
     },
     "chou_fleur": {
       "name": "Chou-fleur",
@@ -358,7 +358,7 @@
       "standardQuantity": 1,
       "price": 2.80,
       "active": true,
-      "image": "https://www.memozor.com/images/fr/listes/legumes/chou_fleur.jpg"
+      "image": ""
     },
     "brocoli": {
       "name": "Brocoli",
@@ -368,7 +368,7 @@
       "standardQuantity": 1,
       "price": 3.00,
       "active": true,
-      "image": "https://www.memozor.com/images/fr/listes/legumes/brocoli.jpg"
+      "image": ""
     },
     "endive": {
       "name": "Endive",
@@ -378,7 +378,7 @@
       "standardQuantity": 1,
       "price": 2.80,
       "active": true,
-      "image": "https://www.memozor.com/images/fr/listes/legumes/endive.jpg"
+      "image": ""
     },
     "asperge": {
       "name": "Asperge",
@@ -388,7 +388,7 @@
       "standardQuantity": 1,
       "price": 4.50,
       "active": true,
-      "image": "https://www.memozor.com/images/fr/listes/legumes/asperge.jpg"
+      "image": ""
     }
   }
 }

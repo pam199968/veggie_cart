@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../extensions/context_extension.dart';
 import '../models/vegetable_model.dart';
+import '../utils/image_picker_uploader.dart';
 import '../viewmodels/catalog_view_model.dart';
 
 class CatalogPageContent extends StatefulWidget {
@@ -205,12 +206,30 @@ class _CatalogPageContentState extends State<CatalogPageContent> {
                       ),
                       onChanged: (_) => onFieldChanged(),
                     ),
-                    TextField(
-                      controller: imageController,
-                      decoration: InputDecoration(
-                        labelText: context.l10n.imageUrl,
-                      ),
-                      keyboardType: TextInputType.url,
+                    const SizedBox(height: 16),
+                    // 🖼️ Picker + miniature
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        const SizedBox(width: 12),
+                        // ✅ Picker d’image
+                        Expanded(
+                          child: ImagePickerUploader(
+                            onImageUploaded: (url) {
+                              setState(() {
+                                imageController.text = url;
+                              });
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    // 🕵️‍♂️ Champ masqué, conservé pour le modèle
+                    Visibility(
+                      visible: false,
+                      maintainState: true,
+                      child: TextField(controller: imageController),
                     ),
 
                     SwitchListTile(
