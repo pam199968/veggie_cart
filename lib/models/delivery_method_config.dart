@@ -1,7 +1,7 @@
 class DeliveryMethodConfig {
   final String key; // ex: "farmPickup"
   final String label; // ex: "Retrait à la ferme"
-  final bool enabled; // optionnel : permet d’en activer/désactiver certaines
+  final bool enabled; // optionnel : permet d'en activer/désactiver certaines
   final bool isDefault;
 
   DeliveryMethodConfig({
@@ -21,7 +21,12 @@ class DeliveryMethodConfig {
   }
 
   Map<String, dynamic> toMap() {
-    return {'key': key, 'label': label, 'enabled': enabled, 'isDefault': isDefault};
+    return {
+      'key': key,
+      'label': label,
+      'enabled': enabled,
+      'isDefault': isDefault
+    };
   }
 
   /// 🔹 Crée une copie avec des modifications optionnelles
@@ -38,4 +43,17 @@ class DeliveryMethodConfig {
       isDefault: isDefault ?? this.isDefault,
     );
   }
+
+  // 🔹 AJOUT : Comparaison basée sur la clé unique
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    return other is DeliveryMethodConfig && other.key == key;
+  }
+
+  @override
+  int get hashCode => key.hashCode;
+
+  @override
+  String toString() => 'DeliveryMethodConfig(key: $key, label: $label)';
 }

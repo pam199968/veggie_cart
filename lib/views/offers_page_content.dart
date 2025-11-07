@@ -26,7 +26,13 @@ class _OffersPageContentState extends State<OffersPageContent> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
         final vm = context.read<WeeklyOffersViewModel>();
-        vm.setOfferFilter(OfferFilter.published); // <-- on définit le filtre
+        vm.setOfferFilter(OfferFilter.published);
+
+        // ✅ Charger aussi les méthodes de livraison
+        final deliveryMethodVM = context.read<DeliveryMethodViewModel>();
+        if (deliveryMethodVM.methods.isEmpty && !deliveryMethodVM.loading) {
+          deliveryMethodVM.loadMethods();
+        }
       }
     });
   }
@@ -260,9 +266,9 @@ class OfferDetailScreen extends StatelessWidget {
         }).toList(),
       ),
 
-      // ✅ Bouton "Finaliser la commande" en bas de l’écran
+      // ✅ Bouton "Finaliser la commande" en bas de l'écran
       bottomNavigationBar: SafeArea(
-        minimum: const EdgeInsets.all(12), // marge autour du bouton
+        minimum: const EdgeInsets.all(12),
         child: ElevatedButton.icon(
           style: ElevatedButton.styleFrom(
             backgroundColor: Colors.green,
@@ -291,7 +297,6 @@ class OfferDetailScreen extends StatelessWidget {
 }
 
 /// 🔹 Écran du panier : modifier quantités, supprimer articles, ajouter note et valider
-
 class CartScreen extends StatefulWidget {
   final UserModel? user;
   const CartScreen({super.key, this.user});
@@ -307,14 +312,14 @@ class _CartScreenState extends State<CartScreen> {
   @override
   void initState() {
     super.initState();
-    final deliveryMethodVM = context.read<DeliveryMethodViewModel>();
 
-    // Initialisation avec la méthode de l'utilisateur
-    _selectedDeliveryMethod =
-        widget.user?.deliveryMethod ??
-        (deliveryMethodVM.methods.isNotEmpty
-            ? deliveryMethodVM.defaultMethod
-            : null);
+    // ✅ Charger les méthodes de livraison si nécessaire
+    Future.microtask(() {
+      final deliveryMethodVM = context.read<DeliveryMethodViewModel>();
+      if (deliveryMethodVM.methods.isEmpty && !deliveryMethodVM.loading) {
+        deliveryMethodVM.loadMethods();
+      }
+    });
   }
 
   @override
@@ -327,6 +332,13 @@ class _CartScreenState extends State<CartScreen> {
   Widget build(BuildContext context) {
     final cartVm = context.watch<CartViewModel>();
     final deliveryMethodVM = context.watch<DeliveryMethodViewModel>();
+
+    // ✅ Initialisation de la méthode de livraison une fois les données chargées
+    if (_selectedDeliveryMethod == null &&
+        deliveryMethodVM.activeMethods.isNotEmpty) {
+      _selectedDeliveryMethod =
+          widget.user?.deliveryMethod ?? deliveryMethodVM.defaultMethod;
+    }
 
     return Scaffold(
       appBar: AppBar(title: Text(context.l10n.myCart)),
@@ -465,6 +477,7 @@ class _CartScreenState extends State<CartScreen> {
                     );
                   }),
                   const SizedBox(height: 12),
+
                   // Note
                   TextField(
                     controller: _noteController,
@@ -480,12 +493,15 @@ class _CartScreenState extends State<CartScreen> {
                   if (deliveryMethodVM.loading)
                     const Center(child: CircularProgressIndicator())
                   else if (deliveryMethodVM.error != null)
-                    Text("Erreur: ${deliveryMethodVM.error}")
-                  else
+                    Text(
+                      "Erreur: ${deliveryMethodVM.error}",
+                      style: const TextStyle(color: Colors.red),
+                    )
+                  else if (deliveryMethodVM.activeMethods.isEmpty)
+                    const Text("Aucune méthode de livraison disponible")
+                  else if (_selectedDeliveryMethod != null)
                     DeliveryMethodDropdown(
-                      notifier: ValueNotifier<DeliveryMethodConfig>(
-                        _selectedDeliveryMethod!,
-                      ),
+                      value: _selectedDeliveryMethod!,
                       methods: deliveryMethodVM.activeMethods,
                       onChanged: (v) => setState(() {
                         _selectedDeliveryMethod = v;
@@ -493,6 +509,7 @@ class _CartScreenState extends State<CartScreen> {
                     ),
 
                   const SizedBox(height: 16),
+
                   // Boutons retour et valider
                   Row(
                     children: [
@@ -541,14 +558,15 @@ class _CartScreenState extends State<CartScreen> {
   }
 }
 
+/// 🔹 Dropdown simplifié pour DeliveryMethodConfig (sans ValueNotifier)
 class DeliveryMethodDropdown extends StatelessWidget {
-  final ValueNotifier<DeliveryMethodConfig> notifier;
+  final DeliveryMethodConfig value;
   final List<DeliveryMethodConfig> methods;
   final ValueChanged<DeliveryMethodConfig> onChanged;
 
   const DeliveryMethodDropdown({
     super.key,
-    required this.notifier,
+    required this.value,
     required this.methods,
     required this.onChanged,
   });
@@ -558,30 +576,24 @@ class DeliveryMethodDropdown extends StatelessWidget {
     double fieldWidth = MediaQuery.of(context).size.width * 0.9;
     if (fieldWidth > 300) fieldWidth = 300;
 
-    return ValueListenableBuilder<DeliveryMethodConfig>(
-      valueListenable: notifier,
-      builder: (context, value, child) {
-        return SizedBox(
-          width: fieldWidth,
-          child: DropdownButtonFormField<DeliveryMethodConfig>(
-            isExpanded: true,
-            initialValue: value,
-            items: methods
-                .map((m) => DropdownMenuItem(value: m, child: Text(m.label)))
-                .toList(),
-            onChanged: (v) {
-              if (v != null) {
-                notifier.value = v;
-                onChanged(v);
-              }
-            },
-            decoration: InputDecoration(
-              labelText: context.l10n.deliveryMethod,
-              border: const OutlineInputBorder(),
-            ),
-          ),
-        );
-      },
+    return SizedBox(
+      width: fieldWidth,
+      child: DropdownButtonFormField<DeliveryMethodConfig>(
+        isExpanded: true,
+        value: value,
+        items: methods
+            .map((m) => DropdownMenuItem(value: m, child: Text(m.label)))
+            .toList(),
+        onChanged: (v) {
+          if (v != null) {
+            onChanged(v);
+          }
+        },
+        decoration: InputDecoration(
+          labelText: context.l10n.deliveryMethod,
+          border: const OutlineInputBorder(),
+        ),
+      ),
     );
   }
 }

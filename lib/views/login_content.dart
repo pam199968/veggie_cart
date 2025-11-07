@@ -27,6 +27,19 @@ class _LoginContentState extends State<LoginContent> {
   bool _pushNotifications = true;
 
   @override
+  void initState() {
+    super.initState();
+
+    // ✅ Charger les méthodes de livraison au démarrage
+    Future.microtask(() {
+      final deliveryMethodVM = context.read<DeliveryMethodViewModel>();
+      if (deliveryMethodVM.methods.isEmpty && !deliveryMethodVM.loading) {
+        deliveryMethodVM.loadMethods();
+      }
+    });
+  }
+
+  @override
   void dispose() {
     _nameController.dispose();
     _givenNameController.dispose();
@@ -53,10 +66,11 @@ class _LoginContentState extends State<LoginContent> {
     final homeViewModel = context.watch<AccountViewModel>();
     final deliveryMethodVM = context.watch<DeliveryMethodViewModel>();
 
-    // Initialisation du choix par défaut si nécessaire
-    _selectedDeliveryMethod ??= deliveryMethodVM.methods.isNotEmpty
-        ? deliveryMethodVM.methods.first
-        : null;
+    // ✅ Initialisation du choix par défaut une seule fois
+    if (_selectedDeliveryMethod == null &&
+        deliveryMethodVM.activeMethods.isNotEmpty) {
+      _selectedDeliveryMethod = deliveryMethodVM.defaultMethod;
+    }
 
     return SafeArea(
       child: SingleChildScrollView(
@@ -136,16 +150,21 @@ class _LoginContentState extends State<LoginContent> {
           );
         }, maxLines: 4),
         const SizedBox(height: 10),
+
+        // ✅ Gestion du dropdown avec les nouveaux composants
         if (deliveryMethodVM.loading)
           const CircularProgressIndicator()
         else if (deliveryMethodVM.error != null)
-          Text("Erreur: ${deliveryMethodVM.error}")
-        else
+          Text(
+            "Erreur: ${deliveryMethodVM.error}",
+            style: const TextStyle(color: Colors.red),
+          )
+        else if (deliveryMethodVM.activeMethods.isEmpty)
+          const Text("Aucune méthode de livraison disponible")
+        else if (_selectedDeliveryMethod != null)
           DeliveryMethodDropdown(
-            notifier: ValueNotifier<DeliveryMethodConfig>(
-              _selectedDeliveryMethod!,
-            ),
-            methods: deliveryMethodVM.methods,
+            value: _selectedDeliveryMethod!,
+            methods: deliveryMethodVM.activeMethods,
             onChanged: (v) {
               setState(() {
                 _selectedDeliveryMethod = v;
@@ -155,13 +174,16 @@ class _LoginContentState extends State<LoginContent> {
               });
             },
           ),
+
         PushNotificationSwitch(
-          notifier: ValueNotifier<bool>(_pushNotifications),
+          value: _pushNotifications,
           onChanged: (v) {
-            _pushNotifications = v;
-            homeViewModel.currentUser = homeViewModel.currentUser.copyWith(
-              pushNotifications: v,
-            );
+            setState(() {
+              _pushNotifications = v;
+              homeViewModel.currentUser = homeViewModel.currentUser.copyWith(
+                pushNotifications: v,
+              );
+            });
           },
         ),
         const SizedBox(height: 20),
@@ -338,15 +360,15 @@ class _LoginContentState extends State<LoginContent> {
   }
 }
 
-/// 🔹 Dropdown pour DeliveryMethodConfig
+/// 🔹 Dropdown pour DeliveryMethodConfig (version simplifiée sans ValueNotifier)
 class DeliveryMethodDropdown extends StatelessWidget {
-  final ValueNotifier<DeliveryMethodConfig> notifier;
+  final DeliveryMethodConfig value;
   final List<DeliveryMethodConfig> methods;
   final ValueChanged<DeliveryMethodConfig> onChanged;
 
   const DeliveryMethodDropdown({
     super.key,
-    required this.notifier,
+    required this.value,
     required this.methods,
     required this.onChanged,
   });
@@ -356,60 +378,50 @@ class DeliveryMethodDropdown extends StatelessWidget {
     double fieldWidth = MediaQuery.of(context).size.width * 0.9;
     if (fieldWidth > 300) fieldWidth = 300;
 
-    return ValueListenableBuilder<DeliveryMethodConfig>(
-      valueListenable: notifier,
-      builder: (context, value, child) {
-        return SizedBox(
-          width: fieldWidth,
-          child: DropdownButtonFormField<DeliveryMethodConfig>(
-            isExpanded: true,
-            initialValue: value,
-            items: methods
-                .map((m) => DropdownMenuItem(value: m, child: Text(m.label)))
-                .toList(),
-            onChanged: (v) {
-              if (v != null) {
-                notifier.value = v;
-                onChanged(v);
-              }
-            },
-            decoration: InputDecoration(
-              labelText: context.l10n.deliveryMethodLabel,
-            ),
-          ),
-        );
-      },
+    return SizedBox(
+      width: fieldWidth,
+      child: DropdownButtonFormField<DeliveryMethodConfig>(
+        isExpanded: true,
+        value: value,
+        items: methods
+            .map((m) => DropdownMenuItem(value: m, child: Text(m.label)))
+            .toList(),
+        onChanged: (v) {
+          if (v != null) {
+            onChanged(v);
+          }
+        },
+        decoration: InputDecoration(
+          labelText: context.l10n.deliveryMethodLabel,
+        ),
+      ),
     );
   }
 }
 
+/// 🔹 Switch pour notifications push (version simplifiée sans ValueNotifier)
 class PushNotificationSwitch extends StatelessWidget {
-  final ValueNotifier<bool> notifier;
+  final bool value;
   final Function(bool) onChanged;
+
   const PushNotificationSwitch({
     super.key,
-    required this.notifier,
+    required this.value,
     required this.onChanged,
   });
+
   @override
   Widget build(BuildContext context) {
     double fieldWidth = MediaQuery.of(context).size.width * 0.9;
     if (fieldWidth > 300) fieldWidth = 300;
-    return ValueListenableBuilder<bool>(
-      valueListenable: notifier,
-      builder: (context, value, child) {
-        return SizedBox(
-          width: fieldWidth,
-          child: SwitchListTile(
-            title: Text(context.l10n.pushNotificationLabel),
-            value: value,
-            onChanged: (v) {
-              notifier.value = v;
-              onChanged(v);
-            },
-          ),
-        );
-      },
+
+    return SizedBox(
+      width: fieldWidth,
+      child: SwitchListTile(
+        title: Text(context.l10n.pushNotificationLabel),
+        value: value,
+        onChanged: onChanged,
+      ),
     );
   }
 }

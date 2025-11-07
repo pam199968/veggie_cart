@@ -18,16 +18,19 @@ class _DeliveryMethodsPageContentState
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<DeliveryMethodViewModel>().loadMethods();
+    // ✅ Utilisation de Future.microtask au lieu d'accéder directement au context
+    Future.microtask(() {
+      final vm = context.read<DeliveryMethodViewModel>();
+      if (vm.methods.isEmpty && !vm.loading) {
+        vm.loadMethods();
+      }
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    final vm = context.watch<DeliveryMethodViewModel>();
-
-    return Column(
+    final deliveryMethodVM = context.watch<DeliveryMethodViewModel>();
+   return Column(
       children: [
         // 🔍 Barre de recherche
         Padding(
@@ -71,17 +74,17 @@ class _DeliveryMethodsPageContentState
                 context.l10n.addDeliveryMethod,
                 style: const TextStyle(color: Colors.white),
               ),
-              onPressed: () => _showCreateDialog(context, vm),
+              onPressed: () => _showCreateDialog(context, deliveryMethodVM),
             ),
           ),
         ),
 
         Expanded(
-          child: vm.loading
+          child: deliveryMethodVM.loading
               ? const Center(child: CircularProgressIndicator())
-              : vm.error != null
-              ? Center(child: Text('Erreur : ${vm.error}'))
-              : _buildList(context, vm),
+              : deliveryMethodVM.error != null
+              ? Center(child: Text('Erreur : ${deliveryMethodVM.error}'))
+              : _buildList(context, deliveryMethodVM),
         ),
       ],
     );

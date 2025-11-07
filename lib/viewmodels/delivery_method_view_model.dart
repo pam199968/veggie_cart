@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:flutter/foundation.dart';
 import '../models/delivery_method_config.dart';
 import '../repositories/delivery_method_repository.dart';

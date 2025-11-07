@@ -5,7 +5,6 @@ import '../models/user_model.dart';
 import '../viewmodels/account_view_model.dart';
 import '../repositories/account_repository.dart';
 import '../extensions/context_extension.dart';
-
 import '../viewmodels/delivery_method_view_model.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -38,6 +37,14 @@ class _ProfilePageState extends State<ProfilePage> {
     _emailController = TextEditingController(text: _editableUser.email);
     _phoneController = TextEditingController(text: _editableUser.phoneNumber);
     _addressController = TextEditingController(text: _editableUser.address);
+
+    // ✅ Charger les méthodes ici
+    Future.microtask(() {
+      final deliveryMethodVM = context.read<DeliveryMethodViewModel>();
+      if (deliveryMethodVM.methods.isEmpty && !deliveryMethodVM.loading) {
+        deliveryMethodVM.loadMethods();
+      }
+    });
   }
 
   @override
@@ -152,19 +159,34 @@ class _ProfilePageState extends State<ProfilePage> {
           builder: (context, deliveryMethodVM, child) {
             if (deliveryMethodVM.loading) {
               return const Center(child: CircularProgressIndicator());
-            } else if (deliveryMethodVM.error != null) {
-              return Text("Erreur: ${deliveryMethodVM.error}");
             }
 
-            // Initialisation si null
-            _editableUser = _editableUser.copyWith(
-              deliveryMethod: _editableUser.deliveryMethod,
-            );
+            // ✅ Si aucune méthode chargée, afficher message
+            if (deliveryMethodVM.methods.isEmpty) {
+              return const Center(
+                child: Text('Aucune méthode de livraison disponible'),
+              );
+            }
+
+            // ✅ Assurer que la méthode actuelle existe dans la liste
+            final currentMethod = _editableUser.deliveryMethod;
+            final methodExists = deliveryMethodVM.activeMethods
+                .any((m) => m.key == currentMethod.key);
+
+            // Si la méthode n'existe pas, utiliser la première disponible
+            if (!methodExists && deliveryMethodVM.activeMethods.isNotEmpty) {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                setState(() {
+                  _editableUser = _editableUser.copyWith(
+                    deliveryMethod: deliveryMethodVM.activeMethods.first,
+                  );
+                });
+              });
+              return const SizedBox.shrink();
+            }
 
             return DeliveryMethodDropdown(
-              notifier: ValueNotifier<DeliveryMethodConfig>(
-                _editableUser.deliveryMethod,
-              ),
+              value: _editableUser.deliveryMethod,
               methods: deliveryMethodVM.activeMethods,
               onChanged: (method) {
                 setState(() {
@@ -176,6 +198,7 @@ class _ProfilePageState extends State<ProfilePage> {
             );
           },
         ),
+
         // Switch pour les notifications push
         const SizedBox(height: 16),
         SwitchListTile(
@@ -262,13 +285,13 @@ class _ProfilePageState extends State<ProfilePage> {
 }
 
 class DeliveryMethodDropdown extends StatelessWidget {
-  final ValueNotifier<DeliveryMethodConfig> notifier;
+  final DeliveryMethodConfig value;
   final List<DeliveryMethodConfig> methods;
   final ValueChanged<DeliveryMethodConfig> onChanged;
 
   const DeliveryMethodDropdown({
     super.key,
-    required this.notifier,
+    required this.value,
     required this.methods,
     required this.onChanged,
   });
@@ -278,30 +301,27 @@ class DeliveryMethodDropdown extends StatelessWidget {
     double fieldWidth = MediaQuery.of(context).size.width * 0.9;
     if (fieldWidth > 300) fieldWidth = 300;
 
-    return ValueListenableBuilder<DeliveryMethodConfig>(
-      valueListenable: notifier,
-      builder: (context, value, child) {
-        return SizedBox(
-          width: fieldWidth,
-          child: DropdownButtonFormField<DeliveryMethodConfig>(
-            isExpanded: true,
-            initialValue: value,
-            items: methods
-                .map((m) => DropdownMenuItem(value: m, child: Text(m.label)))
-                .toList(),
-            onChanged: (v) {
-              if (v != null) {
-                notifier.value = v;
-                onChanged(v);
-              }
-            },
-            decoration: InputDecoration(
-              labelText: context.l10n.deliveryMethodLabel,
-              border: const OutlineInputBorder(),
-            ),
-          ),
-        );
-      },
+    return SizedBox(
+      width: fieldWidth,
+      child: DropdownButtonFormField<DeliveryMethodConfig>(
+        isExpanded: true,
+        value: value,
+        items: methods
+            .map((m) => DropdownMenuItem(
+                  value: m,
+                  child: Text(m.label),
+                ))
+            .toList(),
+        onChanged: (v) {
+          if (v != null) {
+            onChanged(v);
+          }
+        },
+        decoration: InputDecoration(
+          labelText: context.l10n.deliveryMethodLabel,
+          border: const OutlineInputBorder(),
+        ),
+      ),
     );
   }
 }
