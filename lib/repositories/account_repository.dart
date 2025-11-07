@@ -14,8 +14,8 @@ class AccountRepository {
   AccountRepository({
     required AuthService authService,
     required UserService userService,
-  }) : authService = authService,
-       userService = userService;
+  }) : this.authService = authService,
+       this.userService = userService;
 
   /// 🔗 Crée un compte à partir d’un [UserModel]
   Future<UserModel?> signUp({
