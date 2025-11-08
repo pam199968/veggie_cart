@@ -29,14 +29,6 @@ class _LoginContentState extends State<LoginContent> {
   @override
   void initState() {
     super.initState();
-
-    // ✅ Charger les méthodes de livraison au démarrage
-    Future.microtask(() {
-      final deliveryMethodVM = context.read<DeliveryMethodViewModel>();
-      if (deliveryMethodVM.methods.isEmpty && !deliveryMethodVM.loading) {
-        deliveryMethodVM.loadMethods();
-      }
-    });
   }
 
   @override

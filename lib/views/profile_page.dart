@@ -37,14 +37,6 @@ class _ProfilePageState extends State<ProfilePage> {
     _emailController = TextEditingController(text: _editableUser.email);
     _phoneController = TextEditingController(text: _editableUser.phoneNumber);
     _addressController = TextEditingController(text: _editableUser.address);
-
-    // ✅ Charger les méthodes ici
-    Future.microtask(() {
-      final deliveryMethodVM = context.read<DeliveryMethodViewModel>();
-      if (deliveryMethodVM.methods.isEmpty && !deliveryMethodVM.loading) {
-        deliveryMethodVM.loadMethods();
-      }
-    });
   }
 
   @override

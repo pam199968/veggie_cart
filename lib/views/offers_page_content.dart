@@ -312,14 +312,6 @@ class _CartScreenState extends State<CartScreen> {
   @override
   void initState() {
     super.initState();
-
-    // ✅ Charger les méthodes de livraison si nécessaire
-    Future.microtask(() {
-      final deliveryMethodVM = context.read<DeliveryMethodViewModel>();
-      if (deliveryMethodVM.methods.isEmpty && !deliveryMethodVM.loading) {
-        deliveryMethodVM.loadMethods();
-      }
-    });
   }
 
   @override

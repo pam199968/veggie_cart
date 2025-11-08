@@ -115,7 +115,7 @@ Widget buildApp({
       ChangeNotifierProvider<DeliveryMethodViewModel>(
         create: (context) => DeliveryMethodViewModel(
           deliveryMethodRepository: context.read<DeliveryMethodRepository>(),
-        ),// 🔹 précharge automatiquement les méthodes
+        )..loadMethods(),// 🔹 précharge automatiquement les méthodes
       ),
 
       ChangeNotifierProvider<CartViewModel>(
