@@ -138,306 +138,325 @@ class _WeeklyOfferFormPageState extends State<WeeklyOfferFormPage> {
       appBar: AppBar(
         title: Text(isEditing ? context.l10n.editOffer : context.l10n.newOffer),
       ),
-      body: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(
-            maxWidth: 600,
-          ), // ✅ largeur max fixe (≈ 1/3 d’un écran 1920px)
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Form(
-              key: _formKey,
-              child: ListView(
-                children: [
-                  TextFormField(
-                    controller: _titleController,
-                    decoration: const InputDecoration(labelText: 'Titre'),
-                    validator: (v) =>
-                        v == null || v.isEmpty ? 'Champ requis' : null,
-                  ),
-                  const SizedBox(height: 12),
-                  TextFormField(
-                    controller: _descriptionController,
-                    decoration: const InputDecoration(labelText: 'Description'),
-                    maxLines: 3,
-                  ),
-                  const SizedBox(height: 12),
-                  LayoutBuilder(
-                    builder: (context, constraints) {
-                      final isWide = constraints.maxWidth > 400;
-                      if (isWide) {
-                        return Row(
-                          children: [
-                            Expanded(
-                              child: ListTile(
+      body: SafeArea(
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(
+              maxWidth: 600,
+            ), // ✅ largeur max fixe (≈ 1/3 d’un écran 1920px)
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Form(
+                key: _formKey,
+                child: ListView(
+                  children: [
+                    TextFormField(
+                      controller: _titleController,
+                      decoration: const InputDecoration(labelText: 'Titre'),
+                      validator: (v) =>
+                          v == null || v.isEmpty ? 'Champ requis' : null,
+                    ),
+                    const SizedBox(height: 12),
+                    TextFormField(
+                      controller: _descriptionController,
+                      decoration: const InputDecoration(
+                        labelText: 'Description',
+                      ),
+                      maxLines: 3,
+                    ),
+                    const SizedBox(height: 12),
+                    LayoutBuilder(
+                      builder: (context, constraints) {
+                        final isWide = constraints.maxWidth > 400;
+                        if (isWide) {
+                          return Row(
+                            children: [
+                              Expanded(
+                                child: ListTile(
+                                  title: Text(
+                                    _startDate == null
+                                        ? context.l10n.startDate
+                                        : 'Début : ${_frenchDateFormat.format(_startDate!)}',
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                  trailing: const Icon(Icons.calendar_today),
+                                  onTap: () => _pickDate(context, true),
+                                ),
+                              ),
+                              Expanded(
+                                child: ListTile(
+                                  title: Text(
+                                    _endDate == null
+                                        ? context.l10n.endDate
+                                        : 'Fin : ${_frenchDateFormat.format(_endDate!)}',
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                  trailing: const Icon(Icons.calendar_today),
+                                  onTap: () => _pickDate(context, false),
+                                ),
+                              ),
+                            ],
+                          );
+                        } else {
+                          return Column(
+                            children: [
+                              ListTile(
                                 title: Text(
                                   _startDate == null
                                       ? context.l10n.startDate
                                       : 'Début : ${_frenchDateFormat.format(_startDate!)}',
-                                  overflow: TextOverflow.ellipsis,
                                 ),
                                 trailing: const Icon(Icons.calendar_today),
                                 onTap: () => _pickDate(context, true),
                               ),
-                            ),
-                            Expanded(
-                              child: ListTile(
+                              ListTile(
                                 title: Text(
                                   _endDate == null
                                       ? context.l10n.endDate
                                       : 'Fin : ${_frenchDateFormat.format(_endDate!)}',
-                                  overflow: TextOverflow.ellipsis,
                                 ),
                                 trailing: const Icon(Icons.calendar_today),
                                 onTap: () => _pickDate(context, false),
                               ),
-                            ),
-                          ],
-                        );
-                      } else {
-                        return Column(
-                          children: [
-                            ListTile(
-                              title: Text(
-                                _startDate == null
-                                    ? context.l10n.startDate
-                                    : 'Début : ${_frenchDateFormat.format(_startDate!)}',
-                              ),
-                              trailing: const Icon(Icons.calendar_today),
-                              onTap: () => _pickDate(context, true),
-                            ),
-                            ListTile(
-                              title: Text(
-                                _endDate == null
-                                    ? context.l10n.endDate
-                                    : 'Fin : ${_frenchDateFormat.format(_endDate!)}',
-                              ),
-                              trailing: const Icon(Icons.calendar_today),
-                              onTap: () => _pickDate(context, false),
-                            ),
-                          ],
-                        );
-                      }
-                    },
-                  ),
-                  if (isEditing) ...[
-                    const SizedBox(height: 12),
-                    DropdownButtonFormField<WeeklyOfferStatus>(
-                      initialValue: _status,
-                      decoration: InputDecoration(
-                        labelText: context.l10n.offerStatus,
-                      ),
-                      onChanged: (v) {
-                        if (v != null) setState(() => _status = v);
+                            ],
+                          );
+                        }
                       },
-                      items: const [
-                        DropdownMenuItem(
-                          value: WeeklyOfferStatus.draft,
-                          child: Text('Brouillon'),
-                        ),
-                        DropdownMenuItem(
-                          value: WeeklyOfferStatus.published,
-                          child: Text('Publiée'),
-                        ),
-                        DropdownMenuItem(
-                          value: WeeklyOfferStatus.closed,
-                          child: Text('Fermée'),
-                        ),
-                      ],
                     ),
-                  ],
-                  const Divider(),
-                  ListTile(
-                    title: Text(context.l10n.vegetablesIncluded),
-                    trailing: IconButton(
-                      icon: const Icon(Icons.add),
-                      onPressed: _openVegetableSelector,
-                    ),
-                  ),
-                  ..._selectedVegetables.map(
-                    (veg) => ListTile(
-                      title: Text(veg.name),
-                      subtitle: Text(
-                        'Prix : ${veg.price ?? '-'} € / ${veg.packaging}',
+                    if (isEditing) ...[
+                      const SizedBox(height: 12),
+                      DropdownButtonFormField<WeeklyOfferStatus>(
+                        initialValue: _status,
+                        decoration: InputDecoration(
+                          labelText: context.l10n.offerStatus,
+                        ),
+                        onChanged: (v) {
+                          if (v != null) setState(() => _status = v);
+                        },
+                        items: const [
+                          DropdownMenuItem(
+                            value: WeeklyOfferStatus.draft,
+                            child: Text('Brouillon'),
+                          ),
+                          DropdownMenuItem(
+                            value: WeeklyOfferStatus.published,
+                            child: Text('Publiée'),
+                          ),
+                          DropdownMenuItem(
+                            value: WeeklyOfferStatus.closed,
+                            child: Text('Fermée'),
+                          ),
+                        ],
                       ),
-                      trailing: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          IconButton(
-                            icon: const Icon(Icons.edit, color: Colors.blue),
-                            tooltip: context.l10n.editVegetable,
-                            onPressed: () async {
-                              final result = await showDialog<Map<String, dynamic>>(
-                                context: context,
-                                builder: (context) {
-                                  final priceController = TextEditingController(
-                                    text: veg.price?.toString() ?? '',
-                                  );
-                                  final quantityController =
-                                      TextEditingController(
-                                        text:
-                                            veg.standardQuantity?.toString() ??
-                                            '',
-                                      );
-                                  final packagingController =
-                                      TextEditingController(
-                                        text: veg.packaging,
-                                      );
+                    ],
+                    const Divider(),
+                    ListTile(
+                      title: Text(context.l10n.vegetablesIncluded),
+                      trailing: IconButton(
+                        icon: const Icon(Icons.add),
+                        onPressed: _openVegetableSelector,
+                      ),
+                    ),
+                    ..._selectedVegetables.map(
+                      (veg) => ListTile(
+                        title: Text(veg.name),
+                        subtitle: Text(
+                          'Prix : ${veg.price ?? '-'} € / ${veg.packaging}',
+                        ),
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            IconButton(
+                              icon: const Icon(Icons.edit, color: Colors.blue),
+                              tooltip: context.l10n.editVegetable,
+                              onPressed: () async {
+                                final result = await showDialog<Map<String, dynamic>>(
+                                  context: context,
+                                  builder: (context) {
+                                    final priceController =
+                                        TextEditingController(
+                                          text: veg.price?.toString() ?? '',
+                                        );
+                                    final quantityController =
+                                        TextEditingController(
+                                          text:
+                                              veg.standardQuantity
+                                                  ?.toString() ??
+                                              '',
+                                        );
+                                    final packagingController =
+                                        TextEditingController(
+                                          text: veg.packaging,
+                                        );
 
-                                  return AlertDialog(
-                                    title: Text(
-                                      '${context.l10n.editVegetable} ${veg.name}',
-                                    ),
-                                    content: Column(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        TextField(
-                                          controller: priceController,
-                                          keyboardType:
-                                              const TextInputType.numberWithOptions(
-                                                decimal: true,
-                                              ),
-                                          decoration: InputDecoration(
-                                            labelText:
-                                                '${context.l10n.price} (${context.l10n.currencySymbol})',
+                                    return AlertDialog(
+                                      title: Text(
+                                        '${context.l10n.editVegetable} ${veg.name}',
+                                      ),
+                                      content: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          TextField(
+                                            controller: priceController,
+                                            keyboardType:
+                                                const TextInputType.numberWithOptions(
+                                                  decimal: true,
+                                                ),
+                                            decoration: InputDecoration(
+                                              labelText:
+                                                  '${context.l10n.price} (${context.l10n.currencySymbol})',
+                                            ),
                                           ),
+                                          const SizedBox(height: 8),
+                                          TextField(
+                                            controller: quantityController,
+                                            keyboardType:
+                                                const TextInputType.numberWithOptions(
+                                                  decimal: true,
+                                                ),
+                                            decoration: const InputDecoration(
+                                              labelText:
+                                                  'Quantité par conditionnement',
+                                            ),
+                                          ),
+                                          const SizedBox(height: 8),
+                                          TextField(
+                                            controller: packagingController,
+                                            decoration: InputDecoration(
+                                              labelText:
+                                                  context.l10n.packagingUnit,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      actions: [
+                                        TextButton(
+                                          onPressed: () =>
+                                              Navigator.pop(context, null),
+                                          child: Text(context.l10n.cancel),
                                         ),
-                                        const SizedBox(height: 8),
-                                        TextField(
-                                          controller: quantityController,
-                                          keyboardType:
-                                              const TextInputType.numberWithOptions(
-                                                decimal: true,
-                                              ),
-                                          decoration: const InputDecoration(
-                                            labelText:
-                                                'Quantité par conditionnement',
-                                          ),
-                                        ),
-                                        const SizedBox(height: 8),
-                                        TextField(
-                                          controller: packagingController,
-                                          decoration: InputDecoration(
-                                            labelText:
-                                                context.l10n.packagingUnit,
-                                          ),
+                                        ElevatedButton(
+                                          onPressed: () {
+                                            final price = double.tryParse(
+                                              priceController.text,
+                                            );
+                                            final quantity = double.tryParse(
+                                              quantityController.text,
+                                            );
+                                            final packaging =
+                                                packagingController.text.trim();
+
+                                            Navigator.pop(context, {
+                                              'price': price,
+                                              'standardQuantity': quantity,
+                                              'packaging': packaging,
+                                            });
+                                          },
+                                          child: const Text('OK'),
                                         ),
                                       ],
+                                    );
+                                  },
+                                );
+
+                                if (result != null) {
+                                  setState(() {
+                                    final index = _selectedVegetables.indexOf(
+                                      veg,
+                                    );
+                                    _selectedVegetables[index] = VegetableModel(
+                                      id: veg.id,
+                                      name: veg.name,
+                                      category: veg.category,
+                                      price: result['price'] ?? veg.price,
+                                      standardQuantity:
+                                          result['standardQuantity'] ??
+                                          veg.standardQuantity,
+                                      packaging:
+                                          result['packaging'] ?? veg.packaging,
+                                      description: veg.description,
+                                      active: veg.active,
+                                      image: veg.image,
+                                    );
+                                  });
+                                }
+                              },
+                            ),
+
+                            IconButton(
+                              icon: const Icon(Icons.delete, color: Colors.red),
+                              tooltip: context.l10n.removeVegetable,
+                              onPressed: () {
+                                showDialog(
+                                  context: context,
+                                  builder: (context) => AlertDialog(
+                                    title: Text(
+                                      '${context.l10n.removeVegetable} ${veg.name} ?',
+                                    ),
+                                    content: Text(
+                                      context.l10n.removeVegetableQuestion,
                                     ),
                                     actions: [
                                       TextButton(
-                                        onPressed: () =>
-                                            Navigator.pop(context, null),
+                                        onPressed: () => Navigator.pop(context),
                                         child: Text(context.l10n.cancel),
                                       ),
                                       ElevatedButton(
                                         onPressed: () {
-                                          final price = double.tryParse(
-                                            priceController.text,
-                                          );
-                                          final quantity = double.tryParse(
-                                            quantityController.text,
-                                          );
-                                          final packaging = packagingController
-                                              .text
-                                              .trim();
-
-                                          Navigator.pop(context, {
-                                            'price': price,
-                                            'standardQuantity': quantity,
-                                            'packaging': packaging,
+                                          setState(() {
+                                            _selectedVegetables.remove(veg);
                                           });
+                                          Navigator.pop(context);
                                         },
-                                        child: const Text('OK'),
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: Colors.redAccent,
+                                        ),
+                                        child: Text(context.l10n.delete),
                                       ),
                                     ],
-                                  );
-                                },
-                              );
-
-                              if (result != null) {
-                                setState(() {
-                                  final index = _selectedVegetables.indexOf(
-                                    veg,
-                                  );
-                                  _selectedVegetables[index] = VegetableModel(
-                                    id: veg.id,
-                                    name: veg.name,
-                                    category: veg.category,
-                                    price: result['price'] ?? veg.price,
-                                    standardQuantity:
-                                        result['standardQuantity'] ??
-                                        veg.standardQuantity,
-                                    packaging:
-                                        result['packaging'] ?? veg.packaging,
-                                    description: veg.description,
-                                    active: veg.active,
-                                    image: veg.image,
-                                  );
-                                });
-                              }
-                            },
-                          ),
-
-                          IconButton(
-                            icon: const Icon(Icons.delete, color: Colors.red),
-                            tooltip: context.l10n.removeVegetable,
-                            onPressed: () {
-                              showDialog(
-                                context: context,
-                                builder: (context) => AlertDialog(
-                                  title: Text(
-                                    '${context.l10n.removeVegetable} ${veg.name} ?',
                                   ),
-                                  content: Text(
-                                    context.l10n.removeVegetableQuestion,
-                                  ),
-                                  actions: [
-                                    TextButton(
-                                      onPressed: () => Navigator.pop(context),
-                                      child: Text(context.l10n.cancel),
-                                    ),
-                                    ElevatedButton(
-                                      onPressed: () {
-                                        setState(() {
-                                          _selectedVegetables.remove(veg);
-                                        });
-                                        Navigator.pop(context);
-                                      },
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: Colors.redAccent,
-                                      ),
-                                      child: Text(context.l10n.delete),
-                                    ),
-                                  ],
-                                ),
-                              );
-                            },
-                          ),
-                        ],
+                                );
+                              },
+                            ),
+                          ],
+                        ),
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 24),
-                  ElevatedButton.icon(
-                    onPressed: _isSaving
-                        ? null
-                        : _saveOffer, // ✅ Désactivé pendant le chargement
-                    icon: _isSaving
-                        ? const SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: Colors.white,
-                            ),
-                          )
-                        : const Icon(Icons.save),
-                    label: Text(
-                      _isSaving ? context.l10n.saving : context.l10n.save,
-                    ),
-                  ),
-                ],
+                    const SizedBox(height: 24),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+      bottomNavigationBar: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: SizedBox(
+            width: double.infinity,
+            height: 56,
+            child: ElevatedButton.icon(
+              style: ElevatedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              onPressed: _isSaving ? null : _saveOffer,
+              icon: _isSaving
+                  ? const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: Colors.white,
+                      ),
+                    )
+                  : const Icon(Icons.save),
+              label: Text(
+                _isSaving ? context.l10n.saving : context.l10n.save,
+                style: const TextStyle(fontSize: 18),
               ),
             ),
           ),
