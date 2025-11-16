@@ -1,6 +1,7 @@
 // test/views/gardeners_page_content_test.dart
 import 'dart:async';
 
+import 'package:au_bio_jardin_app/l10n/app_localizations.dart';
 import 'package:au_bio_jardin_app/models/delivery_method_config.dart';
 import 'package:au_bio_jardin_app/models/profile.dart';
 import 'package:au_bio_jardin_app/models/user_model.dart';
@@ -11,7 +12,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:mockito/mockito.dart';
 import 'package:mockito/annotations.dart';
-
+import 'package:flutter_localizations/flutter_localizations.dart';
 
 // Générera gardeners_page_content_test.mocks.dart
 @GenerateMocks([AccountViewModel])
@@ -84,6 +85,18 @@ void main() {
 
     Widget createTestWidget(MockAccountViewModel viewModel) {
       return MaterialApp(
+        // Ajout de la configuration des localisations
+        localizationsDelegates: const [
+          AppLocalizations.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: const [
+          Locale('fr', 'FR'),
+          Locale('en', 'US'),
+        ],
+        locale: const Locale('fr', 'FR'),
         home: ChangeNotifierProvider<AccountViewModel>.value(
           value: viewModel,
           child: const GardenersPageContent(),
@@ -100,7 +113,7 @@ void main() {
         await tester.pumpAndSettle();
 
         // Assert
-        expect(find.text('Liste des maraîchers'), findsOneWidget);
+        expect(find.text('Liste des administrateurs'), findsOneWidget);
         expect(find.byType(AppBar), findsOneWidget);
       });
 
@@ -113,10 +126,10 @@ void main() {
 
         // Assert
         expect(find.byIcon(Icons.add), findsOneWidget);
-        expect(find.byTooltip('Ajouter un maraîcher'), findsOneWidget);
+        expect(find.byTooltip('Ajouter un administrateur'), findsOneWidget);
       });
 
-      testWidgets('Affiche un message quand il n\'y a pas de maraîchers', (
+      testWidgets('Affiche un message quand il n\'y a pas de d\'administrateur', (
         WidgetTester tester,
       ) async {
         // Arrange
@@ -127,7 +140,7 @@ void main() {
         await tester.pumpAndSettle();
 
         // Assert
-        expect(find.text('Aucun maraîcher trouvé.'), findsOneWidget);
+        expect(find.text('Aucun administrateur trouvé'), findsOneWidget);
       });
     });
 
@@ -159,31 +172,31 @@ void main() {
         expect(find.text('pierre.martin@example.com'), findsOneWidget);
       });
 
-      testWidgets('Affiche les checkboxes pour chaque maraîcher', (
+      testWidgets('Affiche le bouton de suppression pour chaque maraîcher (sauf l\'utilisateur connecté)', (
         WidgetTester tester,
       ) async {
         // Act
         await tester.pumpWidget(createTestWidget(mockViewModel));
         await tester.pumpAndSettle();
 
-        // Assert
-        expect(find.byType(Checkbox), findsNWidgets(mockGardeners.length));
+        // Assert - devrait y avoir 2 boutons delete (pas pour currentUser)
+        expect(find.byIcon(Icons.delete), findsNWidgets(2));
       });
 
-      testWidgets('La checkbox est cochée pour un maraîcher', (
+      testWidgets('L\'utilisateur connecté n\'a pas de bouton de suppression', (
         WidgetTester tester,
       ) async {
         // Act
         await tester.pumpWidget(createTestWidget(mockViewModel));
         await tester.pumpAndSettle();
 
-        // Assert
-        final checkboxes = tester.widgetList<Checkbox>(find.byType(Checkbox));
-        final gardenerCheckbox = checkboxes.first;
-        expect(gardenerCheckbox.value, isTrue); // gardener-1 a profile.gardener
+        // Assert - le 3ème ListTile (currentUser) n'a pas de trailing IconButton
+        final listTiles = tester.widgetList<ListTile>(find.byType(ListTile)).toList();
+        final currentUserTile = listTiles[2];
+        expect(currentUserTile.trailing, isNull);
       });
 
-      testWidgets('La checkbox n\'est pas cochée pour un non-maraîcher', (
+      testWidgets('Les autres ListTiles ont un bouton de suppression', (
         WidgetTester tester,
       ) async {
         // Act
@@ -191,51 +204,15 @@ void main() {
         await tester.pumpAndSettle();
 
         // Assert
-        final checkboxes = tester
-            .widgetList<Checkbox>(find.byType(Checkbox))
-            .toList();
-        final customerCheckbox = checkboxes[1];
-        expect(
-          customerCheckbox.value,
-          isFalse,
-        ); // gardener-2 a profile.customer
-      });
-
-      testWidgets('La checkbox de l\'utilisateur connecté est désactivée', (
-        WidgetTester tester,
-      ) async {
-        // Act
-        await tester.pumpWidget(createTestWidget(mockViewModel));
-        await tester.pumpAndSettle();
-
-        // Assert
-        final checkboxes = tester
-            .widgetList<Checkbox>(find.byType(Checkbox))
-            .toList();
-        final currentUserCheckbox =
-            checkboxes[2]; // Le 3ème est l'utilisateur connecté
-        expect(currentUserCheckbox.onChanged, isNull); // Désactivée
-      });
-
-      testWidgets('Les autres checkboxes sont activées', (
-        WidgetTester tester,
-      ) async {
-        // Act
-        await tester.pumpWidget(createTestWidget(mockViewModel));
-        await tester.pumpAndSettle();
-
-        // Assert
-        final checkboxes = tester
-            .widgetList<Checkbox>(find.byType(Checkbox))
-            .toList();
-        expect(checkboxes[0].onChanged, isNotNull); // gardener-1
-        expect(checkboxes[1].onChanged, isNotNull); // gardener-2
+        final listTiles = tester.widgetList<ListTile>(find.byType(ListTile)).toList();
+        expect(listTiles[0].trailing, isA<IconButton>());
+        expect(listTiles[1].trailing, isA<IconButton>());
       });
     });
 
     group('Toggle Gardener Status Tests', () {
       testWidgets(
-        'Cocher une checkbox appelle toggleGardenerStatus avec true',
+        'Clic sur le bouton delete appelle toggleGardenerStatus avec false',
         (WidgetTester tester) async {
           // Arrange
           when(
@@ -246,37 +223,9 @@ void main() {
           await tester.pumpWidget(createTestWidget(mockViewModel));
           await tester.pumpAndSettle();
 
-          // Tap sur la deuxième checkbox (Pierre Martin - customer)
-          final checkboxes = find.byType(Checkbox);
-          await tester.tap(checkboxes.at(1));
-          await tester.pumpAndSettle();
-
-          // Assert
-          verify(
-            mockViewModel.toggleGardenerStatus(
-              any,
-              argThat(predicate<UserModel>((user) => user.id == 'gardener-2')),
-              true,
-            ),
-          ).called(1);
-        },
-      );
-
-      testWidgets(
-        'Décocher une checkbox appelle toggleGardenerStatus avec false',
-        (WidgetTester tester) async {
-          // Arrange
-          when(
-            mockViewModel.toggleGardenerStatus(any, any, any),
-          ).thenAnswer((_) async => {});
-
-          // Act
-          await tester.pumpWidget(createTestWidget(mockViewModel));
-          await tester.pumpAndSettle();
-
-          // Tap sur la première checkbox (Marie Dupont - gardener)
-          final checkboxes = find.byType(Checkbox);
-          await tester.tap(checkboxes.first);
+          // Tap sur le premier bouton delete (Marie Dupont - gardener)
+          final deleteButtons = find.byIcon(Icons.delete);
+          await tester.tap(deleteButtons.first);
           await tester.pumpAndSettle();
 
           // Assert
@@ -291,19 +240,30 @@ void main() {
       );
 
       testWidgets(
-        'Taper sur la checkbox de l\'utilisateur connecté ne fait rien',
+        'Clic sur le deuxième bouton delete appelle toggleGardenerStatus',
         (WidgetTester tester) async {
+          // Arrange
+          when(
+            mockViewModel.toggleGardenerStatus(any, any, any),
+          ).thenAnswer((_) async => {});
+
           // Act
           await tester.pumpWidget(createTestWidget(mockViewModel));
           await tester.pumpAndSettle();
 
-          // Tap sur la checkbox de l'utilisateur connecté (3ème)
-          final checkboxes = find.byType(Checkbox);
-          await tester.tap(checkboxes.at(2));
+          // Tap sur le deuxième bouton delete (Pierre Martin - customer)
+          final deleteButtons = find.byIcon(Icons.delete);
+          await tester.tap(deleteButtons.at(1));
           await tester.pumpAndSettle();
 
           // Assert
-          verifyNever(mockViewModel.toggleGardenerStatus(any, any, any));
+          verify(
+            mockViewModel.toggleGardenerStatus(
+              any,
+              argThat(predicate<UserModel>((user) => user.id == 'gardener-2')),
+              false,
+            ),
+          ).called(1);
         },
       );
     });
@@ -321,7 +281,7 @@ void main() {
 
         // Assert
         expect(find.byType(AlertDialog), findsOneWidget);
-        expect(find.text('Ajouter un maraîcher'), findsOneWidget);
+        expect(find.text('Ajouter un administrateur'), findsOneWidget);
       });
 
       testWidgets('Le dialogue contient un champ de recherche', (
@@ -339,7 +299,7 @@ void main() {
           find.widgetWithText(TextField, 'Rechercher un utilisateur'),
           findsOneWidget,
         );
-        expect(find.byIcon(Icons.search), findsOneWidget);
+        expect(find.byIcon(Icons.search), findsAtLeastNWidgets(1));
       });
 
       testWidgets('Le dialogue affiche "Aucun résultat" par défaut', (
