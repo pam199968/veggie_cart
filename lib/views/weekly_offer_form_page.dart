@@ -66,7 +66,7 @@ class _WeeklyOfferFormPageState extends State<WeeklyOfferFormPage> {
   Future<void> _openVegetableSelector() async {
     // 🔹 Récupérer le repository AVANT l'opération async
     final catalog = context.read<CatalogRepository>();
-    final vegetables = await catalog.getAllActiveVegetables();
+    final vegetables = await catalog.getAllActiveVegetables(forceRefresh: true);
 
     // 🔹 Vérifier mounted APRÈS l'opération async
     if (!mounted) return;
