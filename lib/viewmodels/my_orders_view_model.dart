@@ -64,6 +64,12 @@ class OrderViewModel extends ChangeNotifier {
     });
   }
 
+  /// 🔹 Annuler une commande (changer le statut vers cancelled)
+  Future<void> cancelOrder(String orderId) async {
+    await repository.updateOrderStatus(orderId, OrderStatus.cancelled);
+  }
+
+  /// 🔹 Flux temps réel des commandes
   Stream<List<OrderModel>> watchOrders() {
     return repository.streamOrdersForCustomer(accountViewModel.currentUser.id!);
   }

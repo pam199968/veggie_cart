@@ -152,5 +152,9 @@
   "currencySymbol": "€",
   "customersList": "Liste des clients",
   "noCustomersFound": "Aucun client enregistré.",
-  "errorLoadingData": "Erreur lors du chargement des clients"
+  "errorLoadingData": "Erreur lors du chargement des clients",
+  "cancelOrder": "Annuler la commande",
+  "confirmCancelOrder": "Confirmer l'annulation",
+  "yes": "oui",
+  "no": "non"
 }

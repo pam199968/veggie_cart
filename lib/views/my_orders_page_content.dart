@@ -1,3 +1,4 @@
+import 'package:au_bio_jardin_app/extensions/context_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../viewmodels/my_orders_view_model.dart';
@@ -46,13 +47,16 @@ class _MyOrdersPageContentState extends State<MyOrdersPageContent> {
         padding: const EdgeInsets.all(16),
         child: vm.orders.isEmpty
             ? vm.isLoading
-                ? const Center(child: CircularProgressIndicator())
-                : Center(
-                    child: Text(
-                      AppLocalizations.of(context)!.youHaveNoOrders,
-                      style: const TextStyle(fontSize: 16, color: Colors.grey),
-                    ),
-                  )
+                  ? const Center(child: CircularProgressIndicator())
+                  : Center(
+                      child: Text(
+                        AppLocalizations.of(context)!.youHaveNoOrders,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          color: Colors.grey,
+                        ),
+                      ),
+                    )
             : ListView.builder(
                 itemCount: vm.orders.length + (vm.hasMore ? 1 : 0),
                 itemBuilder: (context, index) {
@@ -81,6 +85,8 @@ class OrderCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final vm = context.read<OrderViewModel>();
+
     return Card(
       elevation: 2,
       margin: const EdgeInsets.symmetric(vertical: 8),
@@ -90,25 +96,83 @@ class OrderCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(AppLocalizations.of(context)!.order + order.orderNumber.toString(),
-                style: const TextStyle(fontWeight: FontWeight.bold)),
+            Text(
+              AppLocalizations.of(context)!.order +
+                  order.orderNumber.toString(),
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
             const SizedBox(height: 4),
-            Text(AppLocalizations.of(context)!.status + order.status.label,
-                style: TextStyle(
-                    color: _statusColor(order.status),
-                    fontWeight: FontWeight.w500)),
-            Text(AppLocalizations.of(context)!.deliveryMethod + order.deliveryMethod.label),
-            if (order.notes != null) Text('${AppLocalizations.of(context)!.notes} ${order.notes}'),
+            Text(
+              AppLocalizations.of(context)!.status + order.status.label,
+              style: TextStyle(
+                color: _statusColor(order.status),
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            Text(
+              AppLocalizations.of(context)!.deliveryMethod +
+                  order.deliveryMethod.label,
+            ),
+            if (order.notes != null)
+              Text('${AppLocalizations.of(context)!.notes} ${order.notes}'),
             const SizedBox(height: 8),
-            Text(AppLocalizations.of(context)!.items, style: const TextStyle(fontWeight: FontWeight.bold)),
-            ...order.items.map((item) => Padding(
-                  padding: const EdgeInsets.only(top: 2),
-                  child: Text('- ${item.vegetable.name} (${item.vegetable.packaging}) - Qté : ${item.quantity}'),
-                )),
+            Text(
+              AppLocalizations.of(context)!.items,
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+            ...order.items.map(
+              (item) => Padding(
+                padding: const EdgeInsets.only(top: 2),
+                child: Text(
+                  '- ${item.vegetable.name} (${item.vegetable.packaging}) - Qté : ${item.quantity}',
+                ),
+              ),
+            ),
             const SizedBox(height: 8),
-            Text(AppLocalizations.of(context)!.createdAt + order.createdAt.toLocal().toString()),
+            Text(
+              AppLocalizations.of(context)!.createdAt +
+                  order.createdAt.toLocal().toString(),
+            ),
+
+            const SizedBox(height: 12),
+
+            /// 🔹 Bouton Annuler si statut = pending
+            if (order.status == OrderStatus.pending)
+              Align(
+                alignment: Alignment.centerRight,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                  onPressed: () async {
+                    final confirm = await _showCancelDialog(context);
+                    if (confirm == true) {
+                      vm.cancelOrder(order.id);
+                    }
+                  },
+                  child: Text(context.l10n.cancelOrder),
+                ),
+              ),
           ],
         ),
+      ),
+    );
+  }
+
+  Future<bool?> _showCancelDialog(BuildContext context) {
+    return showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(context.l10n.cancelOrder),
+        content: Text(context.l10n.confirmCancelOrder),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text(context.l10n.no),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: Text(context.l10n.yes),
+          ),
+        ],
       ),
     );
   }

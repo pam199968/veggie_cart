@@ -476,4 +476,16 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get errorLoadingData => 'Erreur lors du chargement des clients';
+
+  @override
+  String get cancelOrder => 'Annuler la commande';
+
+  @override
+  String get confirmCancelOrder => 'Confirmer l\'annulation';
+
+  @override
+  String get yes => 'oui';
+
+  @override
+  String get no => 'non';
 }

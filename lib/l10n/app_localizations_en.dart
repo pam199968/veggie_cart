@@ -475,4 +475,16 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get errorLoadingData => 'Error Loading Data';
+
+  @override
+  String get cancelOrder => 'Cancel Order';
+
+  @override
+  String get confirmCancelOrder => 'Confirm';
+
+  @override
+  String get yes => 'yes';
+
+  @override
+  String get no => 'no';
 }

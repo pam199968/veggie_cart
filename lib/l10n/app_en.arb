@@ -152,5 +152,9 @@
   "currencySymbol": "£",
   "customersList": "Customers list",
   "noCustomersFound": "No Customers Found",
-  "errorLoadingData": "Error Loading Data"
+  "errorLoadingData": "Error Loading Data",
+  "cancelOrder": "Cancel Order",
+  "confirmCancelOrder": "Confirm",
+  "yes": "yes",
+  "no": "no"
 }
