@@ -50,18 +50,18 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyAds_ODOkdFDcQ6F7iUEBHAY4HEAJ1xhGs',
+    apiKey: 'XXXX',
     appId: '1:806207618403:web:e436ffd119e5b6b96aa756',
-    messagingSenderId: '806207618403',
+    messagingSenderId: 'XXX',
     projectId: 'veggieharvest',
     authDomain: 'veggieharvest.firebaseapp.com',
     storageBucket: 'veggieharvest.firebasestorage.app',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyAHhvqle4nT3bgr48E1PK-lNmPdva3SeEw',
+    apiKey: 'XXX',
     appId: '1:806207618403:android:ce0ec965592663f36aa756',
-    messagingSenderId: '806207618403',
+    messagingSenderId: 'XXX',
     projectId: 'veggieharvest',
     storageBucket: 'veggieharvest.firebasestorage.app',
   );
