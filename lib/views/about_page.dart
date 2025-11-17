@@ -1,3 +1,4 @@
+import 'package:au_bio_jardin_app/extensions/context_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
@@ -33,7 +34,7 @@ class _AboutPageState extends State<AboutPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('À propos'),
+        title: Text(context.l10n.about),
         backgroundColor: Colors.greenAccent,
       ),
       body: Padding(
@@ -50,17 +51,16 @@ class _AboutPageState extends State<AboutPage> {
             const Divider(),
 
             const SizedBox(height: 20),
-            const Text(
-              "Cette application a été développée pour faciliter la gestion "
-              "des commandes, du catalogue et des offres hebdomadaires au Bio jardin.",
-              style: TextStyle(fontSize: 16),
+            Text(
+              context.l10n.aboutDescription,
+              style: const TextStyle(fontSize: 16),
             ),
 
             const Spacer(),
 
             Center(
               child: Text(
-                "© ${2025} - Patrick M.",
+                context.l10n.copyright.replaceAll("{year}", DateTime.now().year.toString()),
                 style: const TextStyle(color: Colors.grey),
               ),
             )

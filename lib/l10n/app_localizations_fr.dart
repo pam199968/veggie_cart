@@ -9,6 +9,16 @@ class AppLocalizationsFr extends AppLocalizations {
   AppLocalizationsFr([String locale = 'fr']) : super(locale);
 
   @override
+  String get about => 'À propos';
+
+  @override
+  String get aboutDescription =>
+      'Cette application a été développée pour faciliter la gestion des commandes, du catalogue et des offres hebdomadaires au Bio jardin.';
+
+  @override
+  String get copyright => 'Patrick M.';
+
+  @override
   String get searchCustomer => 'Rechercher un client...';
 
   @override

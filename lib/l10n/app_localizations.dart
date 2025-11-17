@@ -98,6 +98,24 @@ abstract class AppLocalizations {
     Locale('fr'),
   ];
 
+  /// No description provided for @about.
+  ///
+  /// In en, this message translates to:
+  /// **'About'**
+  String get about;
+
+  /// No description provided for @aboutDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'This app is designed for Bio jardin customers to manage orders.'**
+  String get aboutDescription;
+
+  /// No description provided for @copyright.
+  ///
+  /// In en, this message translates to:
+  /// **'Patrick M.'**
+  String get copyright;
+
   /// No description provided for @searchCustomer.
   ///
   /// In en, this message translates to:

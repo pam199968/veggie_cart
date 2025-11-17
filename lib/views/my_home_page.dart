@@ -240,7 +240,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     ),
                     ListTile(
                       leading: const Icon(Icons.info_outline),
-                      title: const Text("À propos"),
+                      title: Text(context.l10n.about),
                       onTap: () {
                         Navigator.pop(context);
                         Navigator.of(context).push(

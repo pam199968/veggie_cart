@@ -9,6 +9,16 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
+  String get about => 'About';
+
+  @override
+  String get aboutDescription =>
+      'This app is designed for Bio jardin customers to manage orders.';
+
+  @override
+  String get copyright => 'Patrick M.';
+
+  @override
   String get searchCustomer => 'Search for a customer...';
 
   @override
