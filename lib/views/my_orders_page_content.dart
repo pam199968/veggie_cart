@@ -1,5 +1,6 @@
 import 'package:au_bio_jardin_app/extensions/context_extension.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../viewmodels/my_orders_view_model.dart';
 import '../models/order_model.dart';
@@ -130,8 +131,8 @@ class OrderCard extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              AppLocalizations.of(context)!.createdAt +
-                  order.createdAt.toLocal().toString(),
+              context.l10n.createdAt +
+                  DateFormat('dd/MM/yyyy HH:mm:ss').format(order.createdAt.toLocal()),
             ),
 
             const SizedBox(height: 12),
