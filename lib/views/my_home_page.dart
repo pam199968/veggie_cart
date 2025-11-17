@@ -190,6 +190,16 @@ class _MyHomePageState extends State<MyHomePage> {
                       selected: _currentPage == 'my_orders',
                       onTap: () => _navigateTo('my_orders'),
                     ),
+                    ListTile(
+                      leading: const Icon(Icons.info_outline),
+                      title: const Text("À propos"),
+                      onTap: () {
+                        Navigator.pop(context);
+                        Navigator.of(context).push(
+                          MaterialPageRoute(builder: (_) => const AboutPage()),
+                        );
+                      },
+                    ),
                   ],
                   if (accountVM.currentUser.profile == Profile.gardener) ...[
                     ListTile(
