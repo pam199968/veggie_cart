@@ -1,6 +1,8 @@
-import 'package:au_bio_jardin_app/extensions/context_extension.dart';
 import 'package:flutter/material.dart';
+
 import 'package:package_info_plus/package_info_plus.dart';
+
+import 'package:au_bio_jardin_app/extensions/context_extension.dart';
 
 class AboutPage extends StatefulWidget {
   const AboutPage({super.key});

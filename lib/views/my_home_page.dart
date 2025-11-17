@@ -1,23 +1,26 @@
-import '../views/about_page.dart';
 import 'package:flutter/material.dart';
+
 import 'package:provider/provider.dart';
-import '../viewmodels/delivery_method_view_model.dart';
-import '../views/offers_mngt_page_content.dart';
+
+import '../extensions/context_extension.dart';
 import '../models/profile.dart';
 import '../viewmodels/account_view_model.dart';
 import '../viewmodels/catalog_view_model.dart';
+import '../viewmodels/delivery_method_view_model.dart';
 import '../viewmodels/my_orders_view_model.dart';
 import '../viewmodels/weekly_offers_view_model.dart';
+import '../views/about_page.dart';
+import '../views/offers_mngt_page_content.dart';
+
+import 'catalog_page_content.dart';
+import 'customer_orders_page_content.dart';
 import 'customers_page_content.dart';
 import 'delivery_methods_page_content.dart';
-import 'profile_page.dart';
+import 'gardeners_page_content.dart';
 import 'login_content.dart';
-import 'catalog_page_content.dart';
 import 'my_orders_page_content.dart';
 import 'offers_page_content.dart';
-import 'customer_orders_page_content.dart';
-import 'gardeners_page_content.dart';
-import '../extensions/context_extension.dart';
+import 'profile_page.dart';
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});
