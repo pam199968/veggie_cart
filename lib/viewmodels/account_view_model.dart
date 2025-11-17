@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../repositories/delivery_method_repository.dart';
 import '../repositories/account_repository.dart';
 import '../models/user_model.dart';
@@ -8,7 +8,10 @@ import '../models/profile.dart';
 class AccountViewModel extends ChangeNotifier {
   final AccountRepository accountRepository;
 
-  /// 👤 Représente l’utilisateur courant (formulaire d’inscription ou utilisateur connecté)
+  /// Secure Storage
+  static const _storage = FlutterSecureStorage();
+
+  /// 👤 Représente l’utilisateur courant (formulaire ou utilisateur connecté)
   UserModel currentUser = UserModel(
     name: '',
     givenName: '',
@@ -47,28 +50,25 @@ class AccountViewModel extends ChangeNotifier {
   bool _isLoggedIn = false;
   bool get isLoggedIn => _isLoggedIn;
 
-  /// 🔹 Sauvegarde la session localement
+  /// 🔹 Sauvegarde la session en SecureStorage
   Future<void> _saveSession(String email) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('isLoggedIn', true);
-    await prefs.setString('userEmail', email);
+    await _storage.write(key: 'isLoggedIn', value: 'true');
+    await _storage.write(key: 'userEmail', value: email);
   }
 
   /// 🔹 Efface la session
   Future<void> _clearSession() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.clear();
+    await _storage.deleteAll();
   }
 
   /// 🔹 Tente de restaurer une session au lancement
   Future<void> tryAutoLogin() async {
-    final prefs = await SharedPreferences.getInstance();
-    final savedLogin = prefs.getBool('isLoggedIn') ?? false;
-    final savedEmail = prefs.getString('userEmail');
+    final savedLogin = await _storage.read(key: 'isLoggedIn');
+    final savedEmail = await _storage.read(key: 'userEmail');
 
-    if (savedLogin && savedEmail != null) {
-      // Recharge depuis le repo si besoin (profil complet)
+    if (savedLogin == 'true' && savedEmail != null) {
       final userFromDb = await accountRepository.fetchUserProfile(savedEmail);
+
       if (userFromDb != null) {
         currentUser = userFromDb;
         _isLoggedIn = true;
@@ -79,7 +79,7 @@ class AccountViewModel extends ChangeNotifier {
 
   Future<void> signOut(BuildContext context) async {
     await accountRepository.signOut(context);
-    await _clearSession(); // 🔹 efface la persistance locale
+    await _clearSession();
     clearUserData();
     password = "";
     showSignInForm = true;
@@ -88,7 +88,7 @@ class AccountViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// 🧹 Réinitialise l’objet utilisateur (après déconnexion ou reset de formulaire)
+  /// 🧹 Réinitialise l’utilisateur
   void clearUserData() {
     currentUser = UserModel(
       name: '',
@@ -114,8 +114,8 @@ class AccountViewModel extends ChangeNotifier {
     );
 
     if (connectedUser != null) {
-      currentUser = connectedUser; // 💾 met à jour le user du ViewModel
-      _saveSession(currentUser.email);
+      currentUser = connectedUser;
+      await _saveSession(currentUser.email);
     }
 
     notifyListeners();
@@ -135,8 +135,8 @@ class AccountViewModel extends ChangeNotifier {
     );
 
     if (createdUser != null) {
-      currentUser = createdUser; // 💾 met à jour le user du ViewModel
-      _saveSession(currentUser.email);
+      currentUser = createdUser;
+      await _saveSession(currentUser.email);
     }
 
     notifyListeners();
@@ -176,7 +176,6 @@ class AccountViewModel extends ChangeNotifier {
     );
   }
 
-  /// 🔹 Met à jour le profil utilisateur via UserService
   Future<bool> updateUserProfile(
     BuildContext context,
     UserModel updatedUser,
@@ -195,11 +194,7 @@ class AccountViewModel extends ChangeNotifier {
   }
 
   Future<void> sendPasswordResetEmail(String email) async {
-    try {
-      await accountRepository.authService.sendPasswordResetEmail(email);
-    } catch (e) {
-      rethrow; // Laisse le widget gérer l'affichage du message
-    }
+    await accountRepository.authService.sendPasswordResetEmail(email);
   }
 
   Future<void> disableCustomerAccount(
@@ -218,7 +213,6 @@ class AccountViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// ✅ Validation des champs
   bool isPasswordValid(String password) {
     final passwordRegex = RegExp(r'^(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}');
     return passwordRegex.hasMatch(password);
