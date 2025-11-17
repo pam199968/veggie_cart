@@ -113,8 +113,8 @@ abstract class AppLocalizations {
   /// No description provided for @copyright.
   ///
   /// In en, this message translates to:
-  /// **'Patrick M.'**
-  String get copyright;
+  /// **'© {year} - Patrick M.'**
+  String copyright(Object year);
 
   /// No description provided for @searchCustomer.
   ///

@@ -1,7 +1,7 @@
 {
   "about": "À propos",
   "aboutDescription": "Cette application a été développée pour faciliter la gestion des commandes, du catalogue et des offres hebdomadaires au Bio jardin.",
-  "copyright": "Patrick M.",
+  "copyright": "© {year} - Patrick M.",
   "searchCustomer": "Rechercher un client...",
   "accountDeactivated": "Compte désactivé",
   "disableAccount": "Désactiver ce compte",

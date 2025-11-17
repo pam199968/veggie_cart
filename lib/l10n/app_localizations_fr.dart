@@ -16,7 +16,9 @@ class AppLocalizationsFr extends AppLocalizations {
       'Cette application a été développée pour faciliter la gestion des commandes, du catalogue et des offres hebdomadaires au Bio jardin.';
 
   @override
-  String get copyright => 'Patrick M.';
+  String copyright(Object year) {
+    return '© $year - Patrick M.';
+  }
 
   @override
   String get searchCustomer => 'Rechercher un client...';

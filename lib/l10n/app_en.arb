@@ -1,7 +1,7 @@
 {
   "about": "About",
   "aboutDescription": "This app is designed for Bio jardin customers to manage orders.",
-  "copyright": "Patrick M.",
+  "copyright": "© {year} - Patrick M.",
   "searchCustomer": "Search for a customer...",
   "accountDeactivated": "Account deactivated",
   "disableAccount": "Disable this account",

@@ -16,7 +16,9 @@ class AppLocalizationsEn extends AppLocalizations {
       'This app is designed for Bio jardin customers to manage orders.';
 
   @override
-  String get copyright => 'Patrick M.';
+  String copyright(Object year) {
+    return '© $year - Patrick M.';
+  }
 
   @override
   String get searchCustomer => 'Search for a customer...';
