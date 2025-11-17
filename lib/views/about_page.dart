@@ -14,7 +14,7 @@ class AboutPage extends StatefulWidget {
 class _AboutPageState extends State<AboutPage> {
   String version = '';
   String buildNumber = '';
-  String appName = '';
+  String appName = 'Au Bio Jardin.';
 
   @override
   void initState() {
@@ -28,7 +28,6 @@ class _AboutPageState extends State<AboutPage> {
     setState(() {
       version = info.version;
       buildNumber = info.buildNumber;
-      appName = info.appName;
     });
   }
 
