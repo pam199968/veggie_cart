@@ -92,7 +92,7 @@ class _LoginContentState extends State<LoginContent> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        Image.asset('img/logo.jpeg', height: 100, width: 100),
+        Image.asset('img/logo.png', height: 256, width: 256),
         const SizedBox(height: 20),
         _buildTextField(_nameController, context.l10n.nameLabel, (v) {
           homeViewModel.currentUser = homeViewModel.currentUser.copyWith(
@@ -225,7 +225,7 @@ class _LoginContentState extends State<LoginContent> {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Image.asset('img/logo.jpeg', height: 100, width: 100),
+        Image.asset('img/logo.png', height: 256, width: 256),
         const SizedBox(height: 20),
         _buildTextField(_emailController, context.l10n.emailLabel, (v) {
           homeViewModel.currentUser = homeViewModel.currentUser.copyWith(
