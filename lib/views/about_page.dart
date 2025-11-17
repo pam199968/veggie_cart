@@ -62,7 +62,7 @@ class _AboutPageState extends State<AboutPage> {
 
             Center(
               child: Text(
-                context.l10n.copyright.replaceAll("{year}", DateTime.now().year.toString()),
+                context.l10n.copyright(DateTime.now().year),
                 style: const TextStyle(color: Colors.grey),
               ),
             )
