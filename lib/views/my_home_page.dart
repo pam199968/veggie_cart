@@ -1,3 +1,4 @@
+import '../views/about_page.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../viewmodels/delivery_method_view_model.dart';
@@ -226,6 +227,16 @@ class _MyHomePageState extends State<MyHomePage> {
                       title: Text(context.l10n.customersList),
                       selected: _currentPage == 'customers',
                       onTap: () => _navigateTo('customers'),
+                    ),
+                    ListTile(
+                      leading: const Icon(Icons.info_outline),
+                      title: const Text("À propos"),
+                      onTap: () {
+                        Navigator.pop(context);
+                        Navigator.of(context).push(
+                          MaterialPageRoute(builder: (_) => const AboutPage()),
+                        );
+                      },
                     ),
                   ],
                 ],
