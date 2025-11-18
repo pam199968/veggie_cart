@@ -468,6 +468,7 @@ class _CartScreenState extends State<CartScreen> {
                   TextField(
                     controller: _noteController,
                     maxLines: 3,
+                    maxLength: 200,
                     decoration: InputDecoration(
                       labelText: context.l10n.addNote,
                       border: const OutlineInputBorder(),

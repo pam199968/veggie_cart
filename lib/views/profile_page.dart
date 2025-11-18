@@ -36,7 +36,7 @@ class _ProfilePageState extends State<ProfilePage> {
     _givenNameController = TextEditingController(text: _editableUser.givenName);
     _emailController = TextEditingController(text: _editableUser.email);
     _phoneController = TextEditingController(text: _editableUser.phoneNumber);
-    _addressController = TextEditingController(text: _editableUser.address);
+    _addressController = TextEditingController(text: _editableUser.address,);
   }
 
   @override
@@ -136,12 +136,14 @@ class _ProfilePageState extends State<ProfilePage> {
           context.l10n.phoneLabel,
           _phoneController,
           (v) => _editableUser = _editableUser.copyWith(phoneNumber: v),
+          maxLength: 15,
         ),
         _buildEditableField(
           context.l10n.addressLabel,
           _addressController,
           (v) => _editableUser = _editableUser.copyWith(address: v),
           maxLines: 3,
+          maxLength: 200,
         ),
 
         // ---------------------------
@@ -165,12 +167,12 @@ class _ProfilePageState extends State<ProfilePage> {
             final methodExists = deliveryMethodVM.activeMethods
                 .any((m) => m.key == currentMethod.key);
 
-            // Si la méthode n'existe pas, utiliser la première disponible
+            // Si la méthode n'existe pas, utiliser la méthode par defaut
             if (!methodExists && deliveryMethodVM.activeMethods.isNotEmpty) {
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 setState(() {
                   _editableUser = _editableUser.copyWith(
-                    deliveryMethod: deliveryMethodVM.activeMethods.first,
+                    deliveryMethod: deliveryMethodVM.defaultMethod,
                   );
                 });
               });
@@ -261,6 +263,7 @@ class _ProfilePageState extends State<ProfilePage> {
     TextEditingController controller,
     Function(String) onChanged, {
     int maxLines = 1,
+    int maxLength =  100,
     bool readOnly = false,
   }) {
     return Padding(
@@ -269,6 +272,7 @@ class _ProfilePageState extends State<ProfilePage> {
         controller: controller,
         decoration: InputDecoration(labelText: label),
         maxLines: maxLines,
+        maxLength: maxLength,
         onChanged: onChanged,
         readOnly: readOnly,
       ),
