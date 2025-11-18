@@ -23,6 +23,9 @@ class _LoginContentState extends State<LoginContent> {
   final _phoneController = TextEditingController();
   final _addressController = TextEditingController();
 
+  // 🔹 Ajout de la clé de formulaire pour la validation
+  final _signUpFormKey = GlobalKey<FormState>();
+
   DeliveryMethodConfig? _selectedDeliveryMethod;
   bool _pushNotifications = true;
 
@@ -89,131 +92,214 @@ class _LoginContentState extends State<LoginContent> {
     AccountViewModel homeViewModel,
     DeliveryMethodViewModel deliveryMethodVM,
   ) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Image.asset('img/logo.png', height: 256, width: 256),
-        const SizedBox(height: 20),
-        _buildTextField(_nameController, context.l10n.nameLabel, (v) {
-          homeViewModel.currentUser = homeViewModel.currentUser.copyWith(
-            name: v.trim(),
-          );
-        }),
-        _buildTextField(_givenNameController, context.l10n.givenNameLabel, (v) {
-          homeViewModel.currentUser = homeViewModel.currentUser.copyWith(
-            givenName: v.trim(),
-          );
-        }),
-        _buildTextField(_emailController, context.l10n.emailLabel, (v) {
-          homeViewModel.currentUser = homeViewModel.currentUser.copyWith(
-            email: v.trim(),
-          );
-        }),
-        _buildPasswordField(
-          _passwordController,
-          context.l10n.passwordLabel,
-          (v) => homeViewModel.password = v.trim(),
-        ),
-        const SizedBox(height: 5),
-        SizedBox(
-          width: 300,
-          child: Text(
-            context.l10n.passwordHint,
-            style: const TextStyle(fontSize: 12, color: Colors.grey),
-            textAlign: TextAlign.start,
+    clearControllers();
+    return Form(
+      key: _signUpFormKey, // 🔹 Ajout de la clé de formulaire
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Image.asset('img/logo.png', height: 256, width: 256),
+          const SizedBox(height: 20),
+          // 🔹 Champs avec validation
+          _buildValidatedTextField(
+            _nameController,
+            context.l10n.nameLabel,
+            (v) {
+              homeViewModel.currentUser = homeViewModel.currentUser.copyWith(
+                name: v.trim(),
+              );
+            },
+            validator: (value) {
+              if (value == null || value.trim().isEmpty) {
+                return 'Le nom est obligatoire';
+              }
+              return null;
+            },
           ),
-        ),
-        const SizedBox(height: 10),
-        _buildPasswordField(
-          _confirmPasswordController,
-          context.l10n.confirmPasswordLabel,
-          (v) {
-            homeViewModel.confirmPassword = v.trim();
-          },
-        ),
-        _buildTextField(_phoneController, context.l10n.phoneLabel, (v) {
-          homeViewModel.currentUser = homeViewModel.currentUser.copyWith(
-            phoneNumber: v.trim(),
-          );
-        }),
-        _buildTextField(_addressController, context.l10n.addressLabel, (v) {
-          homeViewModel.currentUser = homeViewModel.currentUser.copyWith(
-            address: v.trim(),
-          );
-        }, maxLines: 4),
-        const SizedBox(height: 10),
 
-        // ✅ Gestion du dropdown avec les nouveaux composants
-        if (deliveryMethodVM.loading)
-          const CircularProgressIndicator()
-        else if (deliveryMethodVM.error != null)
-          Text(
-            "Erreur: ${deliveryMethodVM.error}",
-            style: const TextStyle(color: Colors.red),
-          )
-        else if (deliveryMethodVM.activeMethods.isEmpty)
-          const Text("Aucune méthode de livraison disponible")
-        else if (_selectedDeliveryMethod != null)
-          DeliveryMethodDropdown(
-            value: _selectedDeliveryMethod!,
-            methods: deliveryMethodVM.activeMethods,
+          _buildValidatedTextField(
+            _givenNameController,
+            context.l10n.givenNameLabel,
+            (v) {
+              homeViewModel.currentUser = homeViewModel.currentUser.copyWith(
+                givenName: v.trim(),
+              );
+            },
+            validator: (value) {
+              if (value == null || value.trim().isEmpty) {
+                return 'Le prénom est obligatoire';
+              }
+              return null;
+            },
+          ),
+
+          _buildValidatedTextField(
+            _emailController,
+            context.l10n.emailLabel,
+            (v) {
+              homeViewModel.currentUser = homeViewModel.currentUser.copyWith(
+                email: v.trim(),
+              );
+            },
+            validator: (value) {
+              if (value == null || value.trim().isEmpty) {
+                return 'L\'email est obligatoire';
+              }
+              if (!homeViewModel.isEmailValid(value.trim())) {
+                return 'Format email invalide';
+              }
+              return null;
+            },
+          ),
+
+          _buildValidatedPasswordField(
+            _passwordController,
+            context.l10n.passwordLabel,
+            (v) => homeViewModel.password = v.trim(),
+            validator: (value) {
+              if (value == null || value.trim().isEmpty) {
+                return 'Le mot de passe est obligatoire';
+              }
+              if (!homeViewModel.isPasswordValid(value.trim())) {
+                return 'Le mot de passe doit contenir au moins 8 caractères';
+              }
+              return null;
+            },
+          ),
+
+          const SizedBox(height: 5),
+          SizedBox(
+            width: 300,
+            child: Text(
+              context.l10n.passwordHint,
+              style: const TextStyle(fontSize: 12, color: Colors.grey),
+              textAlign: TextAlign.start,
+            ),
+          ),
+          const SizedBox(height: 10),
+
+          _buildValidatedPasswordField(
+            _confirmPasswordController,
+            context.l10n.confirmPasswordLabel,
+            (v) {
+              homeViewModel.confirmPassword = v.trim();
+            },
+            validator: (value) {
+              if (value == null || value.trim().isEmpty) {
+                return 'La confirmation du mot de passe est obligatoire';
+              }
+              if (value.trim() != _passwordController.text.trim()) {
+                return 'Les mots de passe ne correspondent pas';
+              }
+              return null;
+            },
+          ),
+
+          _buildValidatedTextField(
+            _phoneController,
+            context.l10n.phoneLabel,
+            (v) {
+              homeViewModel.currentUser = homeViewModel.currentUser.copyWith(
+                phoneNumber: v.trim(),
+              );
+            },
+            validator: (value) {
+              final phoneRegex = RegExp(r'^(?:\+33[ .]?)?(?:\d[ .]?){9}\d$');
+
+              if (value == null || value.isEmpty) {
+                return 'Le téléphone est obligatoire';
+              }
+              if (!phoneRegex.hasMatch(value)) {
+                return 'Format téléphone invalide';
+              }
+              return null;
+            },
+          ),
+
+          _buildValidatedTextField(
+            _addressController,
+            context.l10n.addressLabel,
+            (v) {
+              homeViewModel.currentUser = homeViewModel.currentUser.copyWith(
+                address: v.trim(),
+              );
+            },
+            maxLines: 4,
+            maxLength: 200,
+            validator: (value) {
+              if (_selectedDeliveryMethod?.key == "homeDelivery") {
+                if (value == null || value.trim().isEmpty) {
+                  return "L'adresse est obligatoire pour la livraison à domicile";
+                }
+              }
+              return null;
+            },
+          ),
+
+          const SizedBox(height: 10),
+
+          // ✅ Gestion du dropdown avec les nouveaux composants
+          if (deliveryMethodVM.loading)
+            const CircularProgressIndicator()
+          else if (deliveryMethodVM.error != null)
+            Text(
+              "Erreur: ${deliveryMethodVM.error}",
+              style: const TextStyle(color: Colors.red),
+            )
+          else if (deliveryMethodVM.activeMethods.isEmpty)
+            const Text("Aucune méthode de livraison disponible")
+          else if (_selectedDeliveryMethod != null)
+            DeliveryMethodDropdown(
+              value: _selectedDeliveryMethod!,
+              methods: deliveryMethodVM.activeMethods,
+              onChanged: (v) {
+                setState(() {
+                  _selectedDeliveryMethod = v;
+                  homeViewModel.currentUser = homeViewModel.currentUser
+                      .copyWith(deliveryMethod: v);
+                });
+              },
+            ),
+
+          PushNotificationSwitch(
+            value: _pushNotifications,
             onChanged: (v) {
               setState(() {
-                _selectedDeliveryMethod = v;
+                _pushNotifications = v;
                 homeViewModel.currentUser = homeViewModel.currentUser.copyWith(
-                  deliveryMethod: v,
+                  pushNotifications: v,
                 );
               });
             },
           ),
 
-        PushNotificationSwitch(
-          value: _pushNotifications,
-          onChanged: (v) {
-            setState(() {
-              _pushNotifications = v;
-              homeViewModel.currentUser = homeViewModel.currentUser.copyWith(
-                pushNotifications: v,
-              );
-            });
-          },
-        ),
-        const SizedBox(height: 20),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            ElevatedButton(
-              onPressed: () async {
-                if (!homeViewModel.isEmailValid(
-                  homeViewModel.currentUser.email,
-                )) {
-                  _showError(context, context.l10n.emailError);
-                  return;
-                }
-                if (!homeViewModel.isPasswordValid(homeViewModel.password)) {
-                  _showError(context, context.l10n.passwordError);
-                  return;
-                }
-                if (homeViewModel.password != homeViewModel.confirmPassword) {
-                  _showError(context, context.l10n.passwordMismatchError);
-                  return;
-                }
+          const SizedBox(height: 20),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              ElevatedButton(
+                onPressed: () async {
+                  // 🔹 Validation du formulaire avant soumission
+                  if (!_signUpFormKey.currentState!.validate()) {
+                    return; // Bloque si erreurs de validation
+                  }
 
-                await homeViewModel.signUp(context);
-                clearControllers();
-                if (mounted) homeViewModel.toggleSignUpForm();
-                widget.onLoginSuccess?.call();
-              },
-              child: Text(context.l10n.createAccountButton),
-            ),
-            const SizedBox(width: 10),
-            TextButton(
-              onPressed: () => homeViewModel.toggleSignUpForm(),
-              child: Text(context.l10n.cancelButton),
-            ),
-          ],
-        ),
-      ],
+                  await homeViewModel.signUp(context);
+                  clearControllers();
+                  if (mounted) homeViewModel.toggleSignUpForm();
+                  widget.onLoginSuccess?.call();
+                },
+                child: Text(context.l10n.createAccountButton),
+              ),
+              const SizedBox(width: 10),
+              TextButton(
+                onPressed: () => homeViewModel.toggleSignUpForm(),
+                child: Text(context.l10n.cancelButton),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 
@@ -312,6 +398,48 @@ class _LoginContentState extends State<LoginContent> {
     );
   }
 
+  // 🔹 Nouveau widget pour champ texte validé
+  Widget _buildValidatedTextField(
+    TextEditingController controller,
+    String label,
+    Function(String) onChanged, {
+    int maxLines = 1,
+    int? maxLength,
+    String? Function(String?)? validator,
+  }) {
+    return SizedBox(
+      width: 300,
+      child: TextFormField(
+        controller: controller,
+        decoration: InputDecoration(labelText: label),
+        maxLines: maxLines,
+        maxLength: maxLength,
+        onChanged: onChanged,
+        validator: validator,
+      ),
+    );
+  }
+
+  // 🔹 Nouveau widget pour champ mot de passe validé
+  Widget _buildValidatedPasswordField(
+    TextEditingController controller,
+    String label,
+    Function(String) onChanged, {
+    String? Function(String?)? validator,
+  }) {
+    return SizedBox(
+      width: 300,
+      child: TextFormField(
+        controller: controller,
+        obscureText: true,
+        decoration: InputDecoration(labelText: label),
+        onChanged: onChanged,
+        validator: validator,
+      ),
+    );
+  }
+
+  // Anciens widgets sans validation (pour le formulaire de connexion)
   Widget _buildTextField(
     TextEditingController controller,
     String label,
@@ -344,15 +472,9 @@ class _LoginContentState extends State<LoginContent> {
       ),
     );
   }
-
-  void _showError(BuildContext context, String message) {
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text(message)));
-  }
 }
 
-/// 🔹 Dropdown pour DeliveryMethodConfig (version simplifiée sans ValueNotifier)
+/// 🔹 Dropdown pour DeliveryMethodConfig
 class DeliveryMethodDropdown extends StatelessWidget {
   final DeliveryMethodConfig value;
   final List<DeliveryMethodConfig> methods;
@@ -391,7 +513,7 @@ class DeliveryMethodDropdown extends StatelessWidget {
   }
 }
 
-/// 🔹 Switch pour notifications push (version simplifiée sans ValueNotifier)
+/// 🔹 Switch pour notifications push
 class PushNotificationSwitch extends StatelessWidget {
   final bool value;
   final Function(bool) onChanged;

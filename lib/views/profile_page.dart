@@ -7,6 +7,10 @@ import '../repositories/account_repository.dart';
 import '../extensions/context_extension.dart';
 import '../viewmodels/delivery_method_view_model.dart';
 
+// Page profil utilisateur.
+// Affiche les informations d'un `UserModel` et permet leur édition.
+// - En lecture seule : affichage des informations
+// - En édition : formulaire validé via `_formKey` et persisté via `AccountViewModel`
 class ProfilePage extends StatefulWidget {
   final UserModel user;
 
@@ -17,10 +21,19 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
+  // Copie modifiable du `UserModel` passé au widget. Utilisée pendant l'édition
+  // pour stocker les changements locaux avant de les persister via le ViewModel.
   late UserModel _editableUser;
+
+  // Flags d'état local : mode édition et sauvegarde en cours.
   bool _isEditing = false;
   bool _isSaving = false;
 
+  // Clé du formulaire pour valider les champs avant envoi.
+  final _formKey = GlobalKey<FormState>();
+
+  // Contrôleurs pour les champs éditables. Ils sont initialisés dans `initState`
+  // à partir de `_editableUser` et doivent être disposés dans `dispose`.
   late final TextEditingController _nameController;
   late final TextEditingController _givenNameController;
   late final TextEditingController _emailController;
@@ -30,13 +43,17 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   void initState() {
     super.initState();
+    // Crée une copie pour éviter de modifier l'objet d'origine tant que
+    // l'utilisateur n'a pas validé ses changements.
     _editableUser = widget.user.copyWith();
 
+    // Initialise les TextEditingController à partir des valeurs de l'utilisateur
+    // modifiable afin d'afficher les valeurs courantes dans le formulaire.
     _nameController = TextEditingController(text: _editableUser.name);
     _givenNameController = TextEditingController(text: _editableUser.givenName);
     _emailController = TextEditingController(text: _editableUser.email);
     _phoneController = TextEditingController(text: _editableUser.phoneNumber);
-    _addressController = TextEditingController(text: _editableUser.address,);
+    _addressController = TextEditingController(text: _editableUser.address);
   }
 
   @override
@@ -44,7 +61,7 @@ class _ProfilePageState extends State<ProfilePage> {
     _nameController.dispose();
     _givenNameController.dispose();
     _emailController.dispose();
-    _phoneController.dispose();
+  _phoneController.dispose();
     _addressController.dispose();
     super.dispose();
   }
@@ -113,148 +130,183 @@ class _ProfilePageState extends State<ProfilePage> {
     AccountViewModel homeViewModel,
     AccountRepository accountRepository,
   ) {
-    return ListView(
-      padding: const EdgeInsets.symmetric(vertical: 10),
-      children: [
-        _buildEditableField(
-          context.l10n.name,
-          _nameController,
-          (v) => _editableUser = _editableUser.copyWith(name: v),
-        ),
-        _buildEditableField(
-          context.l10n.givenNameLabel,
-          _givenNameController,
-          (v) => _editableUser = _editableUser.copyWith(givenName: v),
-        ),
-        _buildEditableField(
-          context.l10n.emailLabel,
-          _emailController,
-          (v) {},
-          readOnly: true,
-        ),
-        _buildEditableField(
-          context.l10n.phoneLabel,
-          _phoneController,
-          (v) => _editableUser = _editableUser.copyWith(phoneNumber: v),
-          maxLength: 15,
-        ),
-        _buildEditableField(
-          context.l10n.addressLabel,
-          _addressController,
-          (v) => _editableUser = _editableUser.copyWith(address: v),
-          maxLines: 3,
-          maxLength: 200,
-        ),
+    return Form(
+      key: _formKey, // <-- AJOUT
+      child: ListView(
+        padding: const EdgeInsets.symmetric(vertical: 10),
+        children: [
+          _buildEditableField(
+            context.l10n.name,
+            _nameController,
+            (v) => _editableUser = _editableUser.copyWith(name: v),
+            validator: (value) {
+              if (value == null || value.trim().isEmpty) {
+                return 'Le nom est obligatoire';
+              }
+              return null;
+            },
+          ),
+          _buildEditableField(
+            context.l10n.givenNameLabel,
+            _givenNameController,
+            (v) => _editableUser = _editableUser.copyWith(givenName: v),
+            validator: (value) {
+              if (value == null || value.trim().isEmpty) {
+                return 'Le prénom est obligatoire';
+              }
+              return null;
+            },
+          ),
+          _buildEditableField(
+            context.l10n.emailLabel,
+            _emailController,
+            (v) {},
+            readOnly: true,
+          ),
+          _buildEditableField(
+            context.l10n.phoneLabel,
+            _phoneController,
+            (v) => _editableUser = _editableUser.copyWith(phoneNumber: v),
+            maxLength: 15,
+            validator: (value) {
+              final phoneRegex = RegExp(r'^(?:\+33[ .]?)?(?:\d[ .]?){9}\d$');
 
-        // ---------------------------
-        // Dropdown pour la méthode de livraison
-        const SizedBox(height: 16),
-        Consumer<DeliveryMethodViewModel>(
-          builder: (context, deliveryMethodVM, child) {
-            if (deliveryMethodVM.loading) {
-              return const Center(child: CircularProgressIndicator());
-            }
+              if (value == null || value.isEmpty) {
+                return 'Le téléphone est obligatoire';
+              }
+              if (!phoneRegex.hasMatch(value)) {
+                return 'Format téléphone invalide';
+              }
+              return null;
+            },
+          ),
+          _buildEditableField(
+            context.l10n.addressLabel,
+            _addressController,
+            (v) => _editableUser = _editableUser.copyWith(address: v),
+            maxLines: 3,
+            maxLength: 200,
+            validator: (value) {
+              if (_editableUser.deliveryMethod.key == "homeDelivery") {
+                if (value == null || value.trim().isEmpty) {
+                  return "L'adresse est obligatoire pour la livraison à domicile";
+                }
+              }
+              return null;
+            },
+          ),
 
-            // ✅ Si aucune méthode chargée, afficher message
-            if (deliveryMethodVM.methods.isEmpty) {
-              return const Center(
-                child: Text('Aucune méthode de livraison disponible'),
+          const SizedBox(height: 16),
+          Consumer<DeliveryMethodViewModel>(
+            builder: (context, deliveryMethodVM, child) {
+              if (deliveryMethodVM.loading) {
+                return const Center(child: CircularProgressIndicator());
+              }
+
+              if (deliveryMethodVM.methods.isEmpty) {
+                return const Center(
+                  child: Text('Aucune méthode de livraison disponible'),
+                );
+              }
+
+              final currentMethod = _editableUser.deliveryMethod;
+              final methodExists = deliveryMethodVM.activeMethods.any(
+                (m) => m.key == currentMethod.key,
               );
-            }
 
-            // ✅ Assurer que la méthode actuelle existe dans la liste
-            final currentMethod = _editableUser.deliveryMethod;
-            final methodExists = deliveryMethodVM.activeMethods
-                .any((m) => m.key == currentMethod.key);
-
-            // Si la méthode n'existe pas, utiliser la méthode par defaut
-            if (!methodExists && deliveryMethodVM.activeMethods.isNotEmpty) {
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                setState(() {
-                  _editableUser = _editableUser.copyWith(
-                    deliveryMethod: deliveryMethodVM.defaultMethod,
-                  );
+              if (!methodExists && deliveryMethodVM.activeMethods.isNotEmpty) {
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  setState(() {
+                    _editableUser = _editableUser.copyWith(
+                      deliveryMethod: deliveryMethodVM.defaultMethod,
+                    );
+                  });
                 });
+                return const SizedBox.shrink();
+              }
+
+              return DeliveryMethodDropdown(
+                value: _editableUser.deliveryMethod,
+                methods: deliveryMethodVM.activeMethods,
+                onChanged: (method) {
+                  setState(() {
+                    _editableUser = _editableUser.copyWith(
+                      deliveryMethod: method,
+                    );
+                  });
+                },
+              );
+            },
+          ),
+
+          const SizedBox(height: 16),
+          SwitchListTile(
+            title: Text(context.l10n.pushNotificationLabel),
+            value: _editableUser.pushNotifications,
+            activeThumbColor: Colors.green,
+            onChanged: (value) {
+              setState(() {
+                _editableUser = _editableUser.copyWith(
+                  pushNotifications: value,
+                );
               });
-              return const SizedBox.shrink();
-            }
+            },
+          ),
 
-            return DeliveryMethodDropdown(
-              value: _editableUser.deliveryMethod,
-              methods: deliveryMethodVM.activeMethods,
-              onChanged: (method) {
-                setState(() {
-                  _editableUser = _editableUser.copyWith(
-                    deliveryMethod: method,
-                  );
-                });
-              },
-            );
-          },
-        ),
+          const SizedBox(height: 20),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              ElevatedButton.icon(
+                icon: _isSaving
+                    ? const CircularProgressIndicator(
+                        color: Colors.white,
+                        strokeWidth: 2,
+                      )
+                    : const Icon(Icons.save),
+                label: Text(context.l10n.save),
+                onPressed: _isSaving
+                    ? null
+                    : () async {
+                        if (!_formKey.currentState!.validate()) {
+                          return; // <-- BLOQUE si erreurs
+                        }
 
-        // Switch pour les notifications push
-        const SizedBox(height: 16),
-        SwitchListTile(
-          title: Text(context.l10n.pushNotificationLabel),
-          value: _editableUser.pushNotifications,
-          activeThumbColor: Colors.green,
-          onChanged: (value) {
-            setState(() {
-              _editableUser = _editableUser.copyWith(pushNotifications: value);
-            });
-          },
-        ),
+                        setState(() => _isSaving = true);
 
-        const SizedBox(height: 20),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            ElevatedButton.icon(
-              icon: _isSaving
-                  ? const CircularProgressIndicator(
-                      color: Colors.white,
-                      strokeWidth: 2,
-                    )
-                  : const Icon(Icons.save),
-              label: Text(context.l10n.save),
-              onPressed: _isSaving
-                  ? null
-                  : () async {
-                      setState(() => _isSaving = true);
+                        final success = await homeViewModel.updateUserProfile(
+                          context,
+                          _editableUser,
+                        );
 
-                      final success = await homeViewModel.updateUserProfile(
-                        context,
-                        _editableUser,
-                      );
-
-                      if (success) {
-                        setState(() {
-                          homeViewModel.currentUser = _editableUser;
-                          _isEditing = false;
-                          _isSaving = false;
-                        });
-                      } else {
-                        setState(() => _isSaving = false);
-                      }
-                    },
-            ),
-            const SizedBox(width: 16),
-            OutlinedButton(
-              onPressed: () => setState(() {
-                _editableUser = widget.user.copyWith();
-                _nameController.text = _editableUser.name;
-                _givenNameController.text = _editableUser.givenName;
-                _emailController.text = _editableUser.email;
-                _phoneController.text = _editableUser.phoneNumber;
-                _addressController.text = _editableUser.address;
-                _isEditing = false;
-              }),
-              child: Text(context.l10n.cancel),
-            ),
-          ],
-        ),
-      ],
+                        if (success) {
+                          setState(() {
+                            homeViewModel.currentUser = _editableUser;
+                            _isEditing = false;
+                            _isSaving = false;
+                          });
+                        } else {
+                          setState(() => _isSaving = false);
+                        }
+                      },
+              ),
+              const SizedBox(width: 16),
+              OutlinedButton(
+                onPressed: () => setState(() {
+                  _editableUser = widget.user.copyWith();
+                  _nameController.text = _editableUser.name;
+                  _givenNameController.text = _editableUser.givenName;
+                  _emailController.text = _editableUser.email;
+                  _phoneController.text = _editableUser.phoneNumber;
+                  _addressController.text = _editableUser.address;
+                  _isEditing = false;
+                }),
+                child: Text(context.l10n.cancel),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 
@@ -263,18 +315,20 @@ class _ProfilePageState extends State<ProfilePage> {
     TextEditingController controller,
     Function(String) onChanged, {
     int maxLines = 1,
-    int maxLength =  100,
+    int maxLength = 100,
     bool readOnly = false,
+    String? Function(String?)? validator, // <-- AJOUT
   }) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6),
-      child: TextField(
+      child: TextFormField(
         controller: controller,
         decoration: InputDecoration(labelText: label),
         maxLines: maxLines,
         maxLength: maxLength,
         onChanged: onChanged,
         readOnly: readOnly,
+        validator: validator, // <-- AJOUT
       ),
     );
   }
@@ -294,6 +348,9 @@ class DeliveryMethodDropdown extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Widget réutilisable affichant un DropdownFormField pour choisir
+    // une méthode de livraison parmi une liste. La largeur s'adapte à
+    // l'écran (max 300px) pour garder une mise en page cohérente.
     double fieldWidth = MediaQuery.of(context).size.width * 0.9;
     if (fieldWidth > 300) fieldWidth = 300;
 
@@ -303,10 +360,7 @@ class DeliveryMethodDropdown extends StatelessWidget {
         isExpanded: true,
         initialValue: value,
         items: methods
-            .map((m) => DropdownMenuItem(
-                  value: m,
-                  child: Text(m.label),
-                ))
+            .map((m) => DropdownMenuItem(value: m, child: Text(m.label)))
             .toList(),
         onChanged: (v) {
           if (v != null) {
