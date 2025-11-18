@@ -27,12 +27,6 @@ class _OffersPageContentState extends State<OffersPageContent> {
       if (mounted) {
         final vm = context.read<WeeklyOffersViewModel>();
         vm.setOfferFilter(OfferFilter.published);
-
-        // ✅ Charger aussi les méthodes de livraison
-        final deliveryMethodVM = context.read<DeliveryMethodViewModel>();
-        if (deliveryMethodVM.methods.isEmpty && !deliveryMethodVM.loading) {
-          deliveryMethodVM.loadMethods();
-        }
       }
     });
   }
@@ -482,14 +476,7 @@ class _CartScreenState extends State<CartScreen> {
                   const SizedBox(height: 16),
 
                   // 🚚 Sélection de la méthode de livraison
-                  if (deliveryMethodVM.loading)
-                    const Center(child: CircularProgressIndicator())
-                  else if (deliveryMethodVM.error != null)
-                    Text(
-                      "Erreur: ${deliveryMethodVM.error}",
-                      style: const TextStyle(color: Colors.red),
-                    )
-                  else if (deliveryMethodVM.activeMethods.isEmpty)
+                  if (deliveryMethodVM.activeMethods.isEmpty)
                     const Text("Aucune méthode de livraison disponible")
                   else if (_selectedDeliveryMethod != null)
                     DeliveryMethodDropdown(

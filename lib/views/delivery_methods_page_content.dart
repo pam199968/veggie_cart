@@ -18,19 +18,12 @@ class _DeliveryMethodsPageContentState
   @override
   void initState() {
     super.initState();
-    // ✅ Utilisation de Future.microtask au lieu d'accéder directement au context
-    Future.microtask(() {
-      final vm = context.read<DeliveryMethodViewModel>();
-      if (vm.methods.isEmpty && !vm.loading) {
-        vm.loadMethods();
-      }
-    });
   }
 
   @override
   Widget build(BuildContext context) {
     final deliveryMethodVM = context.watch<DeliveryMethodViewModel>();
-   return Column(
+    return Column(
       children: [
         // 🔍 Barre de recherche
         Padding(
