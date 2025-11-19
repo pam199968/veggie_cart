@@ -1,9 +1,9 @@
 /// Enum représentant les catégories de légumes
 enum VegetableCategory {
-  leaf,   // légumes feuille
-  fruit,  // légumes fruit
-  root,   // légumes racine
-  other,  // fruits ou autres
+  leaf, // légumes feuille
+  fruit, // légumes fruit
+  root, // légumes racine
+  other, // fruits ou autres
 }
 
 extension VegetableCategoryExtension on VegetableCategory {
@@ -67,7 +67,9 @@ class VegetableModel {
     return VegetableModel(
       id: documentId,
       name: map['name'] ?? '',
-      category: VegetableCategoryExtension.fromString(map['category'] ?? 'other'),
+      category: VegetableCategoryExtension.fromString(
+        map['category'] ?? 'other',
+      ),
       description: map['description'],
       packaging: map['packaging'] ?? '',
       standardQuantity: (map['standardQuantity'] as num?)?.toDouble(),
@@ -120,13 +122,27 @@ class VegetableModel {
     );
   }
 
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    return other is VegetableModel && other.id == id;
+  }
+
+  @override
+  int get hashCode => id.hashCode;
+
   /// 🔹 Représentation lisible pour les aperçus
   @override
   String toString() {
-    final quantity =
-        standardQuantity != null ? '${standardQuantity!.toStringAsFixed(0)} $packaging' : packaging;
-    final formattedPrice = price != null ? '${price!.toStringAsFixed(2)}€' : '-';
-    final selection = selectedQuantity != null ? ' | Sélection: ${selectedQuantity!.toStringAsFixed(2)} $packaging' : '';
+    final quantity = standardQuantity != null
+        ? '${standardQuantity!.toStringAsFixed(0)} $packaging'
+        : packaging;
+    final formattedPrice = price != null
+        ? '${price!.toStringAsFixed(2)}€'
+        : '-';
+    final selection = selectedQuantity != null
+        ? ' | Sélection: ${selectedQuantity!.toStringAsFixed(2)} $packaging'
+        : '';
     return '$name ($quantity, $formattedPrice)$selection';
   }
 }

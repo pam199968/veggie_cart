@@ -1,4 +1,6 @@
+import 'package:au_bio_jardin_app/models/vegetable_model.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../models/delivery_method_config.dart';
 import '../models/user_model.dart';
@@ -120,170 +122,197 @@ class OfferDetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cartVm = context.watch<CartViewModel>();
 
     return Scaffold(
       appBar: AppBar(
         title: Text(offer.title),
         actions: [
-          Stack(
-            children: [
-              IconButton(
-                icon: const Icon(Icons.shopping_cart),
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => CartScreen(user: user)),
-                  );
-                },
-              ),
-              if (cartVm.totalItems > 0)
-                Positioned(
-                  right: 6,
-                  top: 6,
-                  child: CircleAvatar(
-                    radius: 8,
-                    backgroundColor: Colors.red,
-                    child: Text(
-                      cartVm.totalItems.toString(),
-                      style: const TextStyle(fontSize: 12, color: Colors.white),
-                    ),
-                  ),
-                ),
-            ],
-          ),
-        ],
-      ),
-
-      // ✅ Contenu principal
-      body: ListView(
-        padding: const EdgeInsets.all(12),
-        children: offer.vegetables.map((veg) {
-          final qty = cartVm.items[veg] ?? 0;
-          return Card(
-            margin: const EdgeInsets.symmetric(vertical: 6),
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
+          // Selector qui n'écoute QUE totalItems -> rebuild minimal
+          Selector<CartViewModel, int>(
+            selector: (_, vm) => vm.totalItems,
+            builder: (context, totalItems, child) {
+              return Stack(
                 children: [
-                  // 🥬 Image du légume
-                  if (veg.image != null && veg.image!.isNotEmpty)
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(8),
-                      child: Image.network(
-                        veg.image!,
-                        width: 64,
-                        height: 64,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) => Container(
-                          width: 64,
-                          height: 64,
-                          color: Colors.grey.shade200,
+                  IconButton(
+                    icon: const Icon(Icons.shopping_cart),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => CartScreen(user: user),
+                        ),
+                      );
+                    },
+                  ),
+                  if (totalItems > 0)
+                    Positioned(
+                      right: 6,
+                      top: 6,
+                      child: CircleAvatar(
+                        radius: 8,
+                        backgroundColor: Colors.red,
+                        child: Text(
+                          totalItems.toString(),
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: Colors.white,
+                          ),
                         ),
                       ),
                     ),
-                  const SizedBox(width: 12),
-
-                  // 🧱 Contenu texte + boutons
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // 🔹 Ligne 1 : Nom du légume
-                        Text(
-                          veg.name,
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-
-                        // 🔹 Ligne 2 : Prix + conditionnement
-                        Padding(
-                          padding: const EdgeInsets.only(top: 4.0, bottom: 8.0),
-                          child: Text(
-                            '${veg.price?.toStringAsFixed(2) ?? "-"} € / ${veg.packaging} '
-                            '(cond. ${veg.standardQuantity} ${veg.packaging})',
-                            style: const TextStyle(
-                              fontSize: 14,
-                              color: Colors.black87,
-                            ),
-                          ),
-                        ),
-
-                        // 🔹 Ligne 3 : Quantité + boutons +/- alignés horizontalement
-                        Row(
-                          children: [
-                            IconButton(
-                              icon: const Icon(Icons.remove_circle_outline),
-                              onPressed: qty > 0
-                                  ? () => cartVm.updateQuantity(
-                                      veg,
-                                      (qty - 1).clamp(0.0, double.infinity),
-                                    )
-                                  : null,
-                            ),
-                            SizedBox(
-                              width: 60,
-                              child: TextField(
-                                keyboardType:
-                                    const TextInputType.numberWithOptions(
-                                      decimal: true,
-                                    ),
-                                textAlign: TextAlign.center,
-                                controller: TextEditingController(
-                                  text: qty.toStringAsFixed(2),
-                                ),
-                                onSubmitted: (value) {
-                                  final parsed = double.tryParse(value);
-                                  if (parsed != null && parsed >= 0) {
-                                    cartVm.updateQuantity(veg, parsed);
-                                  }
-                                },
-                              ),
-                            ),
-                            IconButton(
-                              icon: const Icon(Icons.add_circle_outline),
-                              onPressed: () =>
-                                  cartVm.updateQuantity(veg, qty + 1),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
                 ],
-              ),
-            ),
-          );
-        }).toList(),
+              );
+            },
+          ),
+        ],
+      ),
+      // ✅ Contenu principal
+      body: ListView(
+        padding: const EdgeInsets.all(12),
+        children: offer.vegetables.map((veg) => VegItemTile(veg: veg)).toList(),
       ),
 
       // ✅ Bouton "Finaliser la commande" en bas de l'écran
       bottomNavigationBar: SafeArea(
         minimum: const EdgeInsets.all(12),
-        child: ElevatedButton.icon(
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.green,
-            padding: const EdgeInsets.symmetric(vertical: 14),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
+        child: Selector<CartViewModel, int>(
+          selector: (_, vm) => vm.totalItems,
+          builder: (context, totalItems, child) {
+            return ElevatedButton.icon(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.green,
+                padding: const EdgeInsets.symmetric(vertical: 14),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              icon: const Icon(Icons.check_circle_outline, color: Colors.white),
+              label: Text(
+                '${context.l10n.finalizeOrder} ($totalItems)',
+                style: const TextStyle(fontSize: 18, color: Colors.white),
+              ),
+              onPressed: totalItems > 0
+                  ? () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => CartScreen(user: user),
+                        ),
+                      );
+                    }
+                  : null,
+            );
+          },
+        ),
+      ),
+    );
+  }
+}
+
+class VegItemTile extends StatelessWidget {
+  final VegetableModel veg;
+  const VegItemTile({required this.veg, super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final cartVm = context.read<CartViewModel>();
+
+    return Card(
+      margin: const EdgeInsets.symmetric(vertical: 6),
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (veg.image != null && veg.image!.isNotEmpty)
+              ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: Image.network(
+                  veg.image!,
+                  width: 64,
+                  height: 64,
+                  fit: BoxFit.cover,
+                ),
+              ),
+
+            const SizedBox(width: 12),
+
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    veg.name,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+
+                  Padding(
+                    padding: const EdgeInsets.only(top: 4, bottom: 8),
+                    child: Text(
+                      '${veg.price?.toStringAsFixed(2) ?? "-"} € / ${veg.packaging} '
+                      '(cond. ${veg.standardQuantity} ${veg.packaging})',
+                    ),
+                  ),
+
+                  // 👇 SEULE PARTIE ÉCOUTÉE
+                  Selector<CartViewModel, double>(
+                    selector: (_, vm) => vm.items[veg] ?? 0,
+                    builder: (_, qty, __) {
+                      return Row(
+                        children: [
+                          IconButton(
+                            icon: const Icon(Icons.remove_circle_outline),
+                            onPressed: qty > 0
+                                ? () => cartVm.updateQuantity(
+                                    veg,
+                                    (qty - 1).clamp(0.0, double.infinity),
+                                  )
+                                : null,
+                          ),
+                          SizedBox(
+                            width: 60,
+                            child: TextFormField(
+                              key: ValueKey(
+                                '${veg.id}-$qty',
+                              ), // 👈 ajoute la Key ici !
+                              initialValue: qty.toStringAsFixed(2),
+                              keyboardType:
+                                  const TextInputType.numberWithOptions(
+                                    decimal: true,
+                                  ),
+                              textAlign: TextAlign.center,
+                              inputFormatters: [
+                                FilteringTextInputFormatter.allow(
+                                  RegExp(r'^\d*\.?\d{0,2}'),
+                                ),
+                              ],
+                              onChanged: (value) {
+                                final parsed = double.tryParse(value);
+                                if (parsed != null && parsed >= 0) {
+                                  context.read<CartViewModel>().updateQuantity(
+                                    veg,
+                                    parsed,
+                                  );
+                                }
+                              },
+                            ),
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.add_circle_outline),
+                            onPressed: () =>
+                                cartVm.updateQuantity(veg, qty + 1),
+                          ),
+                        ],
+                      );
+                    },
+                  ),
+                ],
+              ),
             ),
-          ),
-          icon: const Icon(Icons.check_circle_outline, color: Colors.white),
-          label: Text(
-            '${context.l10n.finalizeOrder} (${cartVm.totalItems.toString()})',
-            style: const TextStyle(fontSize: 18, color: Colors.white),
-          ),
-          onPressed: cartVm.totalItems > 0
-              ? () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => CartScreen(user: user)),
-                  );
-                }
-              : null,
+          ],
         ),
       ),
     );
