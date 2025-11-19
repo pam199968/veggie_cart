@@ -92,7 +92,6 @@ class _LoginContentState extends State<LoginContent> {
     AccountViewModel homeViewModel,
     DeliveryMethodViewModel deliveryMethodVM,
   ) {
-    clearControllers();
     return Form(
       key: _signUpFormKey, // 🔹 Ajout de la clé de formulaire
       child: Column(
