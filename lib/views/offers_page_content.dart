@@ -260,7 +260,7 @@ class VegItemTile extends StatelessWidget {
                   // 👇 SEULE PARTIE ÉCOUTÉE
                   Selector<CartViewModel, double>(
                     selector: (_, vm) => vm.items[veg] ?? 0,
-                    builder: (_, qty, __) {
+                    builder: (_, qty, _) {
                       return Row(
                         children: [
                           IconButton(

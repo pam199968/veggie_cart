@@ -75,7 +75,7 @@ class _ImagePickerUploaderState extends State<ImagePickerUploader> {
       debugPrint('Erreur Firebase upload : ${e.code} - ${e.message}');
       setState(() => isUploading = false);
       
-      if (context.mounted) {
+      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Erreur upload : ${e.message}')),
         );
@@ -84,7 +84,7 @@ class _ImagePickerUploaderState extends State<ImagePickerUploader> {
       debugPrint('Erreur générale upload : $e');
       setState(() => isUploading = false);
       
-      if (context.mounted) {
+      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Erreur pendant l\'upload')),
         );
