@@ -134,20 +134,30 @@ class _PreparationTabState extends State<PreparationTab>
                                         label: Text(context.l10n.packaging),
                                       ),
                                     ],
-                                    rows: vegTotals.entries.map((entry) {
-                                      final data = entry.value;
-                                      final conditionnement =
-                                          "${data['standardQuantity']} ${data['packaging']}";
-                                      return DataRow(
-                                        cells: [
-                                          DataCell(Text(entry.key)),
-                                          DataCell(
-                                            Text(data['quantity'].toString()),
-                                          ),
-                                          DataCell(Text(conditionnement)),
-                                        ],
-                                      );
-                                    }).toList(),
+                                    rows:
+                                        (vegTotals.entries.toList()..sort(
+                                              (a, b) => a.key.compareTo(b.key),
+                                            )) // 🔹 Tri alphabétique
+                                            .map((entry) {
+                                              final data = entry.value;
+                                              final conditionnement =
+                                                  "${data['standardQuantity']} ${data['packaging']}";
+                                              return DataRow(
+                                                cells: [
+                                                  DataCell(Text(entry.key)),
+                                                  DataCell(
+                                                    Text(
+                                                      data['quantity']
+                                                          .toString(),
+                                                    ),
+                                                  ),
+                                                  DataCell(
+                                                    Text(conditionnement),
+                                                  ),
+                                                ],
+                                              );
+                                            })
+                                            .toList(),
                                   ),
                                 ),
                               ),
@@ -155,8 +165,7 @@ class _PreparationTabState extends State<PreparationTab>
                           ),
                         ],
                       ),
-
-                // 👤 Onglet "Par client" — affichage direct et imprimable
+                // 👤 Onglet "Par client" — affichage détaillé par commande
                 ordersByCustomer.isEmpty
                     ? Center(child: Text(context.l10n.noOrders))
                     : Column(
@@ -192,22 +201,6 @@ class _PreparationTabState extends State<PreparationTab>
                                 children: ordersByCustomer.entries.map((entry) {
                                   final customerName = entry.key;
                                   final orders = entry.value;
-                                  final deliveryMethod =
-                                      orders.first.deliveryMethod.label;
-
-                                  // Agréger tous les légumes de ce client
-                                  final List<Map<String, String>> vegetables =
-                                      [];
-                                  for (var order in orders) {
-                                    for (var item in order.items) {
-                                      vegetables.add({
-                                        'name': item.vegetable.name,
-                                        'quantity': item.quantity.toString(),
-                                        'packaging':
-                                            "${item.vegetable.standardQuantity} ${item.vegetable.packaging}",
-                                      });
-                                    }
-                                  }
 
                                   return Card(
                                     margin: const EdgeInsets.symmetric(
@@ -224,66 +217,130 @@ class _PreparationTabState extends State<PreparationTab>
                                         crossAxisAlignment:
                                             CrossAxisAlignment.start,
                                         children: [
-                                          Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceBetween,
-                                            children: [
-                                              Text(
-                                                customerName,
-                                                style: const TextStyle(
-                                                  fontSize: 16,
-                                                  fontWeight: FontWeight.bold,
-                                                ),
-                                              ),
-                                              Text(' $deliveryMethod',
-                                                style: const TextStyle(
-                                                  color: Colors.grey,
-                                                  overflow: TextOverflow.ellipsis
-                                                ),
-                                              ),
-                                            ],
+                                          Text(
+                                            customerName,
+                                            style: const TextStyle(
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.bold,
+                                            ),
                                           ),
-                                          const SizedBox(height: 8),
-                                          SingleChildScrollView(
-                                            scrollDirection: Axis.vertical,
-                                            child: SingleChildScrollView(
-                                              scrollDirection: Axis.horizontal,
-                                              child: DataTable(
-                                                columns: [
-                                                  DataColumn(
-                                                    label: Text(
-                                                      context.l10n.vegetable,
-                                                    ),
+                                          const SizedBox(height: 12),
+
+                                          // 🔽 Affichage des commandes du client
+                                          ...orders.map((order) {
+                                            // Info commande
+                                            final deliveryMethod =
+                                                order.deliveryMethod.label;
+                                            final orderId =
+                                                order.orderNumber ?? "–";
+
+                                            return Padding(
+                                              padding: const EdgeInsets.only(
+                                                bottom: 16,
+                                              ),
+                                              child: Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Row(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .spaceBetween,
+                                                    children: [
+                                                      Text(
+                                                        "🧾 ${context.l10n.order} $orderId",
+                                                        style: const TextStyle(
+                                                          fontSize: 14,
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                        ),
+                                                      ),
+                                                      Text(
+                                                        deliveryMethod,
+                                                        style: const TextStyle(
+                                                          fontSize: 13,
+                                                          color: Colors.grey,
+                                                        ),
+                                                      ),
+                                                    ],
                                                   ),
-                                                  DataColumn(
-                                                    label: Text(
-                                                      context.l10n.quantity,
-                                                    ),
-                                                  ),
-                                                  DataColumn(
-                                                    label: Text(
-                                                      context.l10n.packaging,
+                                                  const SizedBox(height: 8),
+
+                                                  // Tableau des items de la commande
+                                                  SingleChildScrollView(
+                                                    scrollDirection:
+                                                        Axis.horizontal,
+                                                    child: DataTable(
+                                                      columns: [
+                                                        DataColumn(
+                                                          label: Text(
+                                                            context
+                                                                .l10n
+                                                                .vegetable,
+                                                          ),
+                                                        ),
+                                                        DataColumn(
+                                                          label: Text(
+                                                            context
+                                                                .l10n
+                                                                .quantity,
+                                                          ),
+                                                        ),
+                                                        DataColumn(
+                                                          label: Text(
+                                                            context
+                                                                .l10n
+                                                                .packaging,
+                                                          ),
+                                                        ),
+                                                      ],
+                                                      rows: (() {
+                                                        // 🔹 Tri alphabétique des légumes
+                                                        final sortedItems =
+                                                            order.items..sort(
+                                                              (a, b) => a
+                                                                  .vegetable
+                                                                  .name
+                                                                  .compareTo(
+                                                                    b
+                                                                        .vegetable
+                                                                        .name,
+                                                                  ),
+                                                            );
+
+                                                        return sortedItems.map((
+                                                          item,
+                                                        ) {
+                                                          return DataRow(
+                                                            cells: [
+                                                              DataCell(
+                                                                Text(
+                                                                  item
+                                                                      .vegetable
+                                                                      .name,
+                                                                ),
+                                                              ),
+                                                              DataCell(
+                                                                Text(
+                                                                  item.quantity
+                                                                      .toString(),
+                                                                ),
+                                                              ),
+                                                              DataCell(
+                                                                Text(
+                                                                  "${item.vegetable.standardQuantity} ${item.vegetable.packaging}",
+                                                                ),
+                                                              ),
+                                                            ],
+                                                          );
+                                                        }).toList();
+                                                      })(),
                                                     ),
                                                   ),
                                                 ],
-                                                rows: vegetables.map((veg) {
-                                                  return DataRow(
-                                                    cells: [
-                                                      DataCell(
-                                                        Text(veg['name']!),
-                                                      ),
-                                                      DataCell(
-                                                        Text(veg['quantity']!),
-                                                      ),
-                                                      DataCell(
-                                                        Text(veg['packaging']!),
-                                                      ),
-                                                    ],
-                                                  );
-                                                }).toList(),
                                               ),
-                                            ),
-                                          ),
+                                            );
+                                          }),
                                         ],
                                       ),
                                     ),

@@ -4,10 +4,15 @@ import 'package:pdf/widgets.dart' as pw;
 
 
 /// 🥬 Impression "Préparation par légume"
+/// 🥬 Impression "Préparation par légume"
 Future<void> printVegetableTableImpl(List<List<String>> rows) async {
+  // 🔹 Tri alphabétique des légumes (colonne 0 = nom du légume)
+  rows.sort((a, b) => a[0].compareTo(b[0]));
+
   final pdf = pw.Document();
   pdf.addPage(
     pw.MultiPage(
+      pageFormat: PdfPageFormat.a4,
       build: (_) => [
         pw.Center(
           child: pw.Text(
@@ -24,20 +29,23 @@ Future<void> printVegetableTableImpl(List<List<String>> rows) async {
             color: PdfColors.white,
           ),
           headerDecoration: const pw.BoxDecoration(color: PdfColors.green),
-          border: pw.TableBorder.all(color: PdfColors.grey),
+          border: pw.TableBorder.all(color: PdfColors.grey600),
         ),
       ],
     ),
   );
 
+  // 🖨️ Impression
   await Printing.layoutPdf(onLayout: (format) async => pdf.save());
 }
 
-/// 👤 Impression "Préparation par client"
+/// 👤 Impression "Préparation par client" (détail par commande)
 Future<void> printCustomerOrdersImpl(Map<String, List<dynamic>> ordersByCustomer) async {
   final pdf = pw.Document();
+
   pdf.addPage(
     pw.MultiPage(
+      pageFormat: PdfPageFormat.a4,
       build: (_) {
         final widgets = <pw.Widget>[
           pw.Center(
@@ -49,19 +57,13 @@ Future<void> printCustomerOrdersImpl(Map<String, List<dynamic>> ordersByCustomer
           pw.SizedBox(height: 20),
         ];
 
-        ordersByCustomer.forEach((customerName, orders) {
-          final deliveryMethod = orders.first.deliveryMethod.label;
-          final List<List<String>> vegRows = [];
+        // 🔹 Tri alphabétique des clients
+        final sortedCustomers = ordersByCustomer.entries.toList()
+          ..sort((a, b) => a.key.compareTo(b.key));
 
-          for (var order in orders) {
-            for (var item in order.items) {
-              vegRows.add([
-                item.vegetable.name,
-                item.quantity.toString(),
-                "${item.vegetable.standardQuantity} ${item.vegetable.packaging}",
-              ]);
-            }
-          }
+        for (var entry in sortedCustomers) {
+          final customerName = entry.key;
+          final orders = entry.value;
 
           widgets.add(
             pw.Container(
@@ -70,43 +72,80 @@ Future<void> printCustomerOrdersImpl(Map<String, List<dynamic>> ordersByCustomer
                 border: pw.Border.all(color: PdfColors.grey400),
                 borderRadius: pw.BorderRadius.circular(8),
               ),
-              padding: const pw.EdgeInsets.all(8),
+              padding: const pw.EdgeInsets.all(10),
               child: pw.Column(
                 crossAxisAlignment: pw.CrossAxisAlignment.start,
                 children: [
-                  pw.Row(
-                    mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-                    children: [
-                      pw.Text(
-                        customerName,
-                        style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 14),
-                      ),
-                      pw.Text('Livraison : $deliveryMethod'),
-                    ],
-                  ),
-                  pw.SizedBox(height: 8),
-                  pw.TableHelper.fromTextArray(
-                    headers: ['Légume', 'Quantité', 'Conditionnement'],
-                    data: vegRows,
-                    headerStyle: pw.TextStyle(
+                  // 👤 Nom du client
+                  pw.Text(
+                    customerName,
+                    style: pw.TextStyle(
                       fontWeight: pw.FontWeight.bold,
-                      color: PdfColors.white,
+                      fontSize: 16,
                     ),
-                    headerDecoration:
-                        const pw.BoxDecoration(color: PdfColors.teal),
-                    border: pw.TableBorder.all(color: PdfColors.grey300),
                   ),
+                  pw.SizedBox(height: 10),
+
+                  // 🔽 Affichage de toutes les commandes du client
+                  ...orders.map((order) {
+                    final orderId = order.orderNumber ?? "-";
+                    final deliveryMethod = order.deliveryMethod.label;
+
+                    // 🔹 Création et tri des légumes dans la commande
+                    final List<List<String>> vegRows = order.items
+                        .map<List<String>>(
+                          (item) => <String>[
+                            item.vegetable.name,
+                            item.quantity.toString(),
+                            "${item.vegetable.standardQuantity} ${item.vegetable.packaging}",
+                          ],
+                        )
+                        .toList()
+                        .cast<List<String>>();
+                    
+                    // ✅ Tri alphabétique
+                    vegRows.sort((a, b) => a[0].compareTo(b[0]));
+
+                    return pw.Column(
+                      crossAxisAlignment: pw.CrossAxisAlignment.start,
+                      children: [
+                        // 🧾 En-tête de commande
+                        pw.Text(
+                          "Commande $orderId - $deliveryMethod",
+                          style: pw.TextStyle(
+                            fontWeight: pw.FontWeight.bold,
+                            fontSize: 13,
+                          ),
+                        ),
+                        pw.SizedBox(height: 4),
+
+                        // 📋 Tableau des légumes de la commande
+                        pw.TableHelper.fromTextArray(
+                          headers: ['Légume', 'Quantité', 'Conditionnement'],
+                          data: vegRows,
+                          headerStyle: pw.TextStyle(
+                            fontWeight: pw.FontWeight.bold,
+                            color: PdfColors.white,
+                          ),
+                          headerDecoration:
+                              const pw.BoxDecoration(color: PdfColors.teal),
+                          border: pw.TableBorder.all(color: PdfColors.grey300),
+                        ),
+                        pw.SizedBox(height: 12),
+                      ],
+                    );
+                  }),
                 ],
               ),
             ),
           );
-        });
+        }
 
         return widgets;
       },
     ),
   );
 
+  // 🖨️ Impression
   await Printing.layoutPdf(onLayout: (format) async => pdf.save());
 }
-
