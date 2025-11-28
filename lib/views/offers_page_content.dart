@@ -122,7 +122,6 @@ class OfferDetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       appBar: AppBar(
         title: Text(offer.title),
@@ -233,8 +232,9 @@ class VegItemTile extends StatelessWidget {
                   height: 64,
                   fit: BoxFit.cover,
                 ),
-              ),
-
+              )
+            else
+              const Icon(Icons.local_florist, size: 48),
             const SizedBox(width: 12),
 
             Expanded(
