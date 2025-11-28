@@ -335,7 +335,9 @@ class VegetableCard extends StatelessWidget {
                     );
                   },
                 ),
-              ),
+              )
+            else
+              const Icon(Icons.local_florist, size: 128),
             const SizedBox(height: 8),
             Row(
               children: [
