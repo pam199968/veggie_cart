@@ -231,8 +231,7 @@ class _PreparationTabState extends State<PreparationTab>
                                             // Info commande
                                             final deliveryMethod =
                                                 order.deliveryMethod.label;
-                                            final orderId =
-                                                order.orderNumber ?? "–";
+                                            final orderId = order.orderNumber;
 
                                             return Padding(
                                               padding: const EdgeInsets.only(
@@ -242,28 +241,22 @@ class _PreparationTabState extends State<PreparationTab>
                                                 crossAxisAlignment:
                                                     CrossAxisAlignment.start,
                                                 children: [
-                                                  Row(
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment
-                                                            .spaceBetween,
-                                                    children: [
-                                                      Text(
-                                                        "🧾 ${context.l10n.order} $orderId",
-                                                        style: const TextStyle(
-                                                          fontSize: 14,
-                                                          fontWeight:
-                                                              FontWeight.bold,
-                                                        ),
-                                                      ),
-                                                      Text(
-                                                        deliveryMethod,
-                                                        style: const TextStyle(
-                                                          fontSize: 13,
-                                                          color: Colors.grey,
-                                                        ),
-                                                      ),
-                                                    ],
+                                                  Text(
+                                                    "🧾 ${context.l10n.order} $orderId",
+                                                    style: const TextStyle(
+                                                      fontSize: 14,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                    ),
                                                   ),
+                                                  Text(
+                                                    deliveryMethod,
+                                                    style: const TextStyle(
+                                                      fontSize: 13,
+                                                      color: Colors.grey,
+                                                    ),
+                                                  ),
+
                                                   const SizedBox(height: 8),
 
                                                   // Tableau des items de la commande
