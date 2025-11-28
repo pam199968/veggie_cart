@@ -37,7 +37,7 @@ class _CustomerOrdersPageContentState extends State<CustomerOrdersPageContent>
     // 🔹 Initialisation des statuts
     for (var status in OrderStatus.values) {
       _selectedStatuses[status] =
-          !(status == OrderStatus.ready || status == OrderStatus.delivered);
+          !(status == OrderStatus.ready || status == OrderStatus.delivered || status == OrderStatus.cancelled);
     }
 
     // 🔹 Appliquer le filtre initial
