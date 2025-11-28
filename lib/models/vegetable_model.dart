@@ -1,3 +1,6 @@
+// Copyright (c) 2025 Patrick Mortas
+// All rights reserved.
+
 /// Enum représentant les catégories de légumes
 enum VegetableCategory {
   leaf, // légumes feuille

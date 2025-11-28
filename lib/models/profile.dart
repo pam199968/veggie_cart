@@ -1,3 +1,6 @@
+// Copyright (c) 2025 Patrick Mortas
+// All rights reserved.
+
 enum Profile {
   gardener,    // Maraicher
   customer,    // Client

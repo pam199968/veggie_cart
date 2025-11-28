@@ -1,3 +1,6 @@
+// Copyright (c) 2025 Patrick Mortas
+// All rights reserved.
+
 import 'dart:typed_data';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';

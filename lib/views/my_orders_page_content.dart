@@ -1,3 +1,6 @@
+// Copyright (c) 2025 Patrick Mortas
+// All rights reserved.
+
 import 'package:au_bio_jardin_app/extensions/context_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';

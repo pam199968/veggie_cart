@@ -1,3 +1,6 @@
+// Copyright (c) 2025 Patrick Mortas
+// All rights reserved.
+
 import 'dart:js_interop';
 import 'dart:typed_data';
 import 'package:web/web.dart' as web;

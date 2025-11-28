@@ -1,3 +1,6 @@
+// Copyright (c) 2025 Patrick Mortas
+// All rights reserved.
+
 import '../models/weekly_offer.dart';
 import '../services/weekly_offers_service.dart';
 

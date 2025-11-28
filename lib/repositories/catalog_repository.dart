@@ -1,3 +1,6 @@
+// Copyright (c) 2025 Patrick Mortas
+// All rights reserved.
+
 import 'dart:async';
 import '../models/vegetable_model.dart';
 import '../services/catalog_service.dart';

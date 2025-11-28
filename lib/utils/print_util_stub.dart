@@ -1,3 +1,6 @@
+// Copyright (c) 2025 Patrick Mortas
+// All rights reserved.
+
 import 'package:flutter/widgets.dart';
 
 Future<void> printVegetableTableImpl(List<List<String>> rows) async {

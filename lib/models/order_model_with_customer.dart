@@ -1,3 +1,6 @@
+// Copyright (c) 2025 Patrick Mortas
+// All rights reserved.
+
 import '../models/order_model.dart';
 import '../models/user_model.dart';
 

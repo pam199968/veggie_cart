@@ -1,4 +1,7 @@
 // ignore_for_file: unused_import
+// Copyright (c) 2025 Patrick Mortas
+// All rights reserved.
+
 import 'print_util_stub.dart'
     if (dart.library.js_interop) 'print_util_web.dart'
     if (dart.library.io) 'print_util_mobile.dart';

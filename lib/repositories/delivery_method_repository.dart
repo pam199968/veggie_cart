@@ -1,3 +1,6 @@
+// Copyright (c) 2025 Patrick Mortas
+// All rights reserved.
+
 import '../models/delivery_method_config.dart';
 import '../services/delivery_method_service.dart';
 

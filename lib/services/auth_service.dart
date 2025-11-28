@@ -1,3 +1,6 @@
+// Copyright (c) 2025 Patrick Mortas
+// All rights reserved.
+
 import 'package:firebase_auth/firebase_auth.dart';
 
 class AuthService {

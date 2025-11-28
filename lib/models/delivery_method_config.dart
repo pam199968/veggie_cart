@@ -1,3 +1,6 @@
+// Copyright (c) 2025 Patrick Mortas
+// All rights reserved.
+
 class DeliveryMethodConfig {
   final String key; // ex: "farmPickup"
   final String label; // ex: "Retrait à la ferme"

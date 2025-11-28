@@ -1,3 +1,6 @@
+// Copyright (c) 2025 Patrick Mortas
+// All rights reserved.
+
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 import '../models/delivery_method_config.dart';
