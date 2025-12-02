@@ -1,6 +1,3 @@
-// Copyright (c) 2025 Patrick Mortas
-// All rights reserved.
-
 // ignore: unused_import
 import 'package:intl/intl.dart' as intl;
 import 'app_localizations.dart';
@@ -485,6 +482,12 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get confirmCancelOrder => 'Confirmer l\'annulation';
+
+  @override
+  String get confirmDeletion => 'Confirmation';
+
+  @override
+  String get deleteConfirmMessage => 'Voulez-vous vraiment supprimer';
 
   @override
   String get yes => 'oui';

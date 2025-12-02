@@ -155,6 +155,8 @@
   "errorLoadingData": "Error Loading Data",
   "cancelOrder": "Cancel Order",
   "confirmCancelOrder": "Confirm",
+  "confirmDeletion": "Confirmation",
+  "deleteConfirmMessage": "Confirm deletion",
   "yes": "yes",
   "no": "no"
 }

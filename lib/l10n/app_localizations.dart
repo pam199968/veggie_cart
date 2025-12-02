@@ -1,6 +1,3 @@
-// Copyright (c) 2025 Patrick Mortas
-// All rights reserved.
-
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
@@ -1036,6 +1033,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Confirm'**
   String get confirmCancelOrder;
+
+  /// No description provided for @confirmDeletion.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirmation'**
+  String get confirmDeletion;
+
+  /// No description provided for @deleteConfirmMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm deletion'**
+  String get deleteConfirmMessage;
 
   /// No description provided for @yes.
   ///

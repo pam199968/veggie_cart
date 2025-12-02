@@ -155,6 +155,8 @@
   "errorLoadingData": "Erreur lors du chargement des clients",
   "cancelOrder": "Annuler la commande",
   "confirmCancelOrder": "Confirmer l'annulation",
+  "confirmDeletion": "Confirmation",
+  "deleteConfirmMessage": "Voulez-vous vraiment supprimer",
   "yes": "oui",
   "no": "non"
 }

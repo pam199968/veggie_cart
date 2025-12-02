@@ -49,7 +49,7 @@ class _CatalogPageContentState extends State<CatalogPageContent> {
                 child: VegetableCard(
                   vegetable: veg,
                   onToggleActive: () => vm.toggleActive(veg),
-                  onDelete: () => vm.deleteVegetable(veg.id),
+                  onDelete: () => _confirmDelete(context, vm, veg),
                   onEdit: () => _showEditVegetableDialog(context, vm, veg),
                 ),
               );
@@ -65,6 +65,33 @@ class _CatalogPageContentState extends State<CatalogPageContent> {
       ),
     );
   }
+
+void _confirmDelete(BuildContext context, CatalogViewModel vm, VegetableModel veg) {
+  showDialog(
+    context: context,
+    builder: (context) {
+      return AlertDialog(
+        title: Text(context.l10n.confirmDeletion),
+        content: Text('${context.l10n.deleteConfirmMessage} "${veg.name}" ?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(context.l10n.cancel),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              vm.deleteVegetable(veg.id);
+              Navigator.pop(context);
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            child: Text(context.l10n.delete),
+          ),
+        ],
+      );
+    },
+  );
+}
+
 
   Widget _buildSearchAndFilter(BuildContext context, CatalogViewModel vm) {
     return Padding(
