@@ -1057,6 +1057,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'no'**
   String get no;
+
+  /// No description provided for @dashboard.
+  ///
+  /// In en, this message translates to:
+  /// **'Dashboard'**
+  String get dashboard;
 }
 
 class _AppLocalizationsDelegate

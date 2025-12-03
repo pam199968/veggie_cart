@@ -494,4 +494,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get no => 'non';
+
+  @override
+  String get dashboard => 'Tableau de bord';
 }

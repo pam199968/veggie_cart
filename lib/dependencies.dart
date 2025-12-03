@@ -2,9 +2,11 @@
 // Copyright (c) 2025 Patrick Mortas
 // All rights reserved.
 
+import 'package:au_bio_jardin_app/services/dashboard_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'repositories/dashboard_repository.dart';
 import 'repositories/delivery_method_repository.dart';
 import 'services/delivery_method_service.dart';
 
@@ -27,6 +29,7 @@ import 'repositories/order_repository.dart';
 import 'viewmodels/account_view_model.dart';
 import 'viewmodels/catalog_view_model.dart';
 import 'viewmodels/customer_orders_view_model.dart';
+import 'viewmodels/dashboard_view_model.dart';
 import 'viewmodels/delivery_method_view_model.dart';
 import 'viewmodels/weekly_offers_view_model.dart';
 import 'viewmodels/my_orders_view_model.dart';
@@ -43,6 +46,7 @@ Widget buildApp({
   WeeklyOffersService? weeklyOffersService,
   OrderService? orderService,
   DeliveryMethodService? deliveryMethodService,
+  DashboardService? dashboardService,
 }) {
   return MultiProvider(
     providers: [
@@ -58,6 +62,9 @@ Widget buildApp({
         create: (_) => weeklyOffersService ?? WeeklyOffersService(),
       ),
       Provider<OrderService>(create: (_) => orderService ?? OrderService()),
+      Provider<DashboardService>(
+        create: (_) => dashboardService ?? DashboardService(),
+      ),
 
       // ----------------------
       // 🧩 Repositories
@@ -84,7 +91,12 @@ Widget buildApp({
         create: (context) =>
             OrderRepository(service: context.read<OrderService>()),
       ),
-
+      Provider<DashboardRepository>(
+        create: (context) => DashboardRepository(
+          dashboardService: context.read<DashboardService>(),
+          userService: context.read<UserService>(),
+        ),
+      ),  
       // ----------------------
       // 🧩 ViewModels (ChangeNotifier)
       // ----------------------
@@ -126,6 +138,11 @@ Widget buildApp({
           accountViewModel: context.read<AccountViewModel>(),
           weeklyOffersViewModel: context.read<WeeklyOffersViewModel>(),
           orderRepository: context.read<OrderRepository>(),
+        ),
+      ),
+      ChangeNotifierProvider<DashboardViewModel>(
+        create: (context) => DashboardViewModel(
+          repository: context.read<DashboardRepository>(),
         ),
       ),
     ],

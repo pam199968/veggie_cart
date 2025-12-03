@@ -493,4 +493,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get no => 'no';
+
+  @override
+  String get dashboard => 'Dashboard';
 }

@@ -158,5 +158,6 @@
   "confirmDeletion": "Confirmation",
   "deleteConfirmMessage": "Confirm deletion",
   "yes": "yes",
-  "no": "no"
+  "no": "no",
+  "dashboard": "Dashboard"
 }

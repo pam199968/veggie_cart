@@ -24,6 +24,7 @@ import 'login_content.dart';
 import 'my_orders_page_content.dart';
 import 'offers_page_content.dart';
 import 'profile_page.dart';
+import 'dashboard_page_content.dart';
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});
@@ -59,7 +60,7 @@ class _MyHomePageState extends State<MyHomePage> {
     if (profile == Profile.customer) {
       _currentPage = 'weekly_offers';
     } else if (profile == Profile.gardener) {
-      _currentPage = 'customer_orders';
+      _currentPage = 'dashboard';
     } else {
       _currentPage = '';
     }
@@ -93,6 +94,9 @@ class _MyHomePageState extends State<MyHomePage> {
       );
     } else {
       switch (_currentPage) {
+        case 'dashboard':
+          bodyContent = const DashboardPageContent();
+          break;
         case 'weekly_offers':
           bodyContent = OffersPageContent();
           break;
@@ -208,6 +212,12 @@ class _MyHomePageState extends State<MyHomePage> {
                     ),
                   ],
                   if (accountVM.currentUser.profile == Profile.gardener) ...[
+                    ListTile(
+                      leading: const Icon(Icons.dashboard),
+                      title: const Text("Tableau de bord"),
+                      selected: _currentPage == 'dashboard',
+                      onTap: () => _navigateTo('dashboard'),
+                    ),
                     ListTile(
                       leading: const Icon(Icons.local_offer),
                       title: Text(context.l10n.offersManagement),

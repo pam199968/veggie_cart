@@ -158,5 +158,6 @@
   "confirmDeletion": "Confirmation",
   "deleteConfirmMessage": "Voulez-vous vraiment supprimer",
   "yes": "oui",
-  "no": "non"
+  "no": "non",
+  "dashboard": "Tableau de bord"
 }
