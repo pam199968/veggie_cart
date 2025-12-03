@@ -217,7 +217,8 @@ class AccountViewModel extends ChangeNotifier {
   }
 
   bool isPasswordValid(String password) {
-    final passwordRegex = RegExp(r'^(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}');
+    final passwordRegex = RegExp(r'^(?=.*[A-Z])(?=.*\d)[^\s]{8,}$');
+    // Doit contenir au moins 8 caractères, une majuscule et un chiffre
     return passwordRegex.hasMatch(password);
   }
 
