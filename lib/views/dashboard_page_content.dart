@@ -143,8 +143,6 @@ class _DashboardPageContentState extends State<DashboardPageContent> {
                 children: [
                   _chip("Sem."),
                   _chip("Mois"),
-                  _chip("Trim."),
-                  _chip("Année"),
                   _chip("Perso.", custom: true),
                 ],
               ),
