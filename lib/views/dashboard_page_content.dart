@@ -15,7 +15,7 @@ class DashboardPageContent extends StatefulWidget {
 
 class _DashboardPageContentState extends State<DashboardPageContent> {
   late DateTimeRange selectedRange;
-  String selectedPreset = "Semaine"; // valeur par défaut
+  String selectedPreset = "Sem."; // valeur par défaut
 
   @override
   void initState() {
@@ -41,7 +41,7 @@ class _DashboardPageContentState extends State<DashboardPageContent> {
     late DateTimeRange newRange;
 
     switch (preset) {
-      case "Semaine":
+      case "Sem.":
         newRange = _defaultWeekRange();
         break;
 
@@ -51,7 +51,7 @@ class _DashboardPageContentState extends State<DashboardPageContent> {
         newRange = DateTimeRange(start: start, end: end);
         break;
 
-      case "Trimestre":
+      case "Trim.":
         final quarter = ((now.month - 1) ~/ 3) + 1;
         final start = DateTime(now.year, (quarter - 1) * 3 + 1, 1);
         final end = DateTime(now.year, quarter * 3 + 1, 0);
@@ -74,7 +74,11 @@ class _DashboardPageContentState extends State<DashboardPageContent> {
 
   // 🔹 Sélection personnalisée via DateRangePicker
   Future<void> _selectCustomRange() async {
-    final firstDate = DateTime(selectedRange.start.year - 1, selectedRange.start.month, 1);
+    final firstDate = DateTime(
+      selectedRange.start.year - 1,
+      selectedRange.start.month,
+      1,
+    );
 
     final picked = await showDateRangePicker(
       context: context,
@@ -86,9 +90,9 @@ class _DashboardPageContentState extends State<DashboardPageContent> {
       useRootNavigator: true,
     );
 
-    if (picked != null) {
+    if (picked != null && mounted) {
       selectedRange = picked;
-      selectedPreset = "Personnalisée";
+      selectedPreset = "Perso.";
       setState(() => selectedRange = picked);
       context.read<DashboardViewModel>().loadDashboard(picked);
     }
@@ -128,20 +132,20 @@ class _DashboardPageContentState extends State<DashboardPageContent> {
     return Card(
       elevation: 0,
       color: Theme.of(context).colorScheme.surfaceContainerHighest,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
         child: Row(
           children: [
             Expanded(
               child: Wrap(
-                spacing: 8,
+                spacing: 4,
                 children: [
-                  _chip("Semaine"),
+                  _chip("Sem."),
                   _chip("Mois"),
-                  _chip("Trimestre"),
+                  _chip("Trim."),
                   _chip("Année"),
-                  _chip("Personnalisée", custom: true),
+                  _chip("Perso.", custom: true),
                 ],
               ),
             ),
@@ -159,9 +163,7 @@ class _DashboardPageContentState extends State<DashboardPageContent> {
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(label),
-          if (isSelected) ...[
-            const SizedBox(width: 4),
-          ],
+          if (isSelected) ...[const SizedBox(width: 4)],
         ],
       ),
       selected: isSelected,
@@ -186,42 +188,44 @@ class _DashboardPageContentState extends State<DashboardPageContent> {
           children: [
             Expanded(
               child: _metricCard(
-                title: "Commandes en attente",
+                title: context.l10n.pendingOrders,
                 value: vm.pendingOrders.toString(),
                 icon: Icons.pending,
                 iconColor: Colors.orange,
-                label: "Commandes en attente", // nouveau libellé
+                //label: "Commandes en attente", // nouveau libellé
               ),
             ),
             const SizedBox(width: 16),
             Expanded(
               child: _metricCard(
-                title: "Livrées / Prêtes",
+                title: context.l10n.deliveredOrders,
                 value: vm.deliveredOrReady.toString(),
                 icon: Icons.check_circle,
                 iconColor: Colors.green,
-                label: "Commandes livrées",
+                //label: "Commandes livrées",
               ),
             ),
           ],
         ),
         const SizedBox(height: 16),
         _metricCard(
-          title: "Quantités par légume",
-          icon: Icons.eco,
-          label: "Quantités vendues par légume (top 10)",
+          title: context.l10n.qtyByVegetable,
+          icon: Icons.leaderboard,
+          iconColor: Colors.indigo,
+          label: context.l10n.qtyByVegetableLabel,
           valueWidget: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: vm.quantitiesByVeg.entries
-                .map((e) => Text("${e.key} : ${e.value['label']}"))
+                .map((e) => Text("• ${e.key} : ${e.value['label']}"))
                 .toList(),
           ),
         ),
         const SizedBox(height: 16),
         _metricCard(
-          title: "Ventes par client / légume (top 10)",
+          title: context.l10n.qtyByCustomer,
           icon: Icons.person,
-          label: "Top 10 légumes par client",
+          iconColor: Colors.teal,
+          label: context.l10n.qtyByCustomerLabel,
           valueWidget: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: vm.salesByCustomerVeg.entries.map((entry) {
@@ -234,12 +238,11 @@ class _DashboardPageContentState extends State<DashboardPageContent> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      "Client : $customer",
+                      customer,
                       style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
                     ...veggies.entries
-                        .map((v) => Text("• ${v.key} : ${v.value['label']}"))
-                        .toList(),
+                        .map((v) => Text("• ${v.key} : ${v.value['label']}")),
                   ],
                 ),
               );
@@ -253,7 +256,7 @@ class _DashboardPageContentState extends State<DashboardPageContent> {
   Widget _metricCard({
     required String title,
     required IconData icon,
-    Color? iconColor, 
+    Color? iconColor,
     String? value,
     Widget? valueWidget,
     String? label,
@@ -268,34 +271,71 @@ class _DashboardPageContentState extends State<DashboardPageContent> {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Column(
-              children: [
-                Icon(icon, size: 32, color: iconColor ?? Theme.of(context).iconTheme.color),
-                if (label != null)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 4),
-                    child: SizedBox(
-                      width: 100,
-                      child: Text(
-                        label,
-                        style: Theme.of(
-                          context,
-                        ).textTheme.bodySmall?.copyWith(fontSize: 12),
-                        textAlign: TextAlign.center,
+            // 🔹 Colonne icône + libellé
+            Expanded(
+              child: Column(
+                children: [
+                  Icon(
+                    icon,
+                    size: 32,
+                    color: iconColor ?? Theme.of(context).iconTheme.color,
+                  ),
+                  if (label != null)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8),
+                      child: SizedBox(
+                        width: 100,
+                        child: Text(
+                          label,
+                          style: Theme.of(
+                            context,
+                          ).textTheme.bodySmall?.copyWith(fontSize: 12),
+                          textAlign: TextAlign.center,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
                     ),
-                  ),
-              ],
+                ],
+              ),
             ),
+
             const SizedBox(width: 16),
-            Expanded(
-              child:
-                  valueWidget ??
+
+            // 🔹 Colonne valeur SOUS le titre
+            if (valueWidget == null)
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
                   Text(
                     value ?? "",
                     style: Theme.of(context).textTheme.headlineSmall,
                   ),
-            ),
+                ],
+              )
+            else
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    valueWidget,
+                  ],
+                ),
+              ),
           ],
         ),
       ),

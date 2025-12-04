@@ -497,4 +497,22 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get dashboard => 'Tableau de bord';
+
+  @override
+  String get pendingOrders => 'Commandes\n en attente';
+
+  @override
+  String get deliveredOrders => 'Commandes\n livrées / prêtes';
+
+  @override
+  String get qtyByVegetable => 'Quantité par légume';
+
+  @override
+  String get qtyByCustomer => 'Quantité par client / légume';
+
+  @override
+  String get qtyByCustomerLabel => 'Top 10 par client';
+
+  @override
+  String get qtyByVegetableLabel => 'Top 10';
 }

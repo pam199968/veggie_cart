@@ -159,5 +159,11 @@
   "deleteConfirmMessage": "Confirm deletion",
   "yes": "yes",
   "no": "no",
-  "dashboard": "Dashboard"
+  "dashboard": "Dashboard",
+  "pendingOrders": "Pending Orders",
+  "deliveredOrders": "Delivered / ready orders",
+  "qtyByVegetable": "Quantity by vegetable",
+  "qtyByCustomer": "Quantity by customer",
+  "qtyByCustomerLabel": "Top 10 by customer",
+  "qtyByVegetableLabel": "Top 10"
 }

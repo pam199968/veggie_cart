@@ -1063,6 +1063,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Dashboard'**
   String get dashboard;
+
+  /// No description provided for @pendingOrders.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending Orders'**
+  String get pendingOrders;
+
+  /// No description provided for @deliveredOrders.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivered / ready orders'**
+  String get deliveredOrders;
+
+  /// No description provided for @qtyByVegetable.
+  ///
+  /// In en, this message translates to:
+  /// **'Quantity by vegetable'**
+  String get qtyByVegetable;
+
+  /// No description provided for @qtyByCustomer.
+  ///
+  /// In en, this message translates to:
+  /// **'Quantity by customer'**
+  String get qtyByCustomer;
+
+  /// No description provided for @qtyByCustomerLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Top 10 by customer'**
+  String get qtyByCustomerLabel;
+
+  /// No description provided for @qtyByVegetableLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Top 10'**
+  String get qtyByVegetableLabel;
 }
 
 class _AppLocalizationsDelegate

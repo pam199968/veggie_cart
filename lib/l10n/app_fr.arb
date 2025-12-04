@@ -159,5 +159,11 @@
   "deleteConfirmMessage": "Voulez-vous vraiment supprimer",
   "yes": "oui",
   "no": "non",
-  "dashboard": "Tableau de bord"
+  "dashboard": "Tableau de bord",
+  "pendingOrders": "Commandes\n en attente",
+  "deliveredOrders": "Commandes\n livrées / prêtes",
+  "qtyByVegetable": "Quantité par légume",
+  "qtyByCustomer": "Quantité par client / légume",
+  "qtyByCustomerLabel": "Top 10 par client",
+  "qtyByVegetableLabel": "Top 10"
 }

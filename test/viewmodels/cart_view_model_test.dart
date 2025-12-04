@@ -1,12 +1,10 @@
 import 'package:au_bio_jardin_app/models/order_model.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:mockito/annotations.dart';
 
 import 'package:au_bio_jardin_app/models/weekly_offer.dart';
 import 'package:au_bio_jardin_app/models/vegetable_model.dart';
-import 'package:au_bio_jardin_app/models/order_item.dart';
 import 'package:au_bio_jardin_app/models/user_model.dart';
 import 'package:au_bio_jardin_app/models/profile.dart';
 import 'package:au_bio_jardin_app/models/delivery_method_config.dart';

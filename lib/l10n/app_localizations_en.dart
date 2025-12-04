@@ -496,4 +496,22 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get dashboard => 'Dashboard';
+
+  @override
+  String get pendingOrders => 'Pending Orders';
+
+  @override
+  String get deliveredOrders => 'Delivered / ready orders';
+
+  @override
+  String get qtyByVegetable => 'Quantity by vegetable';
+
+  @override
+  String get qtyByCustomer => 'Quantity by customer';
+
+  @override
+  String get qtyByCustomerLabel => 'Top 10 by customer';
+
+  @override
+  String get qtyByVegetableLabel => 'Top 10';
 }
