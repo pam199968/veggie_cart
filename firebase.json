@@ -1,67 +1,74 @@
 {
-  "flutter": {
-    "platforms": {
-      "android": {
-        "default": {
-          "projectId": "veggieharvest",
-          "appId": "1:806207618403:android:ce0ec965592663f36aa756",
-          "fileOutput": "android/app/google-services.json"
+    "flutter": {
+        "platforms": {
+            "android": {
+                "default": {
+                    "projectId": "aubiojardin-7e4a1",
+                    "appId": "1:432012327914:android:ef805982b9c46c45fb9093",
+                    "fileOutput": "android/app/google-services.json"
+                }
+            },
+            "dart": {
+                "lib/firebase_options_test.dart": {
+                    "projectId": "veggieharvest",
+                    "configurations": {
+                        "android": "1:806207618403:android:ce0ec965592663f36aa756",
+                        "web": "1:806207618403:web:e436ffd119e5b6b96aa756"
+                    }
+                },
+                "lib/firebase_options_prod.dart": {
+                    "projectId": "aubiojardin-7e4a1",
+                    "configurations": {
+                        "android": "1:432012327914:android:ef805982b9c46c45fb9093",
+                        "web": "1:432012327914:web:eb2ebc343bee5b4dfb9093"
+                    }
+                }
+            }
         }
-      },
-      "dart": {
-        "lib/firebase_options.dart": {
-          "projectId": "veggieharvest",
-          "configurations": {
-            "android": "1:806207618403:android:ce0ec965592663f36aa756",
-            "web": "1:806207618403:web:e436ffd119e5b6b96aa756"
-          }
+    },
+    "functions": [
+        {
+            "source": "functions",
+            "codebase": "default",
+            "ignore": [
+                "node_modules",
+                ".git",
+                "firebase-debug.log",
+                "firebase-debug.*.log",
+                "*.local"
+            ],
+            "predeploy": [
+                "npm --prefix \"$RESOURCE_DIR\" run lint"
+            ]
         }
-      }
-    }
-  },
-  "functions": [
-    {
-      "source": "functions",
-      "codebase": "default",
-      "ignore": [
-        "node_modules",
-        ".git",
-        "firebase-debug.log",
-        "firebase-debug.*.log",
-        "*.local"
-      ],
-      "predeploy": [
-        "npm --prefix \"$RESOURCE_DIR\" run lint"
-      ]
-    }
-  ],
-  "hosting": {
-    "public": "build/web",
-    "ignore": [
-      "firebase.json",
-      "**/.*",
-      "**/node_modules/**"
     ],
-    "rewrites": [
-      {
-        "source": "**",
-        "destination": "/index.html"
-      }
-    ],
-    "headers": [
-      {
-        "source": "**",
+    "hosting": {
+        "public": "build/web",
+        "ignore": [
+            "firebase.json",
+            "**/.*",
+            "**/node_modules/**"
+        ],
+        "rewrites": [
+            {
+                "source": "**",
+                "destination": "/index.html"
+            }
+        ],
         "headers": [
-          {
-            "key": "Cross-Origin-Embedder-Policy",
-            "value": "credentialless"
-          },
-          {
-            "key": "Cross-Origin-Opener-Policy",
-            "value": "same-origin-allow-popups"
-          }
+            {
+                "source": "**",
+                "headers": [
+                    {
+                        "key": "Cross-Origin-Embedder-Policy",
+                        "value": "credentialless"
+                    },
+                    {
+                        "key": "Cross-Origin-Opener-Policy",
+                        "value": "same-origin-allow-popups"
+                    }
+                ]
+            }
         ]
-      }
-    ]
-  }
+    }
 }

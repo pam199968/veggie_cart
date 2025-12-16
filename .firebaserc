@@ -1,5 +1,8 @@
 {
   "projects": {
-    "default": "veggieharvest"
-  }
+    "prod": "aubiojardin-7e4a1",
+    "test": "veggieharvest"
+  },
+  "targets": {},
+  "etags": {}
 }

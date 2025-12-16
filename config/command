@@ -1,1 +1,12 @@
+### Configuration de l'accès aux images
 gsutil cors set cors.json gs://veggieharvest.firebasestorage.app
+
+### génération des mocks pour les tests
+flutter pub run build_runner build --delete-conflicting-outputs
+
+### Build de la production
+flutter build appbundle --release --dart-define=ENV=prod
+flutter build web --release --dart-define=ENV=prod
+
+### Déploiement de l'application web en production
+firebase deploy --only hosting --project prod
