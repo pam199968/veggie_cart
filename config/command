@@ -1,6 +1,8 @@
 ### Configuration de l'accès aux images
 gsutil cors set cors.json gs://veggieharvest.firebasestorage.app
 
+gsutil cors set cors_prod.json gs://aubiojardin-7e4a1.firebasestorage.app
+
 ### génération des mocks pour les tests
 flutter pub run build_runner build --delete-conflicting-outputs
 
