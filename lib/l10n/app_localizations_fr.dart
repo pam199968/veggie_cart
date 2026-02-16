@@ -362,6 +362,28 @@ class AppLocalizationsFr extends AppLocalizations {
   String get addVegetable => 'Ajouter un légume';
 
   @override
+  String get importFromExcel => 'Importer depuis Excel';
+
+  @override
+  String get importInProgress => 'Import en cours ...';
+
+  @override
+  String get importPreview => 'Prévisualisation de l\'import';
+
+  @override
+  String importNVegetables(Object length) {
+    return 'Importer $length légume(s)';
+  }
+
+  @override
+  String nVegetablesImported(Object total) {
+    return '$total légume(s) importés';
+  }
+
+  @override
+  String get duplicateVegetableWarning => '⚠️ Doublon détecté';
+
+  @override
   String get noVegetablesSelected => 'Aucun légume sélectionné';
 
   @override

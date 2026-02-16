@@ -4,6 +4,9 @@
 import 'package:flutter/material.dart';
 
 import 'package:provider/provider.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:excel/excel.dart';
+import 'dart:io' show File;
 
 import '../extensions/context_extension.dart';
 import '../models/vegetable_model.dart';
@@ -58,40 +61,56 @@ class _CatalogPageContentState extends State<CatalogPageContent> {
           const SizedBox(height: 80),
         ],
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => _showAddVegetableDialog(context, vm),
-        icon: const Icon(Icons.add),
-        label: Text(context.l10n.addVegetable),
+      floatingActionButton: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          FloatingActionButton.extended(
+            heroTag: "import",
+            onPressed: () => _importFromExcel(context, vm),
+            icon: const Icon(Icons.upload_file),
+            label: Text(context.l10n.importFromExcel),
+          ),
+          const SizedBox(height: 8),
+          FloatingActionButton.extended(
+            heroTag: "add",
+            onPressed: () => _showAddVegetableDialog(context, vm),
+            icon: const Icon(Icons.add),
+            label: Text(context.l10n.addVegetable),
+          ),
+        ],
       ),
     );
   }
 
-void _confirmDelete(BuildContext context, CatalogViewModel vm, VegetableModel veg) {
-  showDialog(
-    context: context,
-    builder: (context) {
-      return AlertDialog(
-        title: Text(context.l10n.confirmDeletion),
-        content: Text('${context.l10n.deleteConfirmMessage} "${veg.name}" ?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(context.l10n.cancel),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              vm.deleteVegetable(veg.id);
-              Navigator.pop(context);
-            },
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-            child: Text(context.l10n.delete),
-          ),
-        ],
-      );
-    },
-  );
-}
-
+  void _confirmDelete(
+    BuildContext context,
+    CatalogViewModel vm,
+    VegetableModel veg,
+  ) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text(context.l10n.confirmDeletion),
+          content: Text('${context.l10n.deleteConfirmMessage} "${veg.name}" ?'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text(context.l10n.cancel),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                vm.deleteVegetable(veg.id);
+                Navigator.pop(context);
+              },
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+              child: Text(context.l10n.delete),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   Widget _buildSearchAndFilter(BuildContext context, CatalogViewModel vm) {
     return Padding(
@@ -318,6 +337,196 @@ void _confirmDelete(BuildContext context, CatalogViewModel vm, VegetableModel ve
           },
         );
       },
+    );
+  }
+
+  Future<void> _importFromExcel(
+    BuildContext context,
+    CatalogViewModel vm,
+  ) async {
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['xlsx'],
+      withData: true,
+    );
+
+    if (result == null || result.files.isEmpty) return;
+
+    final file = result.files.single;
+    final bytes = file.bytes ?? await File(file.path!).readAsBytes();
+
+    final excel = Excel.decodeBytes(bytes);
+    final sheet = excel.tables.values.first;
+
+    // 🔹 Lire Excel
+    final List<VegetableModel> imported = [];
+    for (int i = 1; i < sheet.rows.length; i++) {
+      final row = sheet.rows[i];
+
+      final model = VegetableModel(
+        id: DateTime.now().millisecondsSinceEpoch.toString() + i.toString(),
+        name: row[0]?.value?.toString().trim() ?? '',
+        category: VegetableCategoryExtension.fromString(
+          row[1]?.value?.toString().trim() ?? 'other',
+        ),
+        description: row[2]?.value?.toString(),
+        packaging: row[3]?.value?.toString().trim() ?? '',
+        standardQuantity: double.tryParse(row[4]?.value?.toString() ?? ''),
+        price: double.tryParse(row[5]?.value?.toString() ?? ''),
+        active: (row[6]?.value?.toString().toLowerCase() ?? 'true') == 'true',
+        image: row[7]?.value?.toString(),
+      );
+
+      if (model.name.isNotEmpty && model.packaging.isNotEmpty) {
+        imported.add(model);
+      }
+    }
+
+    // 🔹 Charger existants
+    final existing = await vm.catalogRepository.getAllActiveVegetables(
+      forceRefresh: true,
+    );
+
+    final existingNames = existing.map((e) => e.name.toLowerCase()).toSet();
+
+    // 🔹 Construire preview
+    final List<_PreviewRow> preview = imported.map((v) {
+      final isDuplicate = existingNames.contains(v.name.toLowerCase());
+      return _PreviewRow(
+        vegetable: v,
+        isDuplicate: isDuplicate,
+        selected: !isDuplicate,
+      );
+    }).toList();
+
+    // 🔹 Dialog preview
+    showDialog(
+      context: context,
+      builder: (_) {
+        return _ImportPreviewDialog(
+          rows: preview,
+          onConfirm: (selected, onProgress) async {
+            final total = selected.length;
+
+            for (int i = 0; i < total; i++) {
+              await vm.addVegetable(selected[i].vegetable);
+              onProgress((i + 1) / total);
+            }
+
+            if (!context.mounted) return;
+
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(SnackBar(content: Text(context.l10n.nVegetablesImported(total))));
+          },
+        );
+      },
+    );
+  }
+}
+
+class _PreviewRow {
+  final VegetableModel vegetable;
+  final bool isDuplicate;
+  bool selected;
+
+  _PreviewRow({
+    required this.vegetable,
+    required this.isDuplicate,
+    required this.selected,
+  });
+}
+
+class _ImportPreviewDialog extends StatefulWidget {
+  final List<_PreviewRow> rows;
+  final Future<void> Function(
+    List<_PreviewRow> selected,
+    void Function(double progress) onProgress,
+  )
+  onConfirm;
+
+  const _ImportPreviewDialog({required this.rows, required this.onConfirm});
+
+  @override
+  State<_ImportPreviewDialog> createState() => _ImportPreviewDialogState();
+}
+
+class _ImportPreviewDialogState extends State<_ImportPreviewDialog> {
+  bool _isImporting = false;
+  double _progress = 0;
+
+  @override
+  Widget build(BuildContext context) {
+    final selected = widget.rows.where((e) => e.selected).toList();
+
+    return AlertDialog(
+      title: Text(context.l10n.importPreview),
+      content: SizedBox(
+        width: 500,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (_isImporting) ...[
+              LinearProgressIndicator(value: _progress),
+              const SizedBox(height: 8),
+              Text('${(_progress * 100).toStringAsFixed(0)} %'),
+              const SizedBox(height: 16),
+            ],
+            Expanded(
+              child: ListView(
+                shrinkWrap: true,
+                children: widget.rows.map((row) {
+                  return CheckboxListTile(
+                    value: row.selected,
+                    onChanged: _isImporting || row.isDuplicate
+                        ? null
+                        : (val) {
+                            setState(() {
+                              row.selected = val ?? false;
+                            });
+                          },
+                    title: Text(row.vegetable.name),
+                    subtitle: row.isDuplicate
+                        ? Text(
+                            context.l10n.duplicateVegetableWarning,
+                            style: TextStyle(color: Colors.orange),
+                          )
+                        : Text(row.vegetable.category.label),
+                  );
+                }).toList(),
+              ),
+            ),
+          ],
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: _isImporting ? null : () => Navigator.pop(context),
+          child: Text(context.l10n.cancel),
+        ),
+        ElevatedButton(
+          onPressed: selected.isEmpty || _isImporting
+              ? null
+              : () async {
+                  setState(() {
+                    _isImporting = true;
+                    _progress = 0;
+                  });
+
+                  await widget.onConfirm(selected, (p) {
+                    if (!mounted) return;
+                    setState(() => _progress = p);
+                  });
+
+                  if (mounted) Navigator.pop(context);
+                },
+          child: Text(
+            _isImporting
+                ? context.l10n.importInProgress
+                : context.l10n.importNVegetables(selected.length),
+          ),
+        ),
+      ],
     );
   }
 }

@@ -794,6 +794,42 @@ abstract class AppLocalizations {
   /// **'Add Vegetable'**
   String get addVegetable;
 
+  /// No description provided for @importFromExcel.
+  ///
+  /// In en, this message translates to:
+  /// **'Import from Excel'**
+  String get importFromExcel;
+
+  /// No description provided for @importInProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'Import in progress...'**
+  String get importInProgress;
+
+  /// No description provided for @importPreview.
+  ///
+  /// In en, this message translates to:
+  /// **'Import preview'**
+  String get importPreview;
+
+  /// No description provided for @importNVegetables.
+  ///
+  /// In en, this message translates to:
+  /// **'Import {length} vegetable(s)'**
+  String importNVegetables(Object length);
+
+  /// No description provided for @nVegetablesImported.
+  ///
+  /// In en, this message translates to:
+  /// **'{total} vegetables imported'**
+  String nVegetablesImported(Object total);
+
+  /// No description provided for @duplicateVegetableWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'⚠️ Duplicate vegetable detected'**
+  String get duplicateVegetableWarning;
+
   /// No description provided for @noVegetablesSelected.
   ///
   /// In en, this message translates to:

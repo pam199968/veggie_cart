@@ -361,6 +361,28 @@ class AppLocalizationsEn extends AppLocalizations {
   String get addVegetable => 'Add Vegetable';
 
   @override
+  String get importFromExcel => 'Import from Excel';
+
+  @override
+  String get importInProgress => 'Import in progress...';
+
+  @override
+  String get importPreview => 'Import preview';
+
+  @override
+  String importNVegetables(Object length) {
+    return 'Import $length vegetable(s)';
+  }
+
+  @override
+  String nVegetablesImported(Object total) {
+    return '$total vegetables imported';
+  }
+
+  @override
+  String get duplicateVegetableWarning => '⚠️ Duplicate vegetable detected';
+
+  @override
   String get noVegetablesSelected => 'No vegetables selected';
 
   @override
