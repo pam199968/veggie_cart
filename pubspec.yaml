@@ -54,6 +54,8 @@ dependencies:
   package_info_plus: ^9.0.0
   flutter_secure_storage: ^10.0.0
   js_interop: ^0.0.1
+  file_picker: ^10.3.10
+  excel: ^4.0.6
 
 dev_dependencies:
   firebase_core_platform_interface: ^6.0.2
