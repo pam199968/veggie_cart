@@ -3,6 +3,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 import '../services/auth_service.dart';
 import '../services/user_service.dart';
 import '../models/user_model.dart';
@@ -280,6 +281,30 @@ class AccountRepository {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Erreur lors de la réactivation : $e')),
         );
+      }
+    }
+  }
+
+  Future<void> deleteUserWithAuth(BuildContext context, UserModel user) async {
+    try {
+      if (user.id == null) throw Exception('Utilisateur sans ID');
+
+      final callable = FirebaseFunctions.instance.httpsCallable(
+        'deleteUserAuth',
+      );
+
+      await callable.call({'uid': user.id});
+
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('${user.givenName} supprimé définitivement')),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Erreur suppression : $e')));
       }
     }
   }

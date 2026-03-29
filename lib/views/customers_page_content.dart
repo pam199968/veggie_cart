@@ -1,6 +1,7 @@
 // Copyright (c) 2025 Patrick Mortas
 // All rights reserved.
 
+import 'package:au_bio_jardin_app/models/profile.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../extensions/context_extension.dart';
@@ -137,31 +138,89 @@ class _CustomersPageContentState extends State<CustomersPageContent> {
                                   ),
                               ],
                             ),
-                            trailing: IconButton(
-                              icon: Icon(
-                                isActive ? Icons.lock : Icons.lock_open,
-                                color: isActive ? Colors.redAccent : Colors.greenAccent,
-                              ),
-                              tooltip: isActive
-                                  ? AppLocalizations.of(context)!.disableAccount
-                                  : AppLocalizations.of(
-                                      context,
-                                    )!.reactivateAccount,
-                              onPressed: () async {
-                                if (context.mounted) {
-                                  if (isActive) {
-                                    await accountVM.disableCustomerAccount(
-                                      context,
-                                      customer,
-                                    );
-                                  } else {
-                                    await accountVM.enableCustomerAccount(
-                                      context,
-                                      customer,
-                                    );
-                                  }
-                                }
-                              },
+                            trailing: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                // 🔒 Activer / désactiver
+                                IconButton(
+                                  icon: Icon(
+                                    isActive ? Icons.lock : Icons.lock_open,
+                                    color: isActive
+                                        ? Colors.redAccent
+                                        : Colors.greenAccent,
+                                  ),
+                                  tooltip: isActive
+                                      ? AppLocalizations.of(
+                                          context,
+                                        )!.disableAccount
+                                      : AppLocalizations.of(
+                                          context,
+                                        )!.reactivateAccount,
+                                  onPressed: () async {
+                                    if (context.mounted) {
+                                      if (isActive) {
+                                        await accountVM.disableCustomerAccount(
+                                          context,
+                                          customer,
+                                        );
+                                      } else {
+                                        await accountVM.enableCustomerAccount(
+                                          context,
+                                          customer,
+                                        );
+                                      }
+                                    }
+                                  },
+                                ),
+
+                                // 🗑️ SUPPRESSION (visible seulement pour gardener)
+                                if (accountVM.currentUser.profile ==
+                                    Profile.gardener)
+                                  IconButton(
+                                    icon: const Icon(
+                                      Icons.delete,
+                                      color: Colors.red,
+                                    ),
+                                    tooltip: "Supprimer",
+                                    onPressed: () async {
+                                      final confirm = await showDialog<bool>(
+                                        context: context,
+                                        builder: (_) => AlertDialog(
+                                          title: const Text(
+                                            "Confirmer la suppression",
+                                          ),
+                                          content: Text(
+                                            "Supprimer définitivement ${customer.givenName} ${customer.name} ?",
+                                          ),
+                                          actions: [
+                                            TextButton(
+                                              child: const Text("Annuler"),
+                                              onPressed: () =>
+                                                  Navigator.pop(context, false),
+                                            ),
+                                            TextButton(
+                                              child: const Text(
+                                                "Supprimer",
+                                                style: TextStyle(
+                                                  color: Colors.red,
+                                                ),
+                                              ),
+                                              onPressed: () =>
+                                                  Navigator.pop(context, true),
+                                            ),
+                                          ],
+                                        ),
+                                      );
+
+                                      if (confirm == true && context.mounted) {
+                                        await accountVM.deleteCustomer(
+                                          context,
+                                          customer,
+                                        );
+                                      }
+                                    },
+                                  ),
+                              ],
                             ),
                           ),
 

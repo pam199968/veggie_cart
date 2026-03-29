@@ -327,6 +327,18 @@ class MockAccountViewModel extends _i1.Mock implements _i6.AccountViewModel {
           as _i8.Future<void>);
 
   @override
+  _i8.Future<void> deleteCustomer(
+    _i9.BuildContext? context,
+    _i3.UserModel? user,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#deleteCustomer, [context, user]),
+            returnValue: _i8.Future<void>.value(),
+            returnValueForMissingStub: _i8.Future<void>.value(),
+          )
+          as _i8.Future<void>);
+
+  @override
   bool isPasswordValid(String? password) =>
       (super.noSuchMethod(
             Invocation.method(#isPasswordValid, [password]),

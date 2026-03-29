@@ -219,6 +219,18 @@ class MockAccountRepository extends _i1.Mock implements _i5.AccountRepository {
             returnValueForMissingStub: _i6.Future<void>.value(),
           )
           as _i6.Future<void>);
+
+  @override
+  _i6.Future<void> deleteUserWithAuth(
+    _i8.BuildContext? context,
+    _i7.UserModel? user,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#deleteUserWithAuth, [context, user]),
+            returnValue: _i6.Future<void>.value(),
+            returnValueForMissingStub: _i6.Future<void>.value(),
+          )
+          as _i6.Future<void>);
 }
 
 /// A class which mocks [FlutterSecureStorage].

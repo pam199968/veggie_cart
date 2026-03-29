@@ -216,6 +216,11 @@ class AccountViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> deleteCustomer(BuildContext context, UserModel user) async {
+    await accountRepository.deleteUserWithAuth(context, user);
+    notifyListeners();
+  }
+
   bool isPasswordValid(String password) {
     final passwordRegex = RegExp(r'^(?=.*[A-Z])(?=.*\d)[^\s]{8,}$');
     // Doit contenir au moins 8 caractères, une majuscule et un chiffre
