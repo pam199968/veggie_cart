@@ -337,6 +337,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deleteButton => 'Delete';
 
   @override
+  String get deleted => 'deleted';
+
+  @override
   String get editButton => 'Edit';
 
   @override

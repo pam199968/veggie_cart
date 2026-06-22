@@ -746,6 +746,12 @@ abstract class AppLocalizations {
   /// **'Delete'**
   String get deleteButton;
 
+  /// No description provided for @deleted.
+  ///
+  /// In en, this message translates to:
+  /// **'deleted'**
+  String get deleted;
+
   /// No description provided for @editButton.
   ///
   /// In en, this message translates to:

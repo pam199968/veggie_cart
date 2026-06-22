@@ -107,6 +107,7 @@
   "cancelButton": "Cancel",
   "saveButton": "Save",
   "deleteButton": "Delete",
+  "deleted": "deleted",
   "editButton": "Edit",
   "confirmDelete": "Are you sure you want to delete this offer?",
   "update": "Update",

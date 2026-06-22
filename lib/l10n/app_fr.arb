@@ -108,6 +108,7 @@
   "cancelButton": "Annuler",
   "saveButton": "Enregistrer",
   "deleteButton": "Supprimer",
+  "deleted": "supprimé(e)",
   "editButton": "Modifier",
   "confirmDelete": "Êtes-vous sûr de vouloir supprimer cette offre ?",
   "update": "Mettre à jour",
